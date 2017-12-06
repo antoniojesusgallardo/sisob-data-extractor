@@ -22,6 +22,7 @@ package eu.sisob.extractionWorks.npl.researchers;
 import eu.sisob.uma.npl.researchers.CVBlocks;
 import eu.sisob.uma.npl.researchers.DocumentSplitter;
 import eu.sisob.uma.footils.File.FileFootils;
+import eu.sisob.uma.npl.GateConstant;
 import gate.creole.ResourceInstantiationException;
 import java.net.MalformedURLException;
 import java.util.List;
@@ -57,16 +58,16 @@ public class DocumentSplitterTest {
             
             File home_path = new File(path);
             Gate.setGateHome(home_path);
-            File plugins_path = new File(home_path + "//plugins");
+            File plugins_path = new File(home_path + File.separator + GateConstant.DIRECTORY_PLUGINS);
             Gate.setPluginsHome(plugins_path);             
         
             Gate.init();
             
             File gateHome = new File(Gate.getGateHome().getAbsolutePath()/* + "\\resources\\GATE-6.0"*/);
-            File pluginsHome = new File(gateHome, "plugins");
+            File pluginsHome = new File(gateHome, GateConstant.DIRECTORY_PLUGINS);
             
-            Gate.getCreoleRegister().registerDirectories(new File(pluginsHome, "ANNIE").toURL());       
-            Gate.getCreoleRegister().registerDirectories(new File(pluginsHome, "Tools").toURL());
+            Gate.getCreoleRegister().registerDirectories(new File(pluginsHome, GateConstant.DIRECTORY_PLUGIN_ANNIE).toURL());       
+            Gate.getCreoleRegister().registerDirectories(new File(pluginsHome, GateConstant.DIRECTORY_PLUGIN_TOOLS).toURL());
         } 
         catch (Exception ex) 
         {

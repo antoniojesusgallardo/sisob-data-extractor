@@ -33,6 +33,7 @@ import eu.sisob.uma.restserver.services.communications.TasksParams;
 import eu.sisob.uma.restserver.services.crawler.CrawlerTask;
 import eu.sisob.uma.restserver.services.email.EmailTask;
 import eu.sisob.uma.restserver.services.gate.GateTask;
+import eu.sisob.uma.restserver.services.gateCH.GateTaskCH;
 import eu.sisob.uma.restserver.services.internalcvfiles.InternalCVFilesTask;
 import eu.sisob.uma.restserver.services.websearchers.WebSearcherCVTask;
 import eu.sisob.uma.restserver.services.websearchers.WebSearcherTask;
@@ -331,7 +332,14 @@ public class RESTSERVICETask {
                     
                     result.success = GateTask.launch(input.user, input.pass, input.task_code, code_task_folder, input.user, message, verbose, split);
                     result.message = message.toString();      
-                }                
+                }  
+                else if(input.task_kind.equals(GateTaskCH.NAME)) {   
+                    OutputTaskOperationResult resultCH = GateTaskCH.launch( input.user, 
+                                                                            input.pass, 
+                                                                            input.task_code);
+                    result.success = resultCH.success;
+                    result.message = resultCH.message;     
+                }
                 else
                 {
                     result.success = false;
@@ -510,6 +518,14 @@ public class RESTSERVICETask {
                     
                     result.success = GateTask.launch(input.user, input.pass, input.task_code, code_task_folder, input.user, message, verbose, split);
                     result.message = message.toString();      
+                }
+                else if(input.task_kind.equals(GateTaskCH.NAME)) {                       
+                    
+                    OutputTaskOperationResult resultCH = GateTaskCH.launch( input.user, 
+                                                                            input.pass, 
+                                                                            input.task_code);
+                    result.success = resultCH.success;
+                    result.message = resultCH.message;
                 }                
                 else
                 {

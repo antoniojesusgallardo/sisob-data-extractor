@@ -28,6 +28,7 @@ import eu.sisob.uma.api.prototypetextmining.DataInputRepository;
 import eu.sisob.uma.api.prototypetextmining.DataOutputRepository;
 import eu.sisob.uma.api.prototypetextmining.gatedataextractor.TextMiningParserGate;
 import eu.sisob.uma.api.prototypetextmining.globals.DataExchangeLiterals;
+import eu.sisob.uma.npl.GateConstant;
 import gate.util.GateException;
 import java.io.File;
 import java.util.logging.Level;
@@ -89,7 +90,7 @@ public class TextMiningParserGateResearcher extends TextMiningParserGate
             //String gate_path = ClassLoader.getSystemClassLoader().getResource("eu/sisob/components/gatedataextractor/GATE-6.0").getPath();                        
             //String gate_path = gate_path;
             
-            String plugins_gate_path = (gate_path + "//plugins");            
+            String plugins_gate_path = (gate_path + File.separator + GateConstant.DIRECTORY_PLUGINS);            
                         
             params = Factory.newFeatureMap();
             pr = (ProcessingResource) Factory.createResource("gate.creole.annotdelete.AnnotationDeletePR", params);
@@ -103,8 +104,8 @@ public class TextMiningParserGateResearcher extends TextMiningParserGate
             annieController.add(pr);
 
             params = Factory.newFeatureMap();
-            //file:/C:/Users/dlopez/Documents/NetBeansProjects/TextExtractionPrototypes/extractionsWorksGate/resources/GATE-6.0/plugins/ANNIE/resources/gazetteer/lists.def
-            String sListDefFilePathGazEurope = (new java.io.File(plugins_gate_path + "" + File.separator + "ANNIE" + File.separator + "resources" + File.separator + "gazetteer" + File.separator + "gazetters_locations" + File.separator + "gaz_locations_for_cv_extractor_europe_us_canada.def")).toURI().toString();                                                           
+            //file:/C:/Users/dlopez/Documents/NetBeansProjects/TextExtractionPrototypes/extractionsWorksGate/resources/GATE-6.0/plugins/annie/resources/gazetteer/lists.def
+            String sListDefFilePathGazEurope = (new java.io.File(plugins_gate_path + "" + File.separator + GateConstant.DIRECTORY_PLUGIN_ANNIE + File.separator + "resources" + File.separator + "gazetteer" + File.separator + "gazetters_locations" + File.separator + "gaz_locations_for_cv_extractor_europe_us_canada.def")).toURI().toString();                                                           
             params.put("listsURL", sListDefFilePathGazEurope);
             params.put("caseSensitive", false);
             //pr = (ProcessingResource) Factory.createResource("gate.creole.gazetteer.DefaultGazetteer", params);                        
@@ -112,48 +113,48 @@ public class TextMiningParserGateResearcher extends TextMiningParserGate
             annieController.add(pr);            
             
             params = Factory.newFeatureMap();
-            String sListDefFilePathGazNames = (new java.io.File(plugins_gate_path + "" + File.separator + "ANNIE" + File.separator + "resources" + File.separator + "gazetteer" + File.separator + "gazetters_names" + File.separator + "gaz_names_genres.def")).toURI().toString();                                                           
+            String sListDefFilePathGazNames = (new java.io.File(plugins_gate_path + "" + File.separator + GateConstant.DIRECTORY_PLUGIN_ANNIE + File.separator + "resources" + File.separator + "gazetteer" + File.separator + "gazetters_names" + File.separator + "gaz_names_genres.def")).toURI().toString();                                                           
             params.put("listsURL", sListDefFilePathGazNames);            
             pr = (ProcessingResource) Factory.createResource("gate.creole.gazetteer.DefaultGazetteer", params);            
             annieController.add(pr); 
             
             params = Factory.newFeatureMap();
-            String sListDefFilePathGazResearchers = (new java.io.File(plugins_gate_path + "" + File.separator + "ANNIE" + File.separator + "resources" + File.separator + "gazetteer" + File.separator + "gaz_researchers.def")).toURI().toString();                                                           
+            String sListDefFilePathGazResearchers = (new java.io.File(plugins_gate_path + "" + File.separator + GateConstant.DIRECTORY_PLUGIN_ANNIE + File.separator + "resources" + File.separator + "gazetteer" + File.separator + "gaz_researchers.def")).toURI().toString();                                                           
             params.put("listsURL", sListDefFilePathGazResearchers);            
             pr = (ProcessingResource) Factory.createResource("com.ontotext.gate.gazetteer.HashGazetteer", params);            
             annieController.add(pr); 
 
-            //ANNIE/resources/sentenceSplitter/gazetteer/lists.def
-            //ANNIE/resources/sentenceSplitter/grammar/main.jape
+            //annie/resources/sentenceSplitter/gazetteer/lists.def
+            //annie/resources/sentenceSplitter/grammar/main.jape
             params = Factory.newFeatureMap();
-            String def_gazetteerListsURL_file = (new java.io.File(plugins_gate_path + "" + File.separator + "ANNIE" + File.separator + "resources" + File.separator + "sentenceSplitter" + File.separator + "gazetteer"  + File.separator + "lists.def")).toURI().toString();                                                           
+            String def_gazetteerListsURL_file = (new java.io.File(plugins_gate_path + "" + File.separator + GateConstant.DIRECTORY_PLUGIN_ANNIE + File.separator + "resources" + File.separator + "sentenceSplitter" + File.separator + "gazetteer"  + File.separator + "lists.def")).toURI().toString();                                                           
             params.put("gazetteerListsURL", def_gazetteerListsURL_file);            
-            String def_transducerURL_file = (new java.io.File(plugins_gate_path + "" + File.separator + "ANNIE" + File.separator + "resources" + File.separator + "sentenceSplitter" + File.separator + "grammar" + File.separator + "main.jape")).toURI().toString();                                                           
+            String def_transducerURL_file = (new java.io.File(plugins_gate_path + "" + File.separator + GateConstant.DIRECTORY_PLUGIN_ANNIE + File.separator + "resources" + File.separator + "sentenceSplitter" + File.separator + "grammar" + File.separator + "main.jape")).toURI().toString();                                                           
             params.put("transducerURL", def_transducerURL_file);            
             //pr = (ProcessingResource) Factory.createResource("gate.creole.splitter.RegexSentenceSplitter", params);
             pr = (ProcessingResource) Factory.createResource("gate.creole.splitter.SentenceSplitter", params);
             annieController.add(pr);
 
-            //ANNIE/resources/heptag/lexicon
-            //ANNIE/resources/heptag/ruleset
+            //annie/resources/heptag/lexicon
+            //annie/resources/heptag/ruleset
             params = Factory.newFeatureMap();
-            String def_lexicon_file = (new java.io.File(plugins_gate_path + "" + File.separator + "ANNIE" + File.separator + "resources" + File.separator + "heptag" + File.separator + "lexicon")).toURI().toString();                                                           
+            String def_lexicon_file = (new java.io.File(plugins_gate_path + "" + File.separator + GateConstant.DIRECTORY_PLUGIN_ANNIE + File.separator + "resources" + File.separator + "heptag" + File.separator + "lexicon")).toURI().toString();                                                           
             params.put("lexiconURL", def_lexicon_file);            
-            String def_rules_file = (new java.io.File(plugins_gate_path + "" + File.separator + "ANNIE" + File.separator + "resources" + File.separator + "heptag" + File.separator + "ruleset")).toURI().toString();                                                           
+            String def_rules_file = (new java.io.File(plugins_gate_path + "" + File.separator + GateConstant.DIRECTORY_PLUGIN_ANNIE + File.separator + "resources" + File.separator + "heptag" + File.separator + "ruleset")).toURI().toString();                                                           
             params.put("rulesURL", def_rules_file);            
             pr = (ProcessingResource) Factory.createResource("gate.creole.POSTagger", params);
             annieController.add(pr);
 
             //Tools/resources/morph/default.rul
             params = Factory.newFeatureMap();
-            String def_morph_file = (new java.io.File(plugins_gate_path + "" + File.separator + "Tools" + File.separator + "resources" + File.separator + "morph" + File.separator + "default.rul")).toURI().toString();                                                           
+            String def_morph_file = (new java.io.File(plugins_gate_path + "" + File.separator + GateConstant.DIRECTORY_PLUGIN_TOOLS + File.separator + "resources" + File.separator + "morph" + File.separator + "default.rul")).toURI().toString();                                                           
             params.put("rulesFile", def_morph_file);            
             pr = (ProcessingResource) Factory.createResource("gate.creole.morph.Morph", params);
             annieController.add(pr);
 
-            //ANNIE/resources/NE/main.jape
+            //annie/resources/NE/main.jape
             params = Factory.newFeatureMap();
-            String def_transducer_file = (new java.io.File(plugins_gate_path + "" + File.separator + "ANNIE" + File.separator + "resources" + File.separator + "NE" + File.separator + "main.jape")).toURI().toString();                                                           
+            String def_transducer_file = (new java.io.File(plugins_gate_path + "" + File.separator + GateConstant.DIRECTORY_PLUGIN_ANNIE + File.separator + "resources" + File.separator + "NE" + File.separator + "main.jape")).toURI().toString();                                                           
             params.put("grammarURL", def_transducer_file);            
             pr = (ProcessingResource) Factory.createResource("gate.creole.ANNIETransducer", params);
 

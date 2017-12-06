@@ -17,6 +17,7 @@
     You should have received a copy of the GNU General Public License
     along with SISOB Data Extractor. If not, see <http://www.gnu.org/licenses/>.
 --%>
+<%@page import="eu.sisob.uma.restserver.services.gateCH.GateTaskCH"%>
 <%@page import="eu.sisob.uma.restserver.services.communications.InputParameter"%>
 <%@page import="eu.sisob.uma.restserver.TheResourceBundle"%>
 <%
@@ -30,6 +31,15 @@
     String feedback = request.getParameter("feedback");
     String errors = request.getParameter("errors");        
     String[] params = request.getParameter("params").equals("") ? null : request.getParameter("params").split(";");
+    String reason = request.getParameter("reason");
+    String reason_type = request.getParameter("reason_type");
+    
+    String paramVisualization = "?user="+user+
+                                "&task_code="+task_code+
+                                "&pass="+pass+
+                                "&reason="+reason+
+                                "&reason_type="+reason_type
+                                ;
 %>
 <!--
 
@@ -44,18 +54,38 @@
     <h4>${param.message}</h4>            
 </div>
 <div class="well" id="instructions">
+    
+    <% if(task_kind.equals(GateTaskCH.NAME)) { %> 
+      
+    <div style="text-align: center">
+        <a class="btn btn-primary" 
+           href="task-euParliament-visualizations.jsp<%=paramVisualization%>">
+           <%=TheResourceBundle.getString("Jsp_euParliament_show_visualizations")%>
+        </a>
+    </div>
+           
+    <% } %>
+    
     <h4>The results files of the task:</h4>    
     <blockquote>
         <h5>Files to download:</h5>
     <%
-        if(results != null)
-        for(int i = 0; i < results.length; i=i+2)
-        {                       
-            out.print("<a href='" + results[i+1] + "'>Download (" + results[i] + ")</a> | ");                    
-            out.print("<a href='" + results[i+1].replace("file/download?","file/show?") + "'>Show navigator (" + results[i] + ")</a>");                    
-            out.print("<br><br>");                    
-        }
-    %>                
+    if(results != null){
+        for(int i = 0; i < results.length; i=i+2) {
+            String urlDownload = results[i+1];
+            String urlShow = results[i+1].replace("file/download?","file/show?");
+    %>          
+            <p style='font-size:14px; margin-bottom: 10px;' >
+                <%=results[i]%>
+                <b>  
+                    | <a href='<%=urlDownload%>'>Download</a>
+                    | <a href='<%=urlShow%>' target='_blank'>Show</a>
+                </b>
+            </p>                
+    <%  }
+    }
+    %>
+    <% if(params!=null && params.length>0){ %>
         <h5>Parameters of the task</h5>
         <blockquote>    
             <%
@@ -66,12 +96,15 @@
                         out.print("<br>");                    
                     }
             %>         
-        </blockquote>    
+        </blockquote>  
+    <% } %>
         <h5>Notes of the files to download:</h5>        
         <jsp:include page="get-task-results-desc.jsp" >
             <jsp:param name="task_kind" value="<%=task_kind%>" />                                    
         </jsp:include>          
     </blockquote>
+    
+    <% if(!task_kind.equals(GateTaskCH.NAME)) { %>    
     <h4>Feedback:</h4>   
     <% if(!feedback.equals("")) { %>   
         <blockquote>                                  
@@ -84,17 +117,21 @@
         </blockquote>
     <% }
        else
-       { %>
+    { %>
         <blockquote>  
         This task has not document feedback document (ask to administrator for this).
         </blockquote>
-    <% } %>   
+    <% } %> 
+    <% } %>
 
-    <% if(!errors.equals("")) { %>                         
+    <% if(!errors.equals("")) { %>  
+            
+        <% if(!task_kind.equals(GateTaskCH.NAME)) { %>
         <h4 class="text-error">Errors obtained in the task (please, report to the administrator):</h5>
         <blockquote>
         <%=errors%>          
         </blockquote>
+        <% } %>
     <% } %>      
         
     <h4>Relaunch the task (Relaunch the task with same source data)</h4>
@@ -140,7 +177,10 @@
     <%
         if(sources != null)
         for(int i = 0; i < sources.length; i=i+2)
-        {                       
+        {
+            /*if(".DS_Store".equals(sources[i])){
+                continue;
+            }*/
             out.print("<a href='" + sources[i+1] + "'>" + sources[i] + "</a><br><br>");                    
         }
     %>          

@@ -32,7 +32,7 @@ public class GateAnnieActions
         Gate.init();
         File gateHome = new File(Gate.getGateHome().getAbsolutePath()/* + "\\resources\\GATE-6.0"*/);
         File pluginsHome = new File(gateHome, "plugins");
-        Gate.getCreoleRegister().registerDirectories(new File(pluginsHome, "ANNIE").toURL());
-        Gate.getCreoleRegister().registerDirectories(new File(pluginsHome, "Tools").toURL());
+        Gate.getCreoleRegister().registerDirectories(new File(pluginsHome, "annie").toURL());
+        Gate.getCreoleRegister().registerDirectories(new File(pluginsHome, "tools").toURL());
     }
 } 

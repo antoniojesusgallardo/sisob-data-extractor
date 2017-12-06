@@ -18,28 +18,52 @@
     along with SISOB Data Extractor. If not, see <http://www.gnu.org/licenses/>.
 --%>
 <%@page import="eu.sisob.uma.restserver.TheConfig"%>
-<%@page import="eu.sisob.uma.restserver.TheResourceBundle"%>     
+<%@page import="eu.sisob.uma.restserver.TheResourceBundle"%>    
+<%@page import="java.util.List"%>
+<%@page import="java.util.ArrayList"%>
+<%@page import="eu.sisob.uma.restserver.services.gateCH.GateTaskCH"%>
+
+<% 
+    List<String[]> taskTypes = new ArrayList<String[]>();
+    String[] none = {"none", TheResourceBundle.getString("Jsp Select Task Msg")};  
+    taskTypes.add(none);
+
+    if(TheConfig.getInstance().getString(TheConfig.SERVICES_CRAWLER).equals("enabled")) {   
+        String[] crawler = {"crawler", TheResourceBundle.getString("Task Crawler Title")};  
+        taskTypes.add(crawler);              
+    }
+    if(TheConfig.getInstance().getString(TheConfig.SERVICES_GATE).equals("enabled")) {   
+        String[] crawler = {"gate", TheResourceBundle.getString("Task Gate Title")};  
+        taskTypes.add(crawler);              
+        
+        String[] gateTaskCH = {GateTaskCH.NAME, GateTaskCH.NAME};  
+        taskTypes.add(gateTaskCH);
+    }
+    if(TheConfig.getInstance().getString(TheConfig.SERVICES_INTERNAL_CV_FILES).equals("enabled")) {   
+        String[] internalcvfiles = {"internalcvfiles", TheResourceBundle.getString("Task Internal CV Files Title")};  
+        taskTypes.add(internalcvfiles);              
+    }
+    if(TheConfig.getInstance().getString(TheConfig.SERVICES_WEBSEARCHER).equals("enabled")) {   
+        String[] websearcher = {"websearcher", TheResourceBundle.getString("Task WebSearcher Title")};  
+        taskTypes.add(websearcher);              
+        String[] websearcher_cv = {"websearcher_cv", TheResourceBundle.getString("Task WebSearcher CV Title")};  
+        taskTypes.add(websearcher_cv);
+    }
+    if(TheConfig.getInstance().getString(TheConfig.SERVICES_EMAIL).equals("enabled")) {   
+        String[] email = {"email", TheResourceBundle.getString("Task Email Title")};  
+        taskTypes.add(email);              
+    }
+%>                
+
+
 <div class="well" id="task-selection">
     <h4>${param.message}</h4>
-    <h5><%=TheResourceBundle.getString("Jsp Select Task Msg")%></h4>
+    <h5><%=TheResourceBundle.getString("Jsp Select Task Msg")%></h5>
     <select class="chzn-select" id="task-selector">                
-        <option value="none"><%=TheResourceBundle.getString("Jsp Select Task Msg")%></option>
-        <% if(TheConfig.getInstance().getString(TheConfig.SERVICES_CRAWLER).equals("enabled")) { %>                
-            <option value="crawler"><%=TheResourceBundle.getString("Task Crawler Title")%></option>                
-        <% } if(TheConfig.getInstance().getString(TheConfig.SERVICES_GATE).equals("enabled")) { %>
-            <option value="gate"><%=TheResourceBundle.getString("Task Gate Title")%></option> 
-        <% } if(TheConfig.getInstance().getString(TheConfig.SERVICES_INTERNAL_CV_FILES).equals("enabled")) { %>
-            <option value="internalcvfiles"><%=TheResourceBundle.getString("Task Internal CV Files Title")%></option> 
-        <% } if(TheConfig.getInstance().getString(TheConfig.SERVICES_WEBSEARCHER).equals("enabled")) { %>
-            <option value="websearcher"><%=TheResourceBundle.getString("Task WebSearcher Title")%></option>              
-            <option value="websearcher_cv"><%=TheResourceBundle.getString("Task WebSearcher CV Title")%></option>                    
-        <% } if(TheConfig.getInstance().getString(TheConfig.SERVICES_EMAIL).equals("enabled")) { %>
-            <option value="email"><%=TheResourceBundle.getString("Task Email Title")%></option>
+        <% for(String[] iOption : taskTypes) { %>                
+            <option value="<%=iOption[0]%>"><%=iOption[1]%></option>                
         <% } %>
-        <!--                
-        <option value="papersandcites1">TheResourceBundle.getString("Task Unknown Authors Title")</option>                                         
-        -->
-    </select>
+    </select>    
 </div>
 <div class="well" id="instructions">            
 </div>
@@ -94,8 +118,8 @@
     <br>
     <!-- The table listing the files available for upload/download -->
     <table role="presentation" class="table table-striped"><tbody class="files" data-toggle="modal-gallery" data-target="#modal-gallery"></tbody></table>
-</form>                
-</div>
+</form>   
+        </div>              
 <div class="well" id="second-step">
     <blockquote>   
     <h4><%=TheResourceBundle.getString("Jsp Second Step")%></h4>
@@ -235,7 +259,7 @@
 <!--[if gte IE 8]><script src="js/cors/jquery.xdr-transport.js"></script><![endif]-->
 <script type="text/javascript">                
         $(document).ready(function()
-        {  
+        {             
               $("select#task-selector").change(function(){
 
                 var task = $("select#task-selector").val();
@@ -252,9 +276,9 @@
                   {
                     $("div#instructions").html("<h5 class='text-error'><%=TheResourceBundle.getString("Jsp Was Error")%> <%=TheResourceBundle.getString("Jsp Contact To Admin")%></h5>");
                   }
-                });
+                });                
               }); 
-
+            
             $("button#task-launcher").click(function()
             {
                 //$("button#task-launcher").attr("disabled", "disabled");
@@ -289,7 +313,7 @@
                                            value: parameters_values[i]
                     });
                 }
-                
+                                                
                 if(task != "none")
                 {
                     $.ajax({ 
@@ -312,7 +336,9 @@
                             }
                             else
                             {
-                                $("div#task-result").html("<h4 class='text-warning'>" + "(" + task + ") " + " " + result.message + "</h4>");
+                                var htmlModal = "<h4 class='text-warning'> (" + task + ") </h4>";
+                                htmlModal +=    "<h4 class='text-warning'>" + result.message + "</h4>";
+                                $("div#task-result").html(htmlModal);
                                 $('#test_modal').modal('show');
 
                             }

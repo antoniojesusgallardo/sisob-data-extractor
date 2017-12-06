@@ -19,6 +19,7 @@
 --%>
 <%@page import="eu.sisob.uma.restserver.services.communications.TasksParams"%>
 <%@page import="eu.sisob.uma.restserver.TheResourceBundle"%>
+<%@page import="eu.sisob.uma.restserver.services.gateCH.GateTaskCH"%>
 <%  
     String task = request.getParameter("task_kind");
   
@@ -83,7 +84,15 @@
     - <b>'notfound.data-researchers-documents-urls*.csv'</b>: csv file with the researchers uploaded without emails. It has the same format of 'data-researchers-documents-urls*.csv'.<br>
     - <b>'norepeat.data-researchers-documents-urls-email*.csv'</b>: csv file with the researcher webpages of the researchers uploaded. It has the same format of 'data-researchers-documents-urls*.csv' but with one column for the email but with a filter applied that removes duplicated emails.<br>
     <%
-    }    
+    }
+    else if(task.equals(GateTaskCH.NAME))
+    {
+    %>    
+    - <b>'IndicatorsByCategory.json'</b>: json file with indicators grouped by categories.<br>
+    - <b>'IndicatorsBySpeech.json'</b>: json file with indicators grouped by speeches.<br>
+    - <b>'SpeechesDataExtracted.csv'</b>: csv file with speeches relatives to Cultural Heritage. Each row contains the speech data and the keywords found.<br>
+    <%
+    }
     else if(task.equals("none"))
     {
 

@@ -27,8 +27,11 @@ import eu.sisob.uma.extractors.adhoc.cvfilesinside.InternalCVFilesExtractorServi
 import eu.sisob.uma.extractors.adhoc.email.EmailExtractorService;
 import eu.sisob.uma.extractors.adhoc.websearchers.WebSearchersExtractorService;
 import eu.sisob.uma.footils.File.FileFootils;
+import eu.sisob.uma.npl.culturalHeritage.GateDataExtractorServiceCH;
 import java.io.File;
+import java.io.InputStream;
 import java.sql.SQLException;
+import java.util.Properties;
 import java.util.logging.Level;
 import org.apache.commons.configuration.Configuration;
 /**
@@ -43,6 +46,7 @@ public class SystemManager  {
     private static SystemManager instance = null;       
     private boolean is_running = false;  
     H2DBPool systemdbpool;
+    private String version; 
     
     /**
      *
@@ -203,10 +207,16 @@ public class SystemManager  {
                                                                     1, 5, credentials_trad_tables_academic, credentials_resolver);
                         
                         GateDataExtractorService.createInstance(); 
+                        
+                        String gatePath = local_gate_path.getAbsolutePath() + File.separator + "GATE-6.0";
+                        GateDataExtractorServiceCH.createInstance(gatePath); 
+                        
                         LOG.info("Gate service initialized.");
                     }
                                 
                 }
+                
+                this.version = initVersion();
                 
                 is_running = true;                
             } catch (Exception ex) {
@@ -230,6 +240,7 @@ public class SystemManager  {
                     {
                         //Gate                
                         GateDataExtractorService.releaseInstance();
+                        GateDataExtractorServiceCH.releaseInstance();
                         LOG.info("Gate service release.");                        
                     }
                     
@@ -268,6 +279,7 @@ public class SystemManager  {
             {
                 //Gate                
                 GateDataExtractorService.releaseInstance();
+                GateDataExtractorServiceCH.releaseInstance();
                 LOG.info("Gate service released.");                        
             }        
             
@@ -278,7 +290,23 @@ public class SystemManager  {
             this.is_running = false;
             LOG.info("System going off!");
         }
-    }    
+    }  
+    
+    private static String initVersion(){
+        String rVersion = "";
+        
+        try {
+            
+            final Properties properties = new Properties();            
+            InputStream inputStream =  TheConfig.class.getClassLoader().getResourceAsStream("project.properties");
+            properties.load(inputStream);
+            rVersion = properties.getProperty("version");
+            
+        } catch (Exception e) {
+            LOG.log(Level.SEVERE, e.getMessage());
+        }
+        return rVersion;
+    }
     
     /**
      *
@@ -288,5 +316,8 @@ public class SystemManager  {
     {
         return is_running;
     }
-    
+
+    public String getVersion() {
+        return version;
+    }
 }

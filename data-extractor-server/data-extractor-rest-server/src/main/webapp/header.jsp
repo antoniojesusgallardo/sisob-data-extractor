@@ -50,6 +50,7 @@
 <script src="js/vendor/jquery.ui.widget.js"></script>
 <script src="js/bootstrap.min.js"></script>
 <script src="js/bootstrap-image-gallery.min.js"></script>
+<link rel="icon" type="image/png" href="img/favicon.png">
 </head>
 <% String back_to_list = request.getParameter("back_to_list");   
    String logout = request.getParameter("logout"); 

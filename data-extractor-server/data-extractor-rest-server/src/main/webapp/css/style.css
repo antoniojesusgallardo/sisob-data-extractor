@@ -18,3 +18,22 @@ select
 {
     width: 100%;
 }
+
+
+/* Visualizations Style */
+#chart1 text {
+    font: 12px sans-serif;
+}
+
+#chart1 svg {
+    display: block;
+}
+
+#chart1 html, body, #chart1, svg {
+    margin: 0px;
+    padding: 0px;
+    height: 90%;
+    width: 100%;
+}
+/* END - Visualizations Style */
+

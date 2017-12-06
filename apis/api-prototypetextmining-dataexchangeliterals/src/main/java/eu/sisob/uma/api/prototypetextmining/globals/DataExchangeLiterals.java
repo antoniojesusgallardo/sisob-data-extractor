@@ -19,18 +19,23 @@
 */
 package eu.sisob.uma.api.prototypetextmining.globals;
 
+import java.util.ArrayList;
+import java.util.List;
+
 public class DataExchangeLiterals
 {
-    public static final String MIDDLE_ELEMENT_XML_ID_ENTITY_ATT = "id_entity";
+        public static final String MIDDLE_ELEMENT_XML_ID_ENTITY_ATT = "id_entity";
     public static final String MIDDLE_ELEMENT_XML_ID_TEXTMININGPARSER_ATT = "id_textminingparser";
     public static final String MIDDLE_ELEMENT_XML_ID_ANNOTATIONRECOLLECTING = "id_annotationrecollecting";
 
     public static final String ID_TEXTMININGPARSER_GATEGUESSER = "GATEGUESSER";
     public static final String ID_TEXTMININGPARSER_GATERESEARCHER = "GATERESEARCHER";
+    public static final String ID_TEXTMININGPARSER_GATE_CULTURAL_HERITAGE = "GATE_CULTURAL_HERITAGE";
 
     public static final String ID_TEXTMININGPARSER_GATEGUESSER_DEFAULTANNREC = "default";
     public static final String ID_TEXTMININGPARSER_GATERESEARCHER_DEFAULTANNREC = "default";
     public static final String ID_TEXTMININGPARSER_GATERESEARCHER_DEFAULTANNREC_1 = "default_1";    
+    public static final String ID_ANNOTATION_RECOLLECTING_CULTURAL_HERITAGE  = "CULTURAL_HERITAGE"; 
     
     public static final String MIDDLE_ELEMENT_XML_EXTRADATA_INITIALS = "INITIALS";
     public static final String MIDDLE_ELEMENT_XML_EXTRADATA_LASTNAME = "LASTNAME";
@@ -39,4 +44,28 @@ public class DataExchangeLiterals
     public static final String MIDDLE_ELEMENT_XML_EXTRADATA_BLOCK_TYPE = "BLOCK_TYPE";
     public static final String MIDDLE_ELEMENT_XML_EXTRADATA_DOCUMENT_NAME = "DOCUMENT_NAME";    
     
-}
+    /**
+     * Format to the extraData attribute, in the class MiddleData in the task: 
+     * European Parliament - Cultural Heritage.
+     */
+    public static class MiddleData_ExtraDataCH{
+        public static final String DATE             = "date";
+        public static final String AGENDA_ITEM_NR   = "agendaItemNr";
+        public static final String AGENDA_ITEM_TITLE= "agendaItemTitle";
+        public static final String SPEECH_NR        = "speechNr";
+        public static final String COUNTRY          = "country";
+        public static final String URI              = "sessionDayUri";
+        
+        public static List<String> getFields(){
+            List<String> rList = new ArrayList<String>();
+            rList.add(DATE);
+            rList.add(AGENDA_ITEM_NR);
+            rList.add(AGENDA_ITEM_TITLE);
+            rList.add(SPEECH_NR);
+            rList.add(COUNTRY);
+            rList.add(URI);
+
+            return rList;
+        }
+    }
+}      

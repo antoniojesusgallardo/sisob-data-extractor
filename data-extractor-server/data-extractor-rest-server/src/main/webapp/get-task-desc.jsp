@@ -17,6 +17,7 @@
     You should have received a copy of the GNU General Public License
     along with SISOB Data Extractor. If not, see <http://www.gnu.org/licenses/>.
 --%>
+<%@page import="eu.sisob.uma.restserver.services.gateCH.GateTaskCH"%>
 <%@page import="eu.sisob.uma.restserver.services.communications.TasksParams"%>
 <%@page import="eu.sisob.uma.restserver.TheResourceBundle"%>
 <%@page import="java.io.StringWriter"%>
@@ -335,7 +336,85 @@
       </ol>
       <p>Once you finish uploading the file/s, press the launch task button. If the uploaded data is correct the extraction task will be launched.</p>
       <%
-      }               
+      }else if(task.equals(GateTaskCH.NAME)){
+      %>
+        <h3><%=GateTaskCH.NAME%></h3>      
+        <p>The goal of this task is to show the debates of the European Parliament 
+           with a Cultural Heritage taxonomy.</p>      
+        
+        <div style="text-align: center">
+            <img src='img/ontologyCulturalHeritage.png' alt='View' 
+                 style='border: 1px solid #e3e3e3; border-radius: 4px;' >
+        </div>
+      
+        <div>
+            <h4>Talk of Europe - SiSOB - Integration</h4>   
+            Two ways to integrate Talk of Europe - SiSOB :
+            <ol>
+                <li>
+                    Using CSV files generated for us, a CSV file for each year, from 1999 to 2000.
+                    The CSV files are stored in <a href="https://www.dropbox.com/sh/ytoqe0unxyf1zla/AAAh6fI0iZYbHlt6sMZGNmBja?dl=0" target="_blank">Dropbox</a>.  
+                </li>
+                <li>
+                    Using <a href="http://linkedpolitics.ops.few.vu.nl/yasgui/index.html" target="_blank">
+                    SPARQL Editor of Talk for Europe</a>, following these steps: 
+                    <ul>
+                        <li>
+                            Create a query in SPARQL (i.e.                    
+                            <a href="https://www.dropbox.com/s/tegytmblf9ylbgi/querySPARQL.sql?dl=0" target="_blank">querySPARQL.sql</a>
+                            )
+                        </li>
+                        <li>
+                            Download the CSV file.
+                        </li>
+                        <li>
+                            Escape the separators and quotes (with this 
+                            <a href="https://www.dropbox.com/s/sqdqvug61oawdey/scriptProcessCsv.sh?dl=0" target="_blank">script</a>
+                            )
+                        </li>
+                        <li>
+                            Use this file in the SiSOB system
+                        </li>
+                    </ul>
+                </li>
+            </ol>
+          
+            <div style="text-align: center">
+                <img src='img/TOE-SiSOB-Integration.png' alt='View' 
+                    style='border: 1px solid #e3e3e3; border-radius: 4px;' > <!--style='width:18px;height:18px'-->
+            </div>
+        </div>
+      
+        <h4>Data input format</h4>
+        <p>To show the debates of the European Parliament with a Cultural Heritage taxonomy you need to upload a file in CSV format in UTF-8 codification named like this "data-speech*.csv (data-speech-set001.csv is valid too)"</p>            
+        <ol>
+            <li>
+                File with the debates is downloaded of the <a href="http://linkedpolitics.ops.few.vu.nl/yasgui/index.html" target="_blank">
+                      SPARQL Editor - Talk of Europe</a>.          
+                <p>
+                    <b>Filename:</b> data-speech*.csv<br>            
+                    <b>Format:</b> Separated by comma, the first row with the field names, quoted elements
+                    with the character <b>"</b> and escape the separators and quotes with <b>|</b>
+                </p>
+            <blockquote>
+                 <small><br>
+                 "DATE" , "AGENDA_ITEM_NR" , "AGENDA_ITEM_TITLE" , "SPEECH_NR" , "SPEECH_TEXT" , "COUNTRY" , "SESSION_DAY_URI",<br>                
+                 "1999-07-20" , "1" , "Resumption of the session" , "1" , "FULL SPEECH 1" , "Italy" , 
+                    "http://www.europarl.europa.eu/sides/getDoc.do?pubRef=-//EP//TEXT+CRE+19990720+ITEMS+DOC+XML+V0//EN&language=EN",<br>
+                 "1999-07-20" , "1" , "Resumption of the session" , "2" , "FULL SPEECH 2" , "Ireland" , 
+                    "http://www.europarl.europa.eu/sides/getDoc.do?pubRef=-//EP//TEXT+CRE+19990720+ITEMS+DOC+XML+V0//EN&language=EN",<br>
+                 "1999-07-20" , "1" , "Resumption of the session" , "3" , "FULL SPEECH 3" , "Italy" , 
+                    "http://www.europarl.europa.eu/sides/getDoc.do?pubRef=-//EP//TEXT+CRE+19990720+ITEMS+DOC+XML+V0//EN&language=EN",<br>
+                 </small>
+            </blockquote>             
+          </li>
+        </ol>      
+        <p>
+            Once your uploads are done, press the launch task button. If the data you uploaded 
+            is correct, then the classification task will be launched.
+        </p>     
+      <%
+      }
       else if(task.equals("none"))
       {
             

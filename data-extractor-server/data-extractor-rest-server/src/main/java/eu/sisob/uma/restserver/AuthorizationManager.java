@@ -81,7 +81,8 @@ public class AuthorizationManager
     public static final String results_dirname = "results";
     public static final String middle_data_dirname = "middle_data";
     public static final String verbose_dirname = "verbose";
-    public static final String error_flag_file = "error.flag";
+    public static final String error_flag_file = "error.flag";    
+    public static final String detailed_results_dirname = "detailed_results";
 
     
     private static final HashMap<String, Object> FILE_LOCKERS = new HashMap<String, Object>();

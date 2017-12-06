@@ -95,8 +95,8 @@ public class TextMiningParserGateGenders extends TextMiningParserGate {
             annieController.add(pr);
 
             params = Factory.newFeatureMap();
-            //file:/C:/Users/dlopez/Documents/NetBeansProjects/TextExtractionPrototypes/extractionsWorksGate/resources/GATE-6.0/plugins/ANNIE/resources/gazetteer/lists.def
-            String sListDefFilePath = new java.io.File("resources\\GATE-6.0\\plugins\\ANNIE\\resources\\gazetteer\\lists_naming.def").toURI().toString();
+            //file:/C:/Users/dlopez/Documents/NetBeansProjects/TextExtractionPrototypes/extractionsWorksGate/resources/GATE-6.0/plugins/annie/resources/gazetteer/lists.def
+            String sListDefFilePath = new java.io.File("resources\\GATE-6.0\\plugins\\annie\\resources\\gazetteer\\lists_naming.def").toURI().toString();
             params.put("listsURL", sListDefFilePath);
             pr = (ProcessingResource) Factory.createResource("gate.creole.gazetteer.DefaultGazetteer", params);
             annieController.add(pr);

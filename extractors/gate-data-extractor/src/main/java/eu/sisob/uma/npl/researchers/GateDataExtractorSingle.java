@@ -43,6 +43,7 @@ import eu.sisob.uma.api.prototypetextmining.MiddleData;
 import eu.sisob.uma.api.prototypetextmining.RepositoryPreprocessDataMiddleData;
 import eu.sisob.uma.api.prototypetextmining.TextMiningParserMonitor;
 import eu.sisob.uma.crawlerWorks.webpagesofuniversities.Format.FileFormatConversor;
+import eu.sisob.uma.npl.GateConstant;
 import java.net.URL;
 import java.util.logging.Level;
 import java.util.regex.Pattern;
@@ -67,13 +68,13 @@ public class GateDataExtractorSingle
          LOG.info( "Initialising GATE ...");         
          File home_path = new File(path);
          Gate.setGateHome(home_path);
-         File plugins_path = new File(home_path + "//plugins");
+         File plugins_path = new File(home_path + File.separator + GateConstant.DIRECTORY_PLUGINS);
          Gate.setPluginsHome(plugins_path);
          Gate.init();             
          File gateHome = new File(Gate.getGateHome().getAbsolutePath()/* + "\\resources\\GATE-6.0"*/);
-         File pluginsHome = new File(gateHome, "plugins");
-         Gate.getCreoleRegister().registerDirectories(new File(pluginsHome, "ANNIE").toURL());
-         Gate.getCreoleRegister().registerDirectories(new File(pluginsHome, "Tools").toURL());
+         File pluginsHome = new File(gateHome, GateConstant.DIRECTORY_PLUGINS);
+         Gate.getCreoleRegister().registerDirectories(new File(pluginsHome, GateConstant.DIRECTORY_PLUGIN_ANNIE).toURL());
+         Gate.getCreoleRegister().registerDirectories(new File(pluginsHome, GateConstant.DIRECTORY_PLUGIN_TOOLS).toURL());
          LOG.info( "Done!");
     }
     

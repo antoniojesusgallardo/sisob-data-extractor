@@ -25,6 +25,7 @@ import eu.sisob.uma.api.concurrent.threadpoolutils.CallbackableTaskExecutionWith
 import eu.sisob.uma.api.concurrent.threadpoolutils.CallbackableTaskPoolExecutorWithResources;
 import eu.sisob.uma.api.h2dbpool.H2DBCredentials;
 import eu.sisob.uma.api.prototypetextmining.RepositoryProcessedDataXML;
+import eu.sisob.uma.npl.GateConstant;
 import gate.Gate;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -121,13 +122,13 @@ public class GateDataExtractorService
             String gate_path = GATE_PATH;
             File home_path = new File(gate_path);
             Gate.setGateHome(home_path);
-            File plugins_path = new File(home_path + "//plugins");
+            File plugins_path = new File(home_path + File.separator + GateConstant.DIRECTORY_PLUGINS);
             Gate.setPluginsHome(plugins_path);
             Gate.init();            
             File gateHome = new File(Gate.getGateHome().getAbsolutePath()/* + "\\resources\\GATE-6.0"*/);
-            File pluginsHome = new File(gateHome, "plugins");
-            Gate.getCreoleRegister().registerDirectories(new File(pluginsHome, "ANNIE").toURL());
-            Gate.getCreoleRegister().registerDirectories(new File(pluginsHome, "Tools").toURL());
+            File pluginsHome = new File(gateHome, GateConstant.DIRECTORY_PLUGINS);
+            Gate.getCreoleRegister().registerDirectories(new File(pluginsHome, GateConstant.DIRECTORY_PLUGIN_ANNIE).toURL());
+            Gate.getCreoleRegister().registerDirectories(new File(pluginsHome, GateConstant.DIRECTORY_PLUGIN_TOOLS).toURL());        
             LOG.info("GATE initialization done!"); 
 
             parsers = new TextMiningParserGateResearcher[NUMBER_OF_GATEPARSERS];
