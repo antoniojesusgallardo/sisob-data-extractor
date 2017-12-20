@@ -238,10 +238,6 @@ public class GateTaskCH  {
         
         // Remove initial '\n' and spaces
         rString = StringUtils.remove(rString, "^([\\s|\\n])+");
-        /*while (rString.startsWith("\n") || rString.startsWith(" ")) {            
-            rString = rString.replaceFirst("\n", "");
-            rString = rString.trim();
-        }*/
         
         return rString;
     }

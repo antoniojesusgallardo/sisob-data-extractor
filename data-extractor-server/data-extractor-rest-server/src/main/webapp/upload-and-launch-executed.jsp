@@ -178,9 +178,6 @@
         if(sources != null)
         for(int i = 0; i < sources.length; i=i+2)
         {
-            /*if(".DS_Store".equals(sources[i])){
-                continue;
-            }*/
             out.print("<a href='" + sources[i+1] + "'>" + sources[i] + "</a><br><br>");                    
         }
     %>          
