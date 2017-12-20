@@ -21,6 +21,7 @@ package eu.sisob.uma.euParliament;
 
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import eu.sisob.uma.euParliament.beans.IndicatorsByCategory;
 import eu.sisob.uma.euParliament.beans.IndicatorsBySpeech;
 import eu.sisob.uma.euParliament.beans.Keyword;
@@ -281,7 +282,10 @@ public class FileGeneratorJSON {
         
         try {
             
-            Gson gson = new Gson();
+            GsonBuilder gsonBuilder = new GsonBuilder();  
+            gsonBuilder.serializeNulls(); 
+            
+            Gson gson = gsonBuilder.create();
             String jsonContent = gson.toJson(data);
 
             File jsonFile = new File(rootPath, fileName);
