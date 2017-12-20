@@ -117,7 +117,6 @@ public class FileGeneratorCSV {
                 }
                 
                 List<String> listRowData = new ArrayList<String>();
-                listRowData.add(count.toString());
                 listRowData.add(speech.getId());
                 listRowData.add(speech.getDate());
                 listRowData.add(speech.getCountryName());
