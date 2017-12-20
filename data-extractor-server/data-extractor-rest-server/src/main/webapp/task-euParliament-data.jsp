@@ -26,7 +26,7 @@
 <%@page import="eu.sisob.uma.restserver.TheResourceBundle"%>
 <%@page import="eu.sisob.uma.restserver.SystemManager"%>
 <%    
-    String version = SystemManager.getVersion();
+    String version = SystemManager.getInstance().getVersion();
     
     String user         = request.getParameter("user");
     String pass         = request.getParameter("pass");
