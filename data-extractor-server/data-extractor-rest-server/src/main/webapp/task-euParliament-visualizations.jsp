@@ -23,18 +23,27 @@
 --%>
 
 <%@page import="eu.sisob.uma.restserver.AuthorizationManager"%>
-<%@page import="eu.sisob.uma.restserver.services.communications.InputParameter"%>
-<%@page import="eu.sisob.uma.restserver.TheResourceBundle"%>
 <%@page import="eu.sisob.uma.restserver.SystemManager"%>
-<%@page import="java.util.List"%>
+<%@page import="eu.sisob.uma.restserver.TheResourceBundle"%>
 <%@page import="java.util.ArrayList"%>
+<%@page import="java.util.List"%>
+
+<%@page session="true"%>
 <%  
+    if( session == null || 
+        session.getAttribute("user")==null ||
+        session.getAttribute("pass")==null ){
+        if(session != null){
+            session.invalidate();
+        }
+        response.sendRedirect("index.jsp?message=notAllowed");
+        return;
+    }
     
-    String user         = request.getParameter("user");
-    String pass         = request.getParameter("pass");
+    String user = (String)session.getAttribute("user");
+    String pass = (String)session.getAttribute("pass");
+    
     String task_code    = request.getParameter("task_code");
-    String reason       = request.getParameter("reason");
-    String reason_type  = request.getParameter("reason_type");
     
     String version      = SystemManager.getInstance().getVersion();
     String urlBaseJson  = AuthorizationManager.getGetFileUrlToShow(user, 
@@ -43,18 +52,7 @@
                                                                   "", 
                                                                   AuthorizationManager.results_dirname);
     
-    String paramsUserTaskPass = "?user=" + user + 
-                                "&task_code=" + task_code +
-                                "&pass="+ pass ;
-    
-    String urlBaseData = "task-euParliament-data.jsp"+
-                                paramsUserTaskPass +
-                                "&reason=" + reason +
-                                "&reason_type=" + reason_type +
-                                "&type=" + AuthorizationManager.detailed_results_dirname +
-                                "&file=";
-    
-    String urlBack = "upload-and-launch.jsp"+ paramsUserTaskPass;
+    String urlBaseData = "task-euParliament-data.jsp"+"?task_code="+task_code+"&speech_id=";
     
     List<String> visualizationsTypes = new ArrayList<String>();
     visualizationsTypes.add("temporalEvolution");
@@ -81,17 +79,13 @@
 
 
 <!DOCTYPE HTML>
-<jsp:include page="header.jsp" >
-    <jsp:param name="user" value="<%=user%>" />                        
-    <jsp:param name="reason" value="<%=reason%>" />
-    <jsp:param name="reason_type" value="<%=reason_type%>" />         
-    <jsp:param name="back_to_list" value="false" />
-    <jsp:param name="logout" value="true" />
+<jsp:include page="header.jsp" >    
+    <jsp:param name="showUserLogged" value="true" />
 </jsp:include>  
 
 <div class="container"> 
     <h5>
-        <a href="<%=urlBack%>">
+        <a href="upload-and-launch.jsp?task_code=<%=task_code%>">
             <%=TheResourceBundle.getString("Jsp_euParliament_visualizations_back")%>
         </a>
     </h5>

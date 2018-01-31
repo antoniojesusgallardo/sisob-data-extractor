@@ -23,22 +23,33 @@
 --%>
 
 <%@page import="eu.sisob.uma.restserver.AuthorizationManager"%>
-<%@page import="eu.sisob.uma.restserver.TheResourceBundle"%>
 <%@page import="eu.sisob.uma.restserver.SystemManager"%>
-<%    
+<%@page import="eu.sisob.uma.restserver.TheResourceBundle"%>
+
+<%@page session="true"%>
+<%  
+    if( session == null || 
+        session.getAttribute("user")==null ||
+        session.getAttribute("pass")==null ){
+        if(session != null){
+            session.invalidate();
+        }
+        response.sendRedirect("index.jsp?message=notAllowed");
+        return;
+    }
+    
     String version = SystemManager.getInstance().getVersion();
     
-    String user         = request.getParameter("user");
-    String pass         = request.getParameter("pass");
+    String user = (String)session.getAttribute("user");
+    String pass = (String)session.getAttribute("pass");
+    
     String task_code    = request.getParameter("task_code");
-    String reason       = request.getParameter("reason");
-    String reason_type  = request.getParameter("reason_type");
-    String file         = request.getParameter("file");
+    String speech_id    = request.getParameter("speech_id");
 
     String urlJson = AuthorizationManager.getGetFileUrlToShow(user, 
                                                               pass, 
                                                               task_code, 
-                                                              file, 
+                                                              speech_id+".json", 
                                                               AuthorizationManager.detailed_results_dirname);
 %>
 
@@ -54,12 +65,8 @@
 <script src="js/euParliament/data/loadData.js?v.<%=version%>" ></script>
 
 <!DOCTYPE HTML>
-<jsp:include page="header.jsp" >
-    <jsp:param name="user" value="<%=user%>" />                        
-    <jsp:param name="reason" value="<%=reason%>" />
-    <jsp:param name="reason_type" value="<%=reason_type%>" />         
-    <jsp:param name="back_to_list" value="false" />
-    <jsp:param name="logout" value="false" />
+<jsp:include page="header.jsp" >   
+    <jsp:param name="showUserLogged" value="true" />
 </jsp:include>  
       
 <div class="container">   

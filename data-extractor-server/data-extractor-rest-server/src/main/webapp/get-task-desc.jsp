@@ -20,34 +20,12 @@
 <%@page import="eu.sisob.uma.restserver.services.gateCH.GateTaskCH"%>
 <%@page import="eu.sisob.uma.restserver.services.communications.TasksParams"%>
 <%@page import="eu.sisob.uma.restserver.TheResourceBundle"%>
-<%@page import="java.io.StringWriter"%>
-<%
-  String user = request.getParameter("user");  
-  String pass = request.getParameter("pass");
-  String task = request.getParameter("task");  
-  StringWriter reason = new StringWriter();
-  //boolean authorized = AuthorizationManager.validationAccess(code, user, reason);  
-  //TODO - Not needed reauthorization, validationAccess uses mutex against diretory file and it is slow
-  boolean authorized = true;
+
+    <%
+    String task = request.getParameter("task");
   
-  if(!authorized)
-  {
-      %>
-      <h5 class="text-error"><%=TheResourceBundle.getString("Jsp Unauth Msg")%> <%=TheResourceBundle.getString("Jsp Contact To Admin")%></h5>
-      <%          
-  }
-  else if(task == null || task == "")
-  {
-      %>      
-      <h5 class="text-error"><%=TheResourceBundle.getString("Jsp Bad Task Msg")%></h5>
-      <%
-  }
-  else
-  {     
-      
-      if(task.equals("gate"))
-      {
-      %>
+    if("gate".equals(task)){
+    %>
       <h3><%=TheResourceBundle.getString("Task Gate Title")%></h3>
       <p>The objetive of this task is to extract personal information from researcher webpages or cv documents.</p>      
       <h4>Data input format</h4>
@@ -96,11 +74,10 @@
             </li>
         </ol>      
       </div>
-      <%
-      }
-      else if(task.equals("crawler"))
-      {
-      %>
+    <%
+    }
+    else if("crawler".equals(task)) {
+    %>
       <h3><%=TheResourceBundle.getString("Task Crawler Title")%></h3>      
       <p>The objetive of this task is to find researcher's personal webpages. The required input is a set of researchers and the institutions they work (or worked) on.</p>      
       <p>For each author the user must provide the following information: lastname, initials (optional field: first letter of surname and firstname), the subject of study area (ex: Chemistry) and its instution name or webpage where it serves. The data have to be in a .CSV (Comma Separated Values) file, and encoded in UTF-8 codification.</p>      
@@ -121,11 +98,10 @@
           </li>
       </ol>      
       <p>Once you finish uploading the file/s, press the launch task button. If the uploaded data is correct the extraction task will be launched.</p>
-      <%
-      }   
-      else if(task.equals("websearcher"))
-      {
-      %>
+    <%
+    }   
+    else if("websearcher".equals(task)){
+    %>
       <h3><%=TheResourceBundle.getString("Task WebSearcher Title")%></h3>      
       <p>The objetive of this task is to find researcher's personal webpages. The required input is a set of researchers and the institutions they work (or worked) on.</p>      
       <p>For each author the user will must provide the following info about the researcher: lastname, initials (name and firstname as optional) and its instution webpage where it serves. The data file will be a CSV file encoded UTF-8 codification.</p>      
@@ -161,11 +137,10 @@
         </ol>      
       </div>
       <p>Once you finish uploading the file/s, press the launch task button. If the uploaded data is correct the extraction task will be launched.</p>
-      <%
-      }       
-      else if(task.equals("websearcher_cv"))
-      {
-      %>
+    <%
+    }       
+    else if("websearcher_cv".equals(task)){
+    %>
       <h3><%=TheResourceBundle.getString("Task WebSearcher CV Title")%></h3>      
       <p>The objetive of this task is to find pdfs cvs from a set of authors given using the institution webpage where they are working.</p>      
       <p>For each author the user must provide the following information: lastname, initials (optional field: first letter of surname and firstname), the subject of study area (ex: Chemistry) and its instution name or webpage where it serves. The data have to be in a .CSV (Comma Separated Values) file, and encoded in UTF-8 codification.</p>      
@@ -187,11 +162,10 @@
       </ol>      
       <p>FIXME (It would be usefull to get notes about the output format)</p>
       <p>Once you finish uploading the file/s, press the launch task button. If the uploaded data is correct the extraction task will be launched.</p>
-      <%
-      } 
-      else if(task.equals("internalcvfiles"))
-      {
-      %>
+    <%
+    } 
+    else if("internalcvfiles".equals(task)){
+    %>
       <h3><%=TheResourceBundle.getString("Task Internal CV Files Title")%></h3>
       <p>The objective of this task is to extract internal CVs Files from researcher's webpages.</p>      
       <h4>Data input format</h4>
@@ -226,11 +200,10 @@
       </ol>
       <p>FIXME (It would be useful to get notes about the output format)</p>
       <p>Once you finish uploading the file/s, press the launch task button. If the uploaded data is correct the extraction task will be launched.</p>
-      <%
-      }	  
-      else if(task.equals("email"))
-      {
-      %>
+    <%
+    }	  
+    else if("email".equals(task)){
+    %>
       <h3><%=TheResourceBundle.getString("Task Email Title")%></h3>
       <p>The objective of this task is to extract the e-mails from researcher's webpages or CVs (Curriculum Vitae files).</p>      
       <h4>Data input format</h4>
@@ -275,11 +248,10 @@
             </li>
         </ol>      
       </div>
-      <%
-      }
-      else if(task.equals("papersandcites1"))
-      {
-      %>
+    <%
+    }
+    else if("papersandcites1".equals(task)){
+    %>
       <h3><%=TheResourceBundle.getString("Task Unknown Authors Title")%></h3>
       <p>The objetive of this task is to <b>obtain publications and citations from a give set of authors</b>. For each author the <b>user will provide some publication names in plain files .txt (text) files.</b>.
          With that data source the task will try to obtain publications from <i>Web Of Knowledge (WoK)</i>, first downloading all possible publications using the author name and, second, applying a filter using the publications' info extracted from WoK.</p> 
@@ -335,9 +307,10 @@
           </li>   
       </ol>
       <p>Once you finish uploading the file/s, press the launch task button. If the uploaded data is correct the extraction task will be launched.</p>
-      <%
-      }else if(task.equals(GateTaskCH.NAME)){
-      %>
+    <%
+    }
+    else if(GateTaskCH.NAME.equals(task)){
+    %>
         <h3><%=GateTaskCH.NAME%></h3>      
         <p>The goal of this task is to show the debates of the European Parliament 
            with a Cultural Heritage taxonomy.</p>      
@@ -413,17 +386,11 @@
             Once your uploads are done, press the launch task button. If the data you uploaded 
             is correct, then the classification task will be launched.
         </p>     
-      <%
-      }
-      else if(task.equals("none"))
-      {
-            
-      }
-      else
-      {
-          %>          
-          <h5 class="text-error"><%=TheResourceBundle.getString("Jsp Bad Task Msg")%></h5>
-          <%
-      }
-  }
-%>
+    <%
+    }
+    else{
+    %>          
+      <h5 class="text-error"><%=TheResourceBundle.getString("Jsp Bad Task Msg")%></h5>
+    <%
+    }
+    %>

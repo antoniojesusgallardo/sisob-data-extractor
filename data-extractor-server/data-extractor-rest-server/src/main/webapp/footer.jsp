@@ -22,15 +22,22 @@
         <img src="img/seventh.png" alt="Seventh Framework Programme" width="60" height="60"/>                             
         <img src="img/flag.png" alt="EU flag" width="85" height="60"/>   
         <a href="http://www.uma.es">
-		<img src="img/uma.jpg" height="60" alt="Universidad de Malaga" />
+            <img src="img/uma.jpg" height="60" alt="Universidad de Malaga" />
 	</a>
 	<a href="http://iaia.lcc.uma.es">
-		<img src="img/ia2s.gif" height="60" width="234" alt="(IA)2 research group"/>
+            <img src="img/ia2s.gif" height="60" width="234" alt="(IA)2 research group"/>
 	</a>
     </div>    
     <div>
-        <a href="http://iaia.lcc.uma.es">(IA)2 Research group</a>. <a href="http://www.uma.es">Universidad de M&aacute;laga</a>. SISOB Consortium 2011-2013.<br/> 
-        The <a href="http://sisob.lcc.uma.es">SISOB project</a> was supported by the European Commission, <br/>call FP7-SCIENCE-IN-SOCIETY-2010-1, as a Collaborative Project under the 7th Framework Programme, Grant agreement no.: 266588.
+        <a href="http://iaia.lcc.uma.es">(IA)2 Research group</a>. 
+        <a href="http://www.uma.es">Universidad de M&aacute;laga</a>. 
+        SISOB Consortium 2011-2013.
+        <br/> 
+        The <a href="http://sisob.lcc.uma.es">SISOB project</a> 
+        was supported by the European Commission, 
+        <br/>
+        call FP7-SCIENCE-IN-SOCIETY-2010-1, as a Collaborative Project under 
+        the 7th Framework Programme, Grant agreement no.: 266588.
     </div>
 </div>
     
