@@ -17,13 +17,12 @@
     You should have received a copy of the GNU General Public License
     along with SISOB Data Extractor. If not, see <http://www.gnu.org/licenses/>.
 --%>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+
 <%@page import="eu.sisob.uma.restserver.TheResourceBundle"%>
 
 <%@page session="true"%>
-<% 
-String user         = (String)session.getAttribute("user");
-String showUserLogged = request.getParameter("showUserLogged");
-%>
+
 <html lang="en">
     <head>
         <!-- Force latest IE rendering engine or ChromeFrame if installed -->
@@ -71,13 +70,11 @@ String showUserLogged = request.getParameter("showUserLogged");
                         </td>
                     </tr>   
                 </table>  
-
-                <%    
-                if("true".equals(showUserLogged)){        
-                %>
+                     
+                <c:if test="${param.showUserLogged == true}">
                     <blockquote>
                         <h4 class="text-success"  style="float:left;">
-                            (<%=user%> : <%=TheResourceBundle.getString("Jsp Auth Msg")%>)
+                            (${sessionScope.user} : <%=TheResourceBundle.getString("Jsp Auth Msg")%>)
                         </h4>
                         <h4  style="float:right;">
                             <span>
@@ -85,8 +82,6 @@ String showUserLogged = request.getParameter("showUserLogged");
                             </span>   
                         </h4>
                     </blockquote>
-                <%
-                }
-                %>
+                </c:if>
             </div>           
         </div>

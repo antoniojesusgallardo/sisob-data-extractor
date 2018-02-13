@@ -4,7 +4,7 @@
 
     <groupId>eu.sisob.uma</groupId>
     <artifactId>data-extractor-rest-server</artifactId>
-    <version>1.0.1-RELEASE</version>
+    <version>1.0.2-RELEASE</version>
     <packaging>war</packaging>
 
     <name>data-extractor-rest-server</name>

@@ -34,6 +34,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.StringWriter;
 import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.Path;
 import javax.ws.rs.GET;
@@ -49,7 +50,7 @@ import org.codehaus.jettison.json.JSONObject;
 @Path("/file")
 public class RESTSERVICEFile {
     
-    private static final java.util.logging.Logger LOG = java.util.logging.Logger.getLogger(RESTSERVICEFile.class.getName());
+    private static final Logger LOG = Logger.getLogger(RESTSERVICEFile.class.getName());
         
     
     @GET
@@ -59,16 +60,14 @@ public class RESTSERVICEFile {
         Response response = null;
                 
         //Security
-        if(file.contains("\\") || file.contains("/"))
-        {
+        if(file.contains("\\") || file.contains("/")){
             response = Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
             return response;
         }
         
         StringWriter message = new StringWriter();
 
-        if(AuthorizationManager.validateAccess(user, pass, message))
-        {   
+        if(AuthorizationManager.validateAccess(user, pass, message)){   
             String fpath = AuthorizationManager.TASKS_USERS_PATH + File.separator + 
                            user + File.separator +
                            task_code + File.separator + 
@@ -93,8 +92,7 @@ public class RESTSERVICEFile {
                 response = Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
             }        
         }
-        else
-        {
+        else{
             response = Response.status(Response.Status.UNAUTHORIZED).build();
         }
         
@@ -128,19 +126,9 @@ public class RESTSERVICEFile {
             byte[] docStream = null;
             
             try {
-//                docStream = org.apache.commons.io.FileUtils.readFileToByteArray(f);
-//                response = Response
-//                        .ok(docStream, MediaType.APPLICATION_OCTET_STREAM)
-//                        .header("content-disposition","attachment; filename = " + f.getName())
-//                        .build();                
-                
 		response =  Response.ok((Object) f)
                             .header("Content-Disposition", "attachment; filename=\"" + f.getName() + "\"")
-                            .build();
-
-            //} catch (FileNotFoundException ex) {
-            //    LOG.log(Level.SEVERE, "FIXME", ex);   
-            //    response = Response.status(Response.Status.NOT_FOUND).build();            
+                            .build();           
             } catch (Exception ex) {
                 LOG.log(Level.SEVERE, "FIXME", ex);   
                 response = Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
@@ -164,37 +152,30 @@ public class RESTSERVICEFile {
         OutputAuthorizationResult r = new OutputAuthorizationResult();
         
         //Security
-        if(file.contains("\\") || file.contains("/"))
-        {
+        if(file.contains("\\") || file.contains("/")){
             r.success = false;
             r.message = "Unautorized access";
         }
         
         StringWriter message = new StringWriter();
-        if(AuthorizationManager.validateAccess(user, pass, message))
-        {
+        if(AuthorizationManager.validateAccess(user, pass, message)){
             String fpath = AuthorizationManager.TASKS_USERS_PATH + File.separator + user + File.separator + task_code + File.separator + File.separator + file;        
             File f = new File(fpath);
-            if(f.exists())
-            {
-                try
-                {
+            if(f.exists()){
+                try{
                     f.delete();
                     r.success = true;
                 }
-                catch(Exception ex)
-                {
+                catch(Exception ex){
                     LOG.log(Level.SEVERE, "Error deleting file (" + f.getAbsolutePath() + "): " + ex.getMessage());
                     r.success = false;
                 }
             }
-            else
-            {
+            else{
                 r.success = false;
             }
         }
-        else
-        {
+        else{
             r.success = false;
             r.message = message.toString();
         }     
@@ -221,11 +202,9 @@ public class RESTSERVICEFile {
         {
             OutputTaskStatus task_status = TaskManager.getTaskStatus(user, pass, task_code, false, false, false);
 
-            if(task_status.status.equals(OutputTaskStatus.TASK_STATUS_TO_EXECUTE))
-            {
+            if(task_status.getStatus().equals(OutputTaskStatus.TASK_STATUS_TO_EXECUTE)){
                 //Security
-                if(fileDetail.getFileName().contains("\\") || fileDetail.getFileName().contains("/"))
-                {
+                if(fileDetail.getFileName().contains("\\") || fileDetail.getFileName().contains("/")){
                     response = Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
                     return response;
                 }
@@ -238,8 +217,7 @@ public class RESTSERVICEFile {
                 byte[] bytes = new byte[1024];
                 JSONObject jsono = new JSONObject();                    
                 
-                try 
-                {                    
+                try{                    
                     out = new FileOutputStream(file);
                     while ((read = uploadedInputStream.read(bytes)) != -1) {
                             size += read;
@@ -256,44 +234,34 @@ public class RESTSERVICEFile {
                     
                     response = Response.status(200).entity(json.toString()).build();
                 }                 
-                catch (IOException e) 
-                {
+                catch (IOException e){
                     LOG.log(Level.SEVERE, "Error uploading file (" + file.getAbsolutePath() + "): " + e.getMessage());
                     response = Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(TheResourceBundle.getString("Upload Fail")).build();
                 }     
-                catch (JSONException ex) 
-                {
+                catch (JSONException ex){
                     LOG.log(Level.SEVERE, "Error generatin json (" + file.getAbsolutePath() + "): " + ex.getMessage());
                     response = Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(TheResourceBundle.getString("Upload Fail")).build();
                 } 
-                finally
-                {
-                    try
-                    {
+                finally{
+                    try{
                         out.flush();
                         out.close();
                         out = null;
                         System.gc();
                     }
-                    catch (IOException e)
-                    {          
+                    catch (IOException e){
                         LOG.log(Level.SEVERE, "Error closing file (" + file.getAbsolutePath() + "): " + e.getMessage());
                         response = Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(TheResourceBundle.getString("Upload Fail")).build();
                     }
                 }    
             }
-            else
-            {
-                response = Response.status(Response.Status.PRECONDITION_FAILED).entity(task_status.message).build();
+            else{
+                response = Response.status(Response.Status.PRECONDITION_FAILED).entity(task_status.getMessage()).build();
             }
         }
-        else
-        {
+        else{
             response = Response.status(Response.Status.INTERNAL_SERVER_ERROR).entity(TheResourceBundle.getString("Upload Fail")).build();            
         }
-        // save it
-        //writeToFile(uploadedInputStream, uploadedFileLocation);
         return response;
-        
     }
 }

@@ -19,6 +19,8 @@
 */
 package eu.sisob.uma.restserver.services.communications;
 
+import java.util.ArrayList;
+import java.util.List;
 import javax.xml.bind.annotation.XmlRootElement;
 
 
@@ -63,9 +65,10 @@ public class OutputTaskStatus
         date_started = "";
         date_finished = "";
 
-        result = "";      
-        source = "";
-        verbose = "";
+        results = new ArrayList<String[]>();      
+        source = new ArrayList<String[]>();
+        verbose = new ArrayList<String[]>();
+        params = new ArrayList<String[]>(); 
         errors = "";
 
         feedback = "";   
@@ -74,62 +77,175 @@ public class OutputTaskStatus
     /**
      *
      */
-    public String status;      
+    private String status;      
     /**
      *
      */
-    public String message;
+    private String message;
     /**
      *
      */
-    public String task_code;   
+    private String task_code;   
     /**
      *
      */
-    public String name;   
+    private String name;   
     /**
      *
      */
-    public String kind;
+    private String kind;
     /**
      *
      */
-    public String params;
+    private List<String[]> params;
 
     /**
      *
      */
-    public String date_created;
+    private String date_created;
     /**
      *
      */
-    public String date_started;
+    private String date_started;
     /**
      *
      */
-    public String date_finished;
+    private String date_finished;
+
+    /**
+     *
+     */ 
+    private List<String[]> results;
+    /**
+     *
+     */
+    private List<String[]> source;  
+    /**
+     *
+     */
+    private List<String[]> verbose;  
+    /**
+     *
+     */
+    private String errors;
 
     /**
      *
      */
-    public String result;      
-    /**
-     *
-     */
-    public String source;  
-    /**
-     *
-     */
-    public String verbose;  
-    /**
-     *
-     */
-    public String errors;
+    private String feedback;   
 
-    /**
-     *
-     */
-    public String feedback;   
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    public String getMessage() {
+        return message;
+    }
+
+    public void setMessage(String message) {
+        this.message = message;
+    }
+    
+    public String getTask_code() {
+        return task_code;
+    }
+
+    public void setTask_code(String task_code) {
+        this.task_code = task_code;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getKind() {
+        return kind;
+    }
+
+    public void setKind(String kind) {
+        this.kind = kind;
+    }
+
+    public List<String[]> getParams() {
+        return params;
+    }
+
+    public void setParams(List<String[]> params) {
+        this.params = params;
+    }
+
+    public String getDate_created() {
+        return date_created;
+    }
+
+    public void setDate_created(String date_created) {
+        this.date_created = date_created;
+    }
+    
+    public String getDate_started() {
+        return date_started;
+    }
+
+    public void setDate_started(String date_started) {
+        this.date_started = date_started;
+    }
+
+    public String getDate_finished() {
+        return date_finished;
+    }
+
+    public void setDate_finished(String date_finished) {
+        this.date_finished = date_finished;
+    }
+
+    public List<String[]> getResults() {
+        return results;
+    }
+
+    public void setResults(List<String[]> results) {
+        this.results = results;
+    }
+
+    public List<String[]> getSource() {
+        return source;
+    }
+
+    public void setSource(List<String[]> source) {
+        this.source = source;
+    }
+
+    public List<String[]> getVerbose() {
+        return verbose;
+    }
+
+    public void setVerbose(List<String[]> verbose) {
+        this.verbose = verbose;
+    }
+
+    public String getErrors() {
+        return errors;
+    }
+
+    public void setErrors(String errors) {
+        this.errors = errors;
+    }
+    
+    public String getFeedback() {
+        return feedback;
+    }
+
+    public void setFeedback(String feedback) {
+        this.feedback = feedback;
+    }
+    
 }
 
     

@@ -17,6 +17,24 @@
     You should have received a copy of the GNU General Public License
     along with SISOB Data Extractor. If not, see <http://www.gnu.org/licenses/>.
 --%>
+
+<%
+    // Validate data
+    if( session == null || 
+        session.getAttribute("user")==null ||
+        session.getAttribute("pass")==null ){
+        if(session != null){
+            session.invalidate();
+        }
+        response.sendRedirect("index.jsp?message=notAllowed");
+        return;
+    }
+    if(request.getAttribute("task") == null){
+        response.sendRedirect("error.jsp");
+        return;
+    }
+%>                
+
 <div class="well" id="instructions">   
-    <h4>${param.message}</h4>
+    <h4>${task.message}</h4>
 </div>

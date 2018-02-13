@@ -102,9 +102,9 @@ public class RESTSERVICETask {
         
         OutputTaskStatus r = new OutputTaskStatus();            
         
-        r.status = status.toString();
-        r.message = message.toString();
-        r.task_code = new_task_code;
+        r.setStatus(status.toString());
+        r.setMessage(message.toString());
+        r.setTask_code(new_task_code);
         
         return r;
     }   
@@ -118,32 +118,21 @@ public class RESTSERVICETask {
         
         synchronized (AuthorizationManager.getLocker(input.user)) 
         {                
-            OutputTaskStatus task_status = TaskManager.getTaskStatus(input.user, input.pass, input.task_code, false, false, false);            
+            OutputTaskStatus task = TaskManager.getTaskStatus(input.user, input.pass, input.task_code, false, false, false);            
             
-            result.message = task_status.message.toString();
-            if(task_status.status.equals(OutputTaskStatus.TASK_STATUS_NO_AUTH))            
-            {
+            if( task.getStatus().equals(OutputTaskStatus.TASK_STATUS_NO_AUTH) ||
+                task.getStatus().equals(OutputTaskStatus.TASK_STATUS_NO_ACCESS) ||
+                task.getStatus().equals(OutputTaskStatus.TASK_STATUS_EXECUTING) ||
+                task.getStatus().equals(OutputTaskStatus.TASK_STATUS_TO_EXECUTE) )
+            {   
                 result.success = false;                 
-                result.message = "The task couldn't be deleted. " + task_status.message;
-            }
-            else if(task_status.status.equals(OutputTaskStatus.TASK_STATUS_NO_ACCESS))            
-            {
-                result.success = false;                    
-                result.message = "The task couldn't be deleted. " + task_status.message;
-            }
-            else if(task_status.status.equals(OutputTaskStatus.TASK_STATUS_EXECUTING))
-            {
-                result.success = false;              
-                result.message = "The task couldn't be deleted. " + task_status.message;
-            }
-            else if(task_status.status.equals(OutputTaskStatus.TASK_STATUS_TO_EXECUTE))
-            {
-                result.success = false;              
-                result.message = "The task couldn't be deleted. " + task_status.message;                
-            }            
-            else if(task_status.status.equals(OutputTaskStatus.TASK_STATUS_EXECUTED))
+                result.message = "The task couldn't be deleted. " + task.getMessage();
+            }           
+            else if(task.getStatus().equals(OutputTaskStatus.TASK_STATUS_EXECUTED))
             { 
-                String code_task_folder = AuthorizationManager.TASKS_USERS_PATH + File.separator + input.user + File.separator + input.task_code;
+                String code_task_folder = AuthorizationManager.TASKS_USERS_PATH + File.separator + 
+                                            input.user + File.separator + 
+                                            input.task_code;
                 File dir_to_delete = new File(code_task_folder);
                 try{
                     FileUtils.deleteDirectory(dir_to_delete);   
@@ -181,31 +170,20 @@ public class RESTSERVICETask {
         {                
             OutputTaskStatus task_status = TaskManager.getTaskStatus(input.user, input.pass, input.task_code, false, false, false);            
             
-            result.message = task_status.message.toString();
-            if(task_status.status.equals(OutputTaskStatus.TASK_STATUS_NO_AUTH))            
+            result.message = task_status.getMessage();
+            if(task_status.getStatus().equals(OutputTaskStatus.TASK_STATUS_NO_AUTH) || 
+                task_status.getStatus().equals(OutputTaskStatus.TASK_STATUS_NO_ACCESS) || 
+                task_status.getStatus().equals(OutputTaskStatus.TASK_STATUS_EXECUTING) || 
+                task_status.getStatus().equals(OutputTaskStatus.TASK_STATUS_TO_EXECUTE))            
             {
                 result.success = false;                 
-                result.message = task_status.message;
-            }
-            else if(task_status.status.equals(OutputTaskStatus.TASK_STATUS_NO_ACCESS))            
-            {
-                result.success = false;                    
-                result.message = task_status.message;
-            }
-            else if(task_status.status.equals(OutputTaskStatus.TASK_STATUS_EXECUTING))
-            {
-                result.success = false;              
-                result.message = task_status.message;
-            }
-            else if(task_status.status.equals(OutputTaskStatus.TASK_STATUS_TO_EXECUTE))
-            {
-                result.success = false;              
-                result.message = task_status.message;
-                
-            }            
-            else if(task_status.status.equals(OutputTaskStatus.TASK_STATUS_EXECUTED))
+                result.message = task_status.getMessage();
+            }           
+            else if(task_status.getStatus().equals(OutputTaskStatus.TASK_STATUS_EXECUTED))
             { 
-                String code_task_folder = AuthorizationManager.TASKS_USERS_PATH + File.separator + input.user + File.separator + input.task_code;           
+                String code_task_folder = AuthorizationManager.TASKS_USERS_PATH + File.separator + 
+                                            input.user + File.separator + 
+                                            input.task_code;           
                 
                 try {
                        File params_file = (new File(code_task_folder + File.separator + AuthorizationManager.params_flag_file));
@@ -228,7 +206,7 @@ public class RESTSERVICETask {
                        }                            
     
                 } catch (Exception ex) {
-                       LOG.log(Level.SEVERE, "Error reading params filename " + AuthorizationManager.params_flag_file + "(" + code_task_folder + ")", ex); //FIXME
+                    LOG.log(Level.SEVERE, "Error reading params filename " + AuthorizationManager.params_flag_file + "(" + code_task_folder + ")", ex); //FIXME
                 }   
                 
                 if(input.task_kind.equals("crawler"))
@@ -392,29 +370,16 @@ public class RESTSERVICETask {
         {                
             OutputTaskStatus task_status = TaskManager.getTaskStatus(input.user, input.pass, input.task_code, false, false, false);
             
-            result.message = task_status.message.toString();
-            if(task_status.status.equals(OutputTaskStatus.TASK_STATUS_NO_AUTH))            
+            result.message = task_status.getMessage();
+            if(task_status.getStatus().equals(OutputTaskStatus.TASK_STATUS_NO_AUTH) || 
+                task_status.getStatus().equals(OutputTaskStatus.TASK_STATUS_NO_ACCESS) ||
+                task_status.getStatus().equals(OutputTaskStatus.TASK_STATUS_EXECUTING) ||
+                task_status.getStatus().equals(OutputTaskStatus.TASK_STATUS_EXECUTED))            
             {
                 result.success = false;                 
-                result.message = task_status.message;
-            }
-            else if(task_status.status.equals(OutputTaskStatus.TASK_STATUS_NO_ACCESS))            
-            {
-                result.success = false;                    
-                result.message = task_status.message;
-            }
-            else if(task_status.status.equals(OutputTaskStatus.TASK_STATUS_EXECUTING))
-            {
-                result.success = false;              
-                result.message = task_status.message;
-            }
-            else if(task_status.status.equals(OutputTaskStatus.TASK_STATUS_EXECUTED))
-            {
-                result.success = false;              
-                result.message = task_status.message;
-                
-            }            
-            else if(task_status.status.equals(OutputTaskStatus.TASK_STATUS_TO_EXECUTE))
+                result.message = task_status.getMessage();
+            }         
+            else if(task_status.getStatus().equals(OutputTaskStatus.TASK_STATUS_TO_EXECUTE))
             {     
                 String code_task_folder = AuthorizationManager.TASKS_USERS_PATH + File.separator + input.user + File.separator + input.task_code;                 
 
@@ -562,14 +527,11 @@ public class RESTSERVICETask {
                         }                          
                     } catch (Exception ex) {
                         LOG.log(Level.SEVERE, "Error creating params filename " + AuthorizationManager.params_flag_file + "(" + code_task_folder + ")", ex); //FIXME
-                    }                    
-                    
+                    }  
                 }   
-                
             }            
         }
 
         return result;
-        
     }
 }

@@ -31,5 +31,14 @@ public class OutputTaskStatusList
     /**
      *
      */
-    public OutputTaskStatus[] task_status_list;
+    private OutputTaskStatus[] task_status_list;
+
+    
+    public OutputTaskStatus[] getTask_status_list() {
+        return task_status_list;
+    }
+
+    public void setTask_status_list(OutputTaskStatus[] task_status_list) {
+        this.task_status_list = task_status_list;
+    }
 }

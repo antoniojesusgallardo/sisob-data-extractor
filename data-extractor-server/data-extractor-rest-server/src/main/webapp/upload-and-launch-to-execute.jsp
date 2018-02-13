@@ -17,6 +17,8 @@
     You should have received a copy of the GNU General Public License
     along with SISOB Data Extractor. If not, see <http://www.gnu.org/licenses/>.
 --%>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+
 <%@page import="eu.sisob.uma.restserver.TheConfig"%>
 <%@page import="eu.sisob.uma.restserver.TheResourceBundle"%>   
 <%@page import="eu.sisob.uma.restserver.services.gateCH.GateTaskCH"%>
@@ -25,6 +27,7 @@
 
 <%@page session="true"%>
 <%
+    // Validate data
     if( session == null || 
         session.getAttribute("user")==null ||
         session.getAttribute("pass")==null ){
@@ -34,9 +37,10 @@
         response.sendRedirect("index.jsp?message=notAllowed");
         return;
     }
-    
-    String user = (String)session.getAttribute("user");
-    String pass = (String)session.getAttribute("pass");
+    if(request.getAttribute("task") == null){
+        response.sendRedirect("error.jsp");
+        return;
+    }
     
     List<String[]> taskTypes = new ArrayList<String[]>();
     String[] none = {"none", TheResourceBundle.getString("Jsp Select Task Msg")};  
@@ -67,17 +71,19 @@
         String[] email = {"email", TheResourceBundle.getString("Task Email Title")};  
         taskTypes.add(email);              
     }
-%>                
+    
+    request.setAttribute("taskTypes", taskTypes);
+%>
 
 
 <div class="well" id="task-selection">
-    <h4>${param.message}</h4>
+    <h4>${task.message}</h4>
     <h5><%=TheResourceBundle.getString("Jsp Select Task Msg")%></h5>
     <select class="chzn-select" id="task-selector">                
-        <% for(String[] iOption : taskTypes) { %>                
-            <option value="<%=iOption[0]%>"><%=iOption[1]%></option>                
-        <% } %>
-    </select>    
+        <c:forEach items="${taskTypes}" var="taskType">
+            <option value="${taskType[0]}">${taskType[1]}</option>
+        </c:forEach>
+    </select>
 </div>
     
 <div class="well" id="instructions">            
@@ -91,9 +97,9 @@
     <!-- The file upload form used as target for the file upload widget -->
     <form id="fileupload" action="resources/file/upload" method="POST" enctype="multipart/form-data">
         <!-- The fileupload-buttonbar contains buttons to add/delete files and start/cancel the upload -->            
-        <input type="hidden" value="<%=user%>" name="user" />
-        <input type="hidden" value="<%=pass%>" name="pass" />
-        <input type="hidden" value="${param.task_code}" name="task_code" />
+        <input type="hidden" value="${sessionScope.user}" name="user" />
+        <input type="hidden" value="${sessionScope.pass}" name="pass" />
+        <input type="hidden" value="${task.task_code}" name="task_code" />
         <div class="row fileupload-buttonbar">
             <div class="span7">
                     (need to update)
@@ -261,20 +267,17 @@
     
 $(document).ready(function()
 {
-    function showModal(pType, pMessage){
-        var htmlMessage = "<h4 class='text-"+pType+"'>" + pMessage + "</h4>";
-        $("div#task-result").html(htmlMessage);
-        $('#test_modal').modal('show');
-    }
+    var user = "${sessionScope.user}";
+    var pass = "${sessionScope.pass}";
     
     $("select#task-selector").change(function(){
 
-        var task = $("select#task-selector").val();
+        var taskKind = $("select#task-selector").val();
         $.ajax({
             type: "GET",
             url: "get-task-desc.jsp",
             dataType: 'text',
-            data: "task=" + task + "&user=<%=user%>&pass=<%=pass%>",
+            data: "taskKind=" + taskKind,
             success: function(result){                        
                 $("div#instructions").html(result);
             },
@@ -288,10 +291,7 @@ $(document).ready(function()
             
     $("button#task-launcher").click(function(){
 
-        var task = $("select#task-selector").val();
-        var user = "<%=user%>";
-        var pass = "<%=pass%>";
-        var task_code = "${param.task_code}";
+        var taskKind = $("select#task-selector").val();
         var parameters_names = new Array();
         var parameters_values = new Array();
 
@@ -308,8 +308,8 @@ $(document).ready(function()
         var data = {
             user: user, 
             pass: pass, 
-            task_code: task_code,
-            task_kind: task,
+            task_code: "${task.task_code}",
+            task_kind: taskKind,
             parameters: []
         }
 
@@ -319,7 +319,7 @@ $(document).ready(function()
             });
         }
 
-        if(task != "none"){
+        if(taskKind != "none"){
             $.ajax({ 
                 type: "POST",
                 url: "resources/task/launch",
@@ -328,13 +328,13 @@ $(document).ready(function()
                 contentType: 'application/json',                            
                 success: function(result){
                     if(result.success == "true"){
-                        showModal("success", "("+task+")  "+result.message);
+                        showModal("success", "("+taskKind+")  "+result.message);
                         setTimeout(function() {
-                            window.location = 'upload-and-launch.jsp?task_code=' + task_code;
+                            window.location = 'upload-and-launch.jsp?task_code=' + '${task.task_code}';
                         }, 2000);                                        
                     }
                     else{
-                        showModal("warning", "("+task+")  "+result.message);
+                        showModal("warning", "("+taskKind+")  "+result.message);
                     }
                 },
                 error: function(xml,result){
@@ -346,5 +346,11 @@ $(document).ready(function()
             });                                                           
         }
     });
+    
+    function showModal(pType, pMessage){
+        var htmlMessage = "<h4 class='text-"+pType+"'>" + pMessage + "</h4>";
+        $("div#task-result").html(htmlMessage);
+        $('#test_modal').modal('show');
+    }
 });
 </script>

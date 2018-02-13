@@ -23,14 +23,12 @@
 --%>
 
 <!DOCTYPE HTML>
-<%@page import="com.sun.jersey.api.client.Client"%>
-<%@page import="com.sun.jersey.api.client.WebResource"%>
-<%@page import="com.sun.jersey.core.util.MultivaluedMapImpl"%>
+<%@page import="eu.sisob.uma.restserver.RESTClient"%>
 <%@page import="eu.sisob.uma.restserver.services.communications.OutputAuthorizationResult"%>
 <%@page import="eu.sisob.uma.restserver.TheConfig"%>
 <%@page import="java.security.MessageDigest"%>
-<%@page import="javax.ws.rs.core.MediaType"%>
-<%@page import="javax.ws.rs.core.MultivaluedMap"%>
+<%@page import="java.util.Map"%>
+<%@page import="java.util.HashMap"%>
 
 <%@page session="true"%>
 <%
@@ -50,17 +48,14 @@
     pass = sb.toString();
     // END - Convert password to SHA-256
 
-    Client client = Client.create();
-
-    MultivaluedMap authParams = new MultivaluedMapImpl();
-    authParams.add("user", user);
-    authParams.add("pass", pass);
-    String urlAuth = TheConfig.getInstance().getString(TheConfig.SERVER_URL) + "/resources/authorization";
-    WebResource webResourceAuth = client.resource(urlAuth);
-    OutputAuthorizationResult auth_result = webResourceAuth.queryParams(authParams)
-                                            .accept(MediaType.APPLICATION_JSON)
-                                            .get(OutputAuthorizationResult.class);
-
+    // API REST - Authorization
+    Map params = new HashMap();
+    params.put("user", user);
+    params.put("pass", pass);
+    RESTClient restClient = new RESTClient("/authorization", OutputAuthorizationResult.class, params);
+    OutputAuthorizationResult auth_result = (OutputAuthorizationResult)restClient.get();
+           
+    // Redirect
     if(!auth_result.success){
         response.sendRedirect("index.jsp?message=unauth_data"); 
     }

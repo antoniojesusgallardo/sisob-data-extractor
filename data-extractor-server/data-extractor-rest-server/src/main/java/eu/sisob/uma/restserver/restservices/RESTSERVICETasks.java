@@ -20,10 +20,7 @@
 package eu.sisob.uma.restserver.restservices;
 
 import eu.sisob.uma.restserver.AuthorizationManager;
-import eu.sisob.uma.restserver.SystemManager;
 import eu.sisob.uma.restserver.TaskManager;
-import eu.sisob.uma.restserver.TheResourceBundle;
-import eu.sisob.uma.restserver.services.communications.OutputAuthorizationResult;
 import eu.sisob.uma.restserver.services.communications.OutputTaskStatus;
 import eu.sisob.uma.restserver.services.communications.OutputTaskStatusList;
 import java.io.StringWriter;
@@ -35,7 +32,6 @@ import javax.ws.rs.core.Context;
 import javax.ws.rs.core.UriInfo;
 import javax.ws.rs.Path;
 import javax.ws.rs.GET;
-import javax.ws.rs.POST;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 
@@ -66,16 +62,14 @@ public class RESTSERVICETasks
         if(user == null) user = "";
         if(pass == null) pass = "";
         
-        StringWriter message = new StringWriter();
-        synchronized(user)
-        {
-            if(AuthorizationManager.validateAccess(user, pass, message))
-            {
+        synchronized(user){
+            
+            if(AuthorizationManager.validateAccess(user, pass, new StringWriter())){
+                
                 List<String> task_codes = TaskManager.listTasks(user, pass);
                 List<OutputTaskStatus> task_status_list = new ArrayList<OutputTaskStatus>();
                 
-                for(String task_code : task_codes)
-                {
+                for(String task_code : task_codes){
                     OutputTaskStatus task_status = TaskManager.getTaskStatus(user, pass, task_code, true, false, false);
                     task_status_list.add(task_status);
                 }
@@ -86,33 +80,23 @@ public class RESTSERVICETasks
                     public int compare(OutputTaskStatus o1, OutputTaskStatus o2) {                        
                         int r = -1;                    
                         try {                            
-                            Integer i1 = Integer.parseInt(o1.task_code);                            
-                            r = i1.compareTo(Integer.parseInt(o2.task_code));
+                            Integer i1 = Integer.parseInt(o1.getTask_code());                            
+                            r = i1.compareTo(Integer.parseInt(o2.getTask_code()));
                         } catch(Exception ex) {
                             
                         }
                         return r;
                     }
-                    
                 });
                 
                 result.success = true;                
-                result.task_status_list = task_status_list.toArray(new OutputTaskStatus[task_status_list.size()]);
+                result.setTask_status_list(task_status_list.toArray(new OutputTaskStatus[task_status_list.size()]));
             }
-            else
-            {
+            else{
                 result.success = false;
-                result.task_status_list = null;
-            }
-                   
+                result.setTask_status_list(null);
+            }      
         }
-        
-        /*
-        OutputTaskStatus r = new OutputTaskStatus();                    
-        r.message = status.toString();
-        r.message = message.toString();
-        r.data = new_task_code;         
-        */
         
         return result;
     }

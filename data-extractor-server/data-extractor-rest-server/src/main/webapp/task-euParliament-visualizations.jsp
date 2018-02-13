@@ -22,6 +22,8 @@
     Author: Antonio Jesus Gallardo Albarran - antonio.jesus.gallardo@gmail.com
 --%>
 
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+
 <%@page import="eu.sisob.uma.restserver.AuthorizationManager"%>
 <%@page import="eu.sisob.uma.restserver.SystemManager"%>
 <%@page import="eu.sisob.uma.restserver.TheResourceBundle"%>
@@ -52,13 +54,21 @@
                                                                   "", 
                                                                   AuthorizationManager.results_dirname);
     
-    String urlBaseData = "task-euParliament-data.jsp"+"?task_code="+task_code+"&speech_id=";
+    List<String> visualizationNames = new ArrayList<String>();
+    visualizationNames.add("temporalEvolution");
+    visualizationNames.add("wordCloud");
+    visualizationNames.add("generalIndicators");
+    visualizationNames.add("speechesByCountries");
     
-    List<String> visualizationsTypes = new ArrayList<String>();
-    visualizationsTypes.add("temporalEvolution");
-    visualizationsTypes.add("wordCloud");
-    visualizationsTypes.add("generalIndicators");
-    visualizationsTypes.add("speechesByCountries");
+    List<String[]> visualizationTypes = new ArrayList<String[]>();
+    for (String strType : visualizationNames) {
+        String[] iArray = {strType, 
+                            TheResourceBundle.getString("Jsp_euParliament_visualizations_"+strType)};
+        
+        visualizationTypes.add(iArray);
+    }
+    
+    request.setAttribute("visualizationTypes", visualizationTypes);
 %>
 
 <%-- Library: NDD3.js - D3.js --%>
@@ -100,11 +110,9 @@
         
         <%=TheResourceBundle.getString("Jsp_euParliament_visualizations_selectVisualizations")%>:
         <select class="chzn-select" id="visualization-selector" onchange="Visualizations.changeSelector();">   
-            <% for(String iVisualization : visualizationsTypes) { %>                
-            <option value="<%=iVisualization%>">
-                <%=TheResourceBundle.getString("Jsp_euParliament_visualizations_"+iVisualization) %>
-            </option>                
-            <% } %>
+            <c:forEach items="${visualizationTypes}" var="iType">
+                <option value="${iType[0]}">${iType[1]}</option>
+            </c:forEach>
         </select>
         
         <div id="chart1"></div>
@@ -117,8 +125,8 @@
     var jsonData_ontologies;
     var jsonData_speeches;
     
+    var taskCode = ${param.task_code};
     var urlBaseJson = '<%=urlBaseJson%>';
-    var urlBaseData = '<%=urlBaseData%>'
     
     Visualizations.init();    
 </script>

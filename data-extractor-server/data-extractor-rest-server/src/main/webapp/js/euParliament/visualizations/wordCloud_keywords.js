@@ -148,7 +148,9 @@ function drawKeywords(pJsonData){
         $.each(pData.speeches, function (indexSpeech, iSpeech) {
            
             var speechData      = iSpeech.id.replace(/_/g, " ");
-            var hrefTextDetails = urlBaseData + iSpeech.id;
+            var hrefTextDetails = "task-euParliament-data.jsp"+
+                                        "?task_code="+taskCode+
+                                        "&speech_id="+iSpeech.id;
             var hrefTextEU      = iSpeech.textURI;
             
             htmlRows += htmlTemplateRow;

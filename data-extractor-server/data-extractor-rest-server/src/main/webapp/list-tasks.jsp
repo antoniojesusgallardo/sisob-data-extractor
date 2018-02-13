@@ -18,15 +18,14 @@
     along with SISOB Data Extractor. If not, see <http://www.gnu.org/licenses/>.
 --%>
 <!DOCTYPE HTML>
-<%@page import="com.sun.jersey.core.util.MultivaluedMapImpl"%>
-<%@page import="com.sun.jersey.api.client.Client"%>
-<%@page import="com.sun.jersey.api.client.WebResource"%>
-<%@page import="eu.sisob.uma.restserver.TheConfig"%>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+
+<%@page import="eu.sisob.uma.restserver.RESTClient"%>
 <%@page import="eu.sisob.uma.restserver.services.communications.OutputTaskStatusList"%>
 <%@page import="eu.sisob.uma.restserver.services.communications.OutputTaskStatus"%>
 <%@page import="eu.sisob.uma.restserver.TheResourceBundle"%>
-<%@page import="javax.ws.rs.core.MediaType"%>
-<%@page import="javax.ws.rs.core.MultivaluedMap"%>
+<%@page import="java.util.Map"%>
+<%@page import="java.util.HashMap"%>
 
 <%@page session="true"%>
 <%
@@ -42,17 +41,21 @@
     
     String user = (String)session.getAttribute("user");
     String pass = (String)session.getAttribute("pass");
-  
-    Client client = Client.create();
     
-    MultivaluedMap queryParams = new MultivaluedMapImpl();
-    queryParams.add("user", user);
-    queryParams.add("pass", pass);
-
-    WebResource webResourceTasks = client.resource(TheConfig.getInstance().getString(TheConfig.SERVER_URL) + "/resources/tasks");
-    OutputTaskStatusList task_status_list = webResourceTasks.queryParams(queryParams)
-                                  .accept(MediaType.APPLICATION_JSON)
-                                  .get(OutputTaskStatusList.class);
+    // API REST - get tasks
+    Map params = new HashMap();
+    params.put("user", user);
+    params.put("pass", pass);
+    RESTClient restClient = new RESTClient("/tasks", OutputTaskStatusList.class, params);
+    OutputTaskStatusList taskStatusList = (OutputTaskStatusList)restClient.get();
+    
+    // Save the result in the request
+    request.setAttribute("listTasks", taskStatusList.getTask_status_list());
+    
+    // Save constant in the request
+    request.setAttribute("TASK_STATUS_EXECUTED", OutputTaskStatus.TASK_STATUS_EXECUTED);
+    request.setAttribute("TASK_STATUS_EXECUTING", OutputTaskStatus.TASK_STATUS_EXECUTING);
+    request.setAttribute("TASK_STATUS_TO_EXECUTE", OutputTaskStatus.TASK_STATUS_TO_EXECUTE);
 %>
 
 <jsp:include page="header.jsp" >    
@@ -74,34 +77,40 @@
                 <th>Finished</th>
                 <th>View</th>
             </tr>
-        <%
-        if(task_status_list.task_status_list != null)
-        for(OutputTaskStatus task_status : task_status_list.task_status_list){
             
-            String css_style_by_status = "";
-            if(task_status.status.equals(OutputTaskStatus.TASK_STATUS_EXECUTED))
-                css_style_by_status = "success";
-            else if(task_status.status.equals(OutputTaskStatus.TASK_STATUS_TO_EXECUTE))
-                css_style_by_status = "info";
-            else if(task_status.status.equals(OutputTaskStatus.TASK_STATUS_EXECUTING))
-                css_style_by_status = "warning";                
-        %>
-            <tr class="<%=css_style_by_status%>">
-                <td><%=task_status.name%></td>
-                <td><%=task_status.kind%></td>
-                <td><%=task_status.status%></td>
-                <td><%=task_status.date_started%></td>
-                <td><%=task_status.date_finished%></td>
-                <td>
-                    <a class="btn btn-primary" 
-                       href="upload-and-launch.jsp?task_code=<%=task_status.name%>">
-                        View
-                    </a>
-                </td>
-            </tr>                
-        <%
-        }
-        %>
+            <c:if test="${listTasks != null}">
+                <c:forEach items="${listTasks}" var="iTask">
+                    
+                    <c:choose>
+                        <c:when test="${TASK_STATUS_EXECUTED == iTask.status}">
+                            <c:set var="css_status" scope="request" value="success"/>
+                        </c:when>
+                        <c:when test="${TASK_STATUS_TO_EXECUTE == iTask.status}">
+                            <c:set var="css_status" scope="request" value="info"/>
+                        </c:when>
+                        <c:when test="${TASK_STATUS_EXECUTING == iTask.status}">
+                            <c:set var="css_status" scope="request" value="warning"/>
+                        </c:when>
+                        <c:otherwise>
+                            <c:set var="css_status" scope="request" value=""/>
+                        </c:otherwise>
+                    </c:choose>
+                    
+                    <tr class="${css_status}">
+                        <td>${iTask.name}</td>
+                        <td>${iTask.kind}</td>
+                        <td>${iTask.status}</td>
+                        <td>${iTask.date_started}</td>
+                        <td>${iTask.date_finished}</td>
+                        <td>
+                            <a class="btn btn-primary" 
+                               href="upload-and-launch.jsp?task_code=${iTask.name}">
+                                View
+                            </a>
+                        </td>
+                    </tr>
+                </c:forEach>
+            </c:if>       
         </table>
     </div>        
     <div class="well" id="second-step">
@@ -172,4 +181,4 @@
             });
         });
     });
-    </script>  
+</script>  
