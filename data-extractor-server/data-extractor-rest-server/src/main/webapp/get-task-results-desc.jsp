@@ -20,7 +20,6 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 
 <%@page import="eu.sisob.uma.restserver.services.communications.TasksParams"%>
-<%@page import="eu.sisob.uma.restserver.TheResourceBundle"%>
 <%@page import="eu.sisob.uma.restserver.services.gateCH.GateTaskCH"%>
 
 <%

@@ -18,17 +18,18 @@
     along with SISOB Data Extractor. If not, see <http://www.gnu.org/licenses/>.
 --%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
-
-<%@page import="eu.sisob.uma.restserver.TheResourceBundle"%>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 
 <%@page session="true"%>
+
+<fmt:setBundle basename="Bundle" var="msg"/>
 
 <html lang="en">
     <head>
         <!-- Force latest IE rendering engine or ChromeFrame if installed -->
         <!--[if IE]><meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"><![endif]-->
         <meta charset="utf-8">
-        <title><%=TheResourceBundle.getString("Jsp System Title")%></title>
+        <title><fmt:message key="Jsp System Title" bundle="${msg}"/></title>
         <meta name="description" content="">
         <meta name="viewport" content="width=device-width">
         <link rel="stylesheet" href="css/bootstrap.min.2.3.2.css">
@@ -66,7 +67,7 @@
                             <img src="img/sisob_logo.png" />
                         </td>
                         <td>
-                            <h1><%=TheResourceBundle.getString("Jsp System Title")%></h1>          
+                            <h1><fmt:message key="Jsp System Title" bundle="${msg}"/></h1>          
                         </td>
                     </tr>   
                 </table>  
@@ -74,7 +75,8 @@
                 <c:if test="${param.showUserLogged == true}">
                     <blockquote>
                         <h4 class="text-success"  style="float:left;">
-                            (${sessionScope.user} : <%=TheResourceBundle.getString("Jsp Auth Msg")%>)
+                            (${sessionScope.user} : 
+                            <fmt:message key="Jsp Auth Msg" bundle="${msg}"/>)
                         </h4>
                         <h4  style="float:right;">
                             <span>

@@ -18,10 +18,10 @@
     along with SISOB Data Extractor. If not, see <http://www.gnu.org/licenses/>.
 --%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 
 <%@page import="eu.sisob.uma.restserver.services.communications.OutputTaskStatus"%>
 <%@page import="eu.sisob.uma.restserver.services.gateCH.GateTaskCH"%>
-<%@page import="eu.sisob.uma.restserver.TheResourceBundle"%>
 
 <%@page session="true"%>
 <%
@@ -42,6 +42,8 @@
      
     request.setAttribute("GateTaskCH", GateTaskCH.NAME);
 %>
+
+<fmt:setBundle basename="Bundle" var="msg"/>
     
 <div class="well" id="instructions">
     <h4>${task.message}</h4>
@@ -53,7 +55,7 @@
         <div style="text-align: center">
             <a class="btn btn-primary" 
                href="task-euParliament-visualizations.jsp?task_code=${task.task_code}">
-               <%=TheResourceBundle.getString("Jsp_euParliament_show_visualizations")%>
+                <fmt:message key="Jsp_euParliament_show_visualizations" bundle="${msg}"/>
             </a>
         </div>
     </c:if>
@@ -167,7 +169,7 @@
 <div class="modal fade" id="test_modal">
     <div class="modal-header">
         <a class="close" data-dismiss="modal">&times;</a>
-        <h3><%=TheResourceBundle.getString("Jsp Popup Msg")%></h3>
+        <h3><fmt:message key="Jsp Popup Msg" bundle="${msg}"/></h3>
     </div>
     <div class="modal-body">
         <div id="task-result"> 
@@ -215,8 +217,8 @@ $(document).ready(function(){
                 }
             },
             error: function(xml,result){
-                var messageError =  '<%=TheResourceBundle.getString("Jsp Was Error")%> '+
-                                    '<%=TheResourceBundle.getString("Jsp Contact To Admin")%>';
+                var messageError =  '<fmt:message key="Jsp Was Error" bundle="${msg}"/> '+
+                                    '<fmt:message key="Jsp Contact To Admin" bundle="${msg}"/>';
                 showModal("error", messageError);
             }
         });  
@@ -248,8 +250,8 @@ $(document).ready(function(){
                 }
             },
             error: function(xml,result){
-                var messageError =  '<%=TheResourceBundle.getString("Jsp Was Error")%> '+
-                                    '<%=TheResourceBundle.getString("Jsp Contact To Admin")%>';
+                var messageError =  '<fmt:message key="Jsp Was Error" bundle="${msg}"/> '+
+                                    '<fmt:message key="Jsp Contact To Admin" bundle="${msg}"/>';
                 showModal("error", messageError);
             }
         });

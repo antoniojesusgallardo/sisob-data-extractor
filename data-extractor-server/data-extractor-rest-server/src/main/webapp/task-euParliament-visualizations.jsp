@@ -23,6 +23,7 @@
 --%>
 
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 
 <%@page import="eu.sisob.uma.restserver.AuthorizationManager"%>
 <%@page import="eu.sisob.uma.restserver.SystemManager"%>
@@ -69,6 +70,8 @@
     }
     
     request.setAttribute("visualizationTypes", visualizationTypes);
+    request.setAttribute("urlBaseJson", urlBaseJson);
+    request.setAttribute("version", version);
 %>
 
 <%-- Library: NDD3.js - D3.js --%>
@@ -80,23 +83,25 @@
 <script src="nvd3/d3.layout.cloud.js" ></script>
 
 <%-- JavaScript Development - Custom visualizations --%>
-<script src="js/euParliament/util.js?v.<%=version%>" ></script>
-<script src="js/euParliament/visualizations/visualizations.js?v.<%=version%>" ></script>
-<script src="js/euParliament/visualizations/barChart_generalIndicators.js?v.<%=version%>" ></script>
-<script src="js/euParliament/visualizations/barChart_speechesByCountry.js?v.<%=version%>" ></script>
-<script src="js/euParliament/visualizations/lineChart_keywordsEvolution.js?v.<%=version%>" ></script>
-<script src="js/euParliament/visualizations/wordCloud_keywords.js?v.<%=version%>" ></script>
+<script src="js/euParliament/util.js?v.${version}" ></script>
+<script src="js/euParliament/visualizations/visualizations.js?v.${version}" ></script>
+<script src="js/euParliament/visualizations/barChart_generalIndicators.js?v.${version}" ></script>
+<script src="js/euParliament/visualizations/barChart_speechesByCountry.js?v.${version}" ></script>
+<script src="js/euParliament/visualizations/lineChart_keywordsEvolution.js?v.${version}" ></script>
+<script src="js/euParliament/visualizations/wordCloud_keywords.js?v.${version}" ></script>
 
 
 <!DOCTYPE HTML>
+<fmt:setBundle basename="Bundle" var="msg"/>
+
 <jsp:include page="header.jsp" >    
     <jsp:param name="showUserLogged" value="true" />
 </jsp:include>  
 
 <div class="container"> 
     <h5>
-        <a href="upload-and-launch.jsp?task_code=<%=task_code%>">
-            <%=TheResourceBundle.getString("Jsp_euParliament_visualizations_back")%>
+        <a href="upload-and-launch.jsp?task_code=${param.task_code}">
+            <fmt:message key="Jsp_euParliament_visualizations_back" bundle="${msg}"/>
         </a>
     </h5>
 </div>
@@ -105,10 +110,10 @@
     <div class="well" id="instructions">
         
         <h4 style="text-align: center">
-            <%=TheResourceBundle.getString("Jsp_euParliament_visualizations_title")%>
+            <fmt:message key="Jsp_euParliament_visualizations_title" bundle="${msg}"/>
         </h4>
         
-        <%=TheResourceBundle.getString("Jsp_euParliament_visualizations_selectVisualizations")%>:
+        <fmt:message key="Jsp_euParliament_visualizations_selectVisualizations" bundle="${msg}"/>:
         <select class="chzn-select" id="visualization-selector" onchange="Visualizations.changeSelector();">   
             <c:forEach items="${visualizationTypes}" var="iType">
                 <option value="${iType[0]}">${iType[1]}</option>
@@ -125,8 +130,8 @@
     var jsonData_ontologies;
     var jsonData_speeches;
     
-    var taskCode = ${param.task_code};
-    var urlBaseJson = '<%=urlBaseJson%>';
+    var taskCode    = ${param.task_code};
+    var urlBaseJson = '${urlBaseJson}';
     
     Visualizations.init();    
 </script>

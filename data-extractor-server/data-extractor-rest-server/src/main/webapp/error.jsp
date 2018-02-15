@@ -23,7 +23,10 @@
 --%>
 
 <!DOCTYPE HTML>
-<%@page import="eu.sisob.uma.restserver.TheResourceBundle"%>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
+
+<fmt:setBundle basename="Bundle" var="msg"/>
 
 <jsp:include page="header.jsp" >   
     <jsp:param name="showUserLogged" value="false" />
@@ -32,13 +35,13 @@
 <div class="container">   
     <div class="well" style="text-align: center">
         <h4>
-            <%=TheResourceBundle.getString("Jsp Was Error")%>
-            <%=TheResourceBundle.getString("Jsp Contact To Admin")%>
+            <fmt:message key="Jsp Was Error" bundle="${msg}"/>
+            <fmt:message key="Jsp Contact To Admin" bundle="${msg}"/>
         </h4>
         <br/>
         <h4>
             <a href="index.jsp">
-                <%=TheResourceBundle.getString("Jsp Error Go Index")%>
+                <fmt:message key="Jsp Error Go Index" bundle="${msg}"/>
             </a>
         </h4>
     </div>

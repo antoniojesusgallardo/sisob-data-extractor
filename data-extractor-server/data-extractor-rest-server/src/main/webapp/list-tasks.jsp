@@ -19,11 +19,11 @@
 --%>
 <!DOCTYPE HTML>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 
 <%@page import="eu.sisob.uma.restserver.RESTClient"%>
 <%@page import="eu.sisob.uma.restserver.services.communications.OutputTaskStatusList"%>
 <%@page import="eu.sisob.uma.restserver.services.communications.OutputTaskStatus"%>
-<%@page import="eu.sisob.uma.restserver.TheResourceBundle"%>
 <%@page import="java.util.Map"%>
 <%@page import="java.util.HashMap"%>
 
@@ -58,6 +58,8 @@
     request.setAttribute("TASK_STATUS_TO_EXECUTE", OutputTaskStatus.TASK_STATUS_TO_EXECUTE);
 %>
 
+<fmt:setBundle basename="Bundle" var="msg"/>
+
 <jsp:include page="header.jsp" >    
     <jsp:param name="showUserLogged" value="true" />
 </jsp:include> 
@@ -66,8 +68,8 @@
             
     <div class="well" id="tasks-list">
 
-        <h4><%=TheResourceBundle.getString("Jsp Welcome User Msg")%></h4>
-        <h5><%=TheResourceBundle.getString("Jsp Tasks List Msg")%></h4>
+        <h4><fmt:message key="Jsp Welcome User Msg" bundle="${msg}"/></h4>
+        <h5><fmt:message key="Jsp Tasks List Msg" bundle="${msg}"/></h4>
         <table class="table table-striped">
             <tr>
                 <th>Task name</th>
@@ -127,7 +129,7 @@
     <div class="modal fade" id="test_modal">
         <div class="modal-header">
             <a class="close" data-dismiss="modal">&times;</a>
-            <h3><%=TheResourceBundle.getString("Jsp Popup Msg")%></h3>
+            <h3><fmt:message key="Jsp Popup Msg" bundle="${msg}"/></h3>
         </div>
         <div class="modal-body">
             <div id="operation-result">                    
@@ -152,9 +154,9 @@
         
         $("button#task-creator").click(function(){
             var data = {
-                user: "<%=user%>", 
-                pass: "<%=pass%>"
-            }
+                user: "${sessionScope.user}", 
+                pass: "${sessionScope.pass}"
+            };
 
             $.ajax({ 
                 type: "POST",
@@ -163,7 +165,7 @@
                 dataType: "json",         
                 contentType: 'application/json',                                                      
                 success: function(result){                        
-                    if(result.status == "<%=OutputTaskStatus.TASK_STATUS_TO_EXECUTE%>"){
+                    if(result.status === "${TASK_STATUS_TO_EXECUTE}"){
                         showModal("success", result.message);
                         setTimeout(function() {
                             window.location = 'upload-and-launch.jsp?task_code=' + result.task_code;
@@ -174,8 +176,8 @@
                     }                        
                 },
                 error: function(xml,result){
-                    var messageError =  '<%=TheResourceBundle.getString("Jsp Was Error")%> '+
-                                    '<%=TheResourceBundle.getString("Jsp Contact To Admin")%>';
+                    var messageError =  '<fmt:message key="Jsp Was Error" bundle="${msg}"/> '+
+                                    '<fmt:message key="Jsp Contact To Admin" bundle="${msg}"/>';
                     showModal("error", messageError);
                 }
             });

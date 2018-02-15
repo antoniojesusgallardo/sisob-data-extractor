@@ -18,18 +18,20 @@
     along with SISOB Data Extractor. If not, see <http://www.gnu.org/licenses/>.
 --%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 
 <%@page import="eu.sisob.uma.restserver.services.gateCH.GateTaskCH"%>
 <%@page import="eu.sisob.uma.restserver.services.communications.TasksParams"%>
-<%@page import="eu.sisob.uma.restserver.TheResourceBundle"%>
 
 <%
     request.setAttribute("GateTaskCH", GateTaskCH.NAME);
 %>
-   
+
+<fmt:setBundle basename="Bundle" var="msg"/>
+
 <c:choose>
     <c:when test="${'gate' == param.taskKind}">
-        <h3><%=TheResourceBundle.getString("Task Gate Title")%></h3>
+        <h3><fmt:message key="Task Gate Title" bundle="${msg}"/></h3>
         <p>The objetive of this task is to extract personal information from researcher webpages or cv documents.</p>      
         <h4>Data input format</h4>
         <p>To extract the personal information from the documents you need to upload a file in CSV format in UTF-8 codification named like this "data-researchers-documents-urls*.csv (data-researchers-documents-urls-set001.csv is valid too)"</p>            
@@ -79,7 +81,7 @@
         </div>
     </c:when>
     <c:when test="${'crawler' == param.taskKind}">
-        <h3><%=TheResourceBundle.getString("Task Crawler Title")%></h3>      
+        <h3><fmt:message key="Task Crawler Title" bundle="${msg}"/></h3>      
         <p>The objetive of this task is to find researcher's personal webpages. The required input is a set of researchers and the institutions they work (or worked) on.</p>      
         <p>For each author the user must provide the following information: lastname, initials (optional field: first letter of surname and firstname), the subject of study area (ex: Chemistry) and its instution name or webpage where it serves. The data have to be in a .CSV (Comma Separated Values) file, and encoded in UTF-8 codification.</p>      
         <h4>Data input format</h4>
@@ -101,7 +103,7 @@
         <p>Once you finish uploading the file/s, press the launch task button. If the uploaded data is correct the extraction task will be launched.</p>
     </c:when>
     <c:when test="${'websearcher' == param.taskKind}">
-        <h3><%=TheResourceBundle.getString("Task WebSearcher Title")%></h3>      
+        <h3><fmt:message key="Task WebSearcher Title" bundle="${msg}"/></h3>      
         <p>The objetive of this task is to find researcher's personal webpages. The required input is a set of researchers and the institutions they work (or worked) on.</p>      
         <p>For each author the user will must provide the following info about the researcher: lastname, initials (name and firstname as optional) and its instution webpage where it serves. The data file will be a CSV file encoded UTF-8 codification.</p>      
         <h4>Data input format</h4>
@@ -138,7 +140,7 @@
         <p>Once you finish uploading the file/s, press the launch task button. If the uploaded data is correct the extraction task will be launched.</p>
     </c:when>
     <c:when test="${'websearcher_cv' == param.taskKind}">
-        <h3><%=TheResourceBundle.getString("Task WebSearcher CV Title")%></h3>      
+        <h3><fmt:message key="Task WebSearcher CV Title" bundle="${msg}"/></h3>      
         <p>The objetive of this task is to find pdfs cvs from a set of authors given using the institution webpage where they are working.</p>      
         <p>For each author the user must provide the following information: lastname, initials (optional field: first letter of surname and firstname), the subject of study area (ex: Chemistry) and its instution name or webpage where it serves. The data have to be in a .CSV (Comma Separated Values) file, and encoded in UTF-8 codification.</p>      
         <h4>Data input format</h4>
@@ -161,7 +163,7 @@
       <p>Once you finish uploading the file/s, press the launch task button. If the uploaded data is correct the extraction task will be launched.</p>
     </c:when> 
     <c:when test="${'internalcvfiles' == param.taskKind}">
-        <h3><%=TheResourceBundle.getString("Task Internal CV Files Title")%></h3>
+        <h3><fmt:message key="Task Internal CV Files Title" bundle="${msg}"/></h3>
         <p>The objective of this task is to extract internal CVs Files from researcher's webpages.</p>      
         <h4>Data input format</h4>
         <p>To extract the CVs (Curriculum Vitae files) from the documents you'll need to upload a CSV file in UTF-8 codification format named "data-researchers-documents-urls*.csv (meaning that * could take any value, for example data-researchers-documents-urls-set001.csv will be valid)"</p>            
@@ -197,7 +199,7 @@
         <p>Once you finish uploading the file/s, press the launch task button. If the uploaded data is correct the extraction task will be launched.</p>
     </c:when> 
     <c:when test="${'email' == param.taskKind}">
-        <h3><%=TheResourceBundle.getString("Task Email Title")%></h3>
+        <h3><fmt:message key="Task Email Title" bundle="${msg}"/></h3>
         <p>The objective of this task is to extract the e-mails from researcher's webpages or CVs (Curriculum Vitae files).</p>      
         <h4>Data input format</h4>
         <p>To extract the emails from the documents you'll need to upload a CSV file in UTF-8 codification format named "data-researchers-documents-urls*.csv (meaning that * could take any value, for example data-researchers-documents-urls-set001.csv will be valid)"</p>            
@@ -243,7 +245,7 @@
         </div>
     </c:when> 
     <c:when test="${'papersandcites1' == param.taskKind}">
-        <h3><%=TheResourceBundle.getString("Task Unknown Authors Title")%></h3>
+        <h3><fmt:message key="Task Unknown Authors Title" bundle="${msg}"/></h3>
         <p>The objetive of this task is to <b>obtain publications and citations from a give set of authors</b>. For each author the <b>user will provide some publication names in plain files .txt (text) files.</b>.
            With that data source the task will try to obtain publications from <i>Web Of Knowledge (WoK)</i>, first downloading all possible publications using the author name and, second, applying a filter using the publications' info extracted from WoK.</p> 
 
@@ -300,7 +302,7 @@
         <p>Once you finish uploading the file/s, press the launch task button. If the uploaded data is correct the extraction task will be launched.</p>
     </c:when>
     <c:when test="${GateTaskCH == param.taskKind}">
-        <h3><%=GateTaskCH.NAME%></h3>      
+        <h3>${GateTaskCH}</h3>      
         <p>The goal of this task is to show the debates of the European Parliament 
            with a Cultural Heritage taxonomy.</p>      
         
@@ -377,6 +379,8 @@
         </p>
     </c:when> 
     <c:otherwise>
-        <h5 class="text-error"><%=TheResourceBundle.getString("Jsp Bad Task Msg")%></h5>
+        <h5 class="text-error">
+            <fmt:message key="Jsp Bad Task Msg" bundle="${msg}"/>
+        </h5>
     </c:otherwise>
 </c:choose>   

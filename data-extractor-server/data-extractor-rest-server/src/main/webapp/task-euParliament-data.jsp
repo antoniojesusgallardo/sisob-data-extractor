@@ -22,9 +22,12 @@
     Author: Antonio Jesus Gallardo Albarran - antonio.jesus.gallardo@gmail.com
 --%>
 
+<!DOCTYPE HTML>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
+
 <%@page import="eu.sisob.uma.restserver.AuthorizationManager"%>
 <%@page import="eu.sisob.uma.restserver.SystemManager"%>
-<%@page import="eu.sisob.uma.restserver.TheResourceBundle"%>
 
 <%@page session="true"%>
 <%  
@@ -51,6 +54,9 @@
                                                               task_code, 
                                                               speech_id+".json", 
                                                               AuthorizationManager.detailed_results_dirname);
+    
+    request.setAttribute("urlJson", urlJson);
+    
 %>
 
 <%-- Library: NDD3.js - D3.js --%>
@@ -64,7 +70,8 @@
 <script src="js/euParliament/util.js?v.<%=version%>" ></script>
 <script src="js/euParliament/data/loadData.js?v.<%=version%>" ></script>
 
-<!DOCTYPE HTML>
+<fmt:setBundle basename="Bundle" var="msg"/>
+
 <jsp:include page="header.jsp" >   
     <jsp:param name="showUserLogged" value="true" />
 </jsp:include>  
@@ -76,13 +83,13 @@
             <tr>
                 <td>                    
                     <h4 style="text-align: center">
-                        <%=TheResourceBundle.getString("Jsp_euParliament_data_title_details")%>
+                        <fmt:message key="Jsp_euParliament_data_title_details" bundle="${msg}"/>
                     </h4>                    
                     <div id="contentData"></div>
                 </td>
                 <td>
                     <h4 style="text-align: center">
-                        <%=TheResourceBundle.getString("Jsp_euParliament_data_title_legend")%>
+                        <fmt:message key="Jsp_euParliament_data_title_legend" bundle="${msg}"/>
                     </h4>
                     <div id="contentLegend" ></div>
                 </td>
@@ -94,7 +101,7 @@
 <div class="container">   
     <div class="well">
         <h4 style="text-align: center">
-            <%=TheResourceBundle.getString("Jsp_euParliament_data_title_text")%>
+            <fmt:message key="Jsp_euParliament_data_title_text" bundle="${msg}"/>
         </h4>
         <div id="contentText"></div>
     </div>
@@ -103,7 +110,7 @@
 <jsp:include page="footer.jsp" />
 
 <script>
-    var urlJson = '<%=urlJson%>';
+    var urlJson = '${urlJson}';
     
     loadData();  
 </script>

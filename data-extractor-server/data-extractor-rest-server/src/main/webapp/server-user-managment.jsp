@@ -18,7 +18,10 @@
     along with SISOB Data Extractor. If not, see <http://www.gnu.org/licenses/>.
 --%>
 <!DOCTYPE HTML>
-<%@page import="eu.sisob.uma.restserver.TheResourceBundle"%>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
+
+<%@page session="true"%>
 
 <jsp:include page="header.jsp" >      
     <jsp:param name="showUserLogged" value="true" />
@@ -27,7 +30,7 @@
 <div class="container">
         
     <blockquote>
-        <%=TheResourceBundle.getString("Jsp Welcome Message")%>
+        <fmt:message key="Jsp Welcome Message" bundle="${msg}"/>
     </blockquote>
     
     <br>        
@@ -40,7 +43,7 @@
             <div>
                 <button type="submit" class="btn btn-primary" id="launch" href="#test_modal" data-toggle="modal">
                     <i class="icon-upload icon-white input-append"></i>
-                    <span><%=TheResourceBundle.getString("Jsp Auth Button")%></span>
+                    <span><fmt:message key="Jsp Auth Button" bundle="${msg}"/></span>
                 </button>       
             </div>                
         </div>
@@ -51,7 +54,7 @@
     <div class="modal fade" id="test_modal">
         <div class="modal-header">
             <a class="close" data-dismiss="modal">&times;</a>
-            <h3><%=TheResourceBundle.getString("Jsp Popup Msg")%></h3>
+            <h3><fmt:message key="Jsp Popup Msg" bundle="${msg}"/></h3>
         </div>
         <div class="modal-body">
             <div id="operation-result">                    
@@ -105,8 +108,8 @@ $(document).ready(function()
                 $("div#result").text(""); 
 
                 if(result.success == "true"){
-                    if(result.account_type = "user"){
-                        showModal("success", result.message + '<br><br><%=TheResourceBundle.getString("Wait Msg")%>');
+                    if(result.account_type == "user"){
+                        showModal("success", result.message + '<br><br><fmt:message key="Wait Msg" bundle="${msg}"/>');
                         setTimeout(function() {
                             window.location = 'list-tasks.jsp';
                         }, 2000);

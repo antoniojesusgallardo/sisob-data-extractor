@@ -18,6 +18,9 @@
     along with SISOB Data Extractor. If not, see <http://www.gnu.org/licenses/>.
 --%>
 <!DOCTYPE HTML>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
+
 <%@page import="eu.sisob.uma.restserver.TheResourceBundle"%>
 
 <%
@@ -39,19 +42,24 @@
         modalMessage = TheResourceBundle.getString("Jsp Logout");
         typeMessage = "success";
     }
+    
+    request.setAttribute("modalMessage", modalMessage);
+    request.setAttribute("typeMessage", typeMessage);
 %>
+
+<fmt:setBundle basename="Bundle" var="msg"/>
 
 <jsp:include page="header.jsp" >  
     <jsp:param name="showUserLogged" value="false" />
 </jsp:include>
-
+      
 <div class="container">
         
     <table>
         <tr>
             <td>  
                 <blockquote>
-                    <%=TheResourceBundle.getString("Jsp Welcome Message")%>
+                    <fmt:message key="Jsp Welcome Message" bundle="${msg}"/>
                 </blockquote>
             </td>
             <td>
@@ -66,7 +74,7 @@
                         <br>
                         <input  id="btnLogin"
                                 type="submit" 
-                                value="<%=TheResourceBundle.getString("Jsp Auth Button")%>" 
+                                value="<fmt:message key='Jsp Auth Button' bundle='${msg}'/>" 
                                 class="btn btn-primary"/>
                     </form>
                 </div>                
@@ -77,7 +85,7 @@
     <div class="modal fade" id="test_modal">
         <div class="modal-header">
             <a class="close" data-dismiss="modal">&times;</a>
-            <h3><%=TheResourceBundle.getString("Jsp Popup Msg")%></h3>
+            <h3><fmt:message key="Jsp Popup Msg" bundle="${msg}"/></h3>
         </div>
         <div class="modal-body" id="operation-result">
         </div>
@@ -116,13 +124,10 @@
             $('#test_modal').modal('show');
         }
 
-        <%
-        if(modalMessage!=null && modalMessage!="")
-        { 
-        %>
-            showModal('<%=modalMessage%>', '<%=typeMessage%>');
-        <%    
-        } 
-        %>
+        
+    <c:if test="${modalMessage!=null && modalMessage!=''}">
+        showModal('${modalMessage}', '${typeMessage}');  
+    </c:if>
+        
     });
 </script>

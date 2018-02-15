@@ -18,6 +18,7 @@
     along with SISOB Data Extractor. If not, see <http://www.gnu.org/licenses/>.
 --%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 
 <%@page import="eu.sisob.uma.restserver.TheConfig"%>
 <%@page import="eu.sisob.uma.restserver.TheResourceBundle"%>   
@@ -75,10 +76,11 @@
     request.setAttribute("taskTypes", taskTypes);
 %>
 
+<fmt:setBundle basename="Bundle" var="msg"/>
 
 <div class="well" id="task-selection">
     <h4>${task.message}</h4>
-    <h5><%=TheResourceBundle.getString("Jsp Select Task Msg")%></h5>
+    <h5><fmt:message key="Jsp Select Task Msg" bundle="${msg}"/></h5>
     <select class="chzn-select" id="task-selector">                
         <c:forEach items="${taskTypes}" var="taskType">
             <option value="${taskType[0]}">${taskType[1]}</option>
@@ -91,8 +93,8 @@
     
 <div class="well" id="first-step">
     <blockquote>   
-        <h4><%=TheResourceBundle.getString("Jsp First Step")%></h4>
-            <%=TheResourceBundle.getString("Jsp File Uploads Inst")%>
+        <h4><fmt:message key="Jsp First Step" bundle="${msg}"/></h4>
+            <fmt:message key="Jsp File Uploads Inst" bundle="${msg}"/>
     </blockquote>    
     <!-- The file upload form used as target for the file upload widget -->
     <form id="fileupload" action="resources/file/upload" method="POST" enctype="multipart/form-data">
@@ -130,7 +132,7 @@
         
 <div class="well" id="second-step">
     <blockquote>   
-        <h4><%=TheResourceBundle.getString("Jsp Second Step")%></h4>
+        <h4><fmt:message key="Jsp Second Step" bundle="${msg}"/></h4>
     </blockquote> 
     <div id="task-launch-result">        
     </div>            
@@ -146,7 +148,7 @@
 <div class="modal fade" id="test_modal">
     <div class="modal-header">
         <a class="close" data-dismiss="modal">&times;</a>
-        <h3><%=TheResourceBundle.getString("Jsp Popup Msg")%></h3>
+        <h3><fmt:message key="Jsp Popup Msg" bundle="${msg}"/></h3>
     </div>
     <div class="modal-body">
         <div id="task-result">                    
@@ -282,8 +284,8 @@ $(document).ready(function()
                 $("div#instructions").html(result);
             },
             error: function(xml,result){
-                var messageError =  '<%=TheResourceBundle.getString("Jsp Was Error")%> '+
-                                    '<%=TheResourceBundle.getString("Jsp Contact To Admin")%>';
+                var messageError =  '<fmt:message key="Jsp Was Error" bundle="${msg}"/> '+
+                                    '<fmt:message key="Jsp Contact To Admin" bundle="${msg}"/>';
                 $("div#instructions").html("<h5 class='text-error'>"+messageError+"</h5>");
             }
         });                
@@ -339,8 +341,8 @@ $(document).ready(function()
                 },
                 error: function(xml,result){
                     $("button#task-launcher").removeAttr("disabled");
-                    var messageError =  '<%=TheResourceBundle.getString("Jsp Was Error")%> '+
-                                        '<%=TheResourceBundle.getString("Jsp Contact To Admin")%>';
+                    var messageError =  '<fmt:message key="Jsp Was Error" bundle="${msg}"/> '+
+                                        '<fmt:message key="Jsp Contact To Admin" bundle="${msg}"/>';
                     showModal("error", messageError);
                 }
             });                                                           

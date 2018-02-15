@@ -21,7 +21,6 @@
 
 <%@page import="eu.sisob.uma.restserver.services.communications.OutputTaskStatus"%>
 <%@page import="eu.sisob.uma.restserver.RESTClient"%>
-<%@page import="eu.sisob.uma.restserver.TheResourceBundle"%>
 <%@page import="java.util.Map"%>
 <%@page import="java.util.HashMap"%>
 
