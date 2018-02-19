@@ -18,56 +18,66 @@
     along with SISOB Data Extractor. If not, see <http://www.gnu.org/licenses/>.
 --%>
 <!DOCTYPE HTML>
-<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
-<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
+<%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
+<%@taglib prefix="t" tagdir="/WEB-INF/tags" %>
 
 <%@page session="true"%>
 
-<jsp:include page="header.jsp" >      
-    <jsp:param name="showUserLogged" value="true" />
-</jsp:include>
+<fmt:setBundle basename="Bundle" var="msg"/>
 
-<div class="container">
+<t:generic-template>
+    <jsp:attribute name="resources">
+        <jsp:include page="layout/resources.jsp" />
+    </jsp:attribute>
+    <jsp:attribute name="header">
+        <jsp:include page="layout/header.jsp" >  
+            <jsp:param name="showUserLogged" value="false" />
+        </jsp:include>
+    </jsp:attribute>
+    <jsp:attribute name="footer">
+        <jsp:include page="layout/footer.jsp" />
+    </jsp:attribute>
+    <jsp:body>
         
-    <blockquote>
-        <fmt:message key="Jsp Welcome Message" bundle="${msg}"/>
-    </blockquote>
-    
-    <br>        
-    <div class="well">        
-        <div id="result">
-        </div>
-        <label>User or email:</label> <input type="text" id="user"><br>
-        <label>Password</label> <input type="password" id="pass"><br>
-        <div>
-            <div>
-                <button type="submit" class="btn btn-primary" id="launch" href="#test_modal" data-toggle="modal">
-                    <i class="icon-upload icon-white input-append"></i>
-                    <span><fmt:message key="Jsp Auth Button" bundle="${msg}"/></span>
-                </button>       
-            </div>                
-        </div>
-        <br>
+        <blockquote>
+            <fmt:message key="Jsp Welcome Message" bundle="${msg}"/>
+        </blockquote>
+
         <br>        
-    </div> 
-                
-    <div class="modal fade" id="test_modal">
-        <div class="modal-header">
-            <a class="close" data-dismiss="modal">&times;</a>
-            <h3><fmt:message key="Jsp Popup Msg" bundle="${msg}"/></h3>
-        </div>
-        <div class="modal-body">
-            <div id="operation-result">                    
+        <div class="well">        
+            <div id="result">
             </div>
-        </div>
-        <div class="modal-footer">
-            <a href="#" class="btn" data-dismiss="modal">Close</a>            
-        </div>
-    </div> 
+            <label>User or email:</label> <input type="text" id="user"><br>
+            <label>Password</label> <input type="password" id="pass"><br>
+            <div>
+                <div>
+                    <button type="submit" class="btn btn-primary" id="launch" href="#test_modal" data-toggle="modal">
+                        <i class="icon-upload icon-white input-append"></i>
+                        <span><fmt:message key="Jsp Auth Button" bundle="${msg}"/></span>
+                    </button>       
+                </div>                
+            </div>
+            <br>
+            <br>        
+        </div> 
+
+        <div class="modal fade" id="test_modal">
+            <div class="modal-header">
+                <a class="close" data-dismiss="modal">&times;</a>
+                <h3><fmt:message key="Jsp Popup Msg" bundle="${msg}"/></h3>
+            </div>
+            <div class="modal-body">
+                <div id="operation-result">                    
+                </div>
+            </div>
+            <div class="modal-footer">
+                <a href="#" class="btn" data-dismiss="modal">Close</a>            
+            </div>
+        </div> 
         
-</div>
-                    
-<jsp:include page="footer.jsp" />
+    </jsp:body>
+</t:generic-template>
 
 <script type="text/javascript">    
 $(document).ready(function()
@@ -78,7 +88,6 @@ $(document).ready(function()
         $('#test_modal').modal('show');
     }
 
-    var hey = "";
     $('#pass').keypress(function (e) {
       if (e.which == 13) {
         $("#launch").click();

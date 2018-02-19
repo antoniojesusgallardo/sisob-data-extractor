@@ -17,9 +17,6 @@
     You should have received a copy of the GNU General Public License
     along with SISOB Data Extractor. If not, see <http://www.gnu.org/licenses/>.
 --%>
-<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
-<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
-
 <%@page import="eu.sisob.uma.restserver.TheConfig"%>
 <%@page import="eu.sisob.uma.restserver.TheResourceBundle"%>   
 <%@page import="eu.sisob.uma.restserver.services.gateCH.GateTaskCH"%>
@@ -75,6 +72,9 @@
     
     request.setAttribute("taskTypes", taskTypes);
 %>
+
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 
 <fmt:setBundle basename="Bundle" var="msg"/>
 

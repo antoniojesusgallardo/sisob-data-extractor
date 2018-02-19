@@ -22,9 +22,6 @@
     Author: Antonio Jesus Gallardo Albarran - antonio.jesus.gallardo@gmail.com
 --%>
 
-<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
-<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
-
 <%@page import="eu.sisob.uma.restserver.AuthorizationManager"%>
 <%@page import="eu.sisob.uma.restserver.SystemManager"%>
 <%@page import="eu.sisob.uma.restserver.TheResourceBundle"%>
@@ -74,57 +71,66 @@
     request.setAttribute("version", version);
 %>
 
-<%-- Library: NDD3.js - D3.js --%>
-<link href="nvd3/nv.d3.css" rel="stylesheet" type="text/css">
-<script src="nvd3/d3.min.js" charset="utf-8"></script>
-<script src="nvd3/nv.d3.js"></script>
+<%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
+<%@taglib prefix="t" tagdir="/WEB-INF/tags" %>
 
-<%-- Module - word cloud --%>
-<script src="nvd3/d3.layout.cloud.js" ></script>
-
-<%-- JavaScript Development - Custom visualizations --%>
-<script src="js/euParliament/util.js?v.${version}" ></script>
-<script src="js/euParliament/visualizations/visualizations.js?v.${version}" ></script>
-<script src="js/euParliament/visualizations/barChart_generalIndicators.js?v.${version}" ></script>
-<script src="js/euParliament/visualizations/barChart_speechesByCountry.js?v.${version}" ></script>
-<script src="js/euParliament/visualizations/lineChart_keywordsEvolution.js?v.${version}" ></script>
-<script src="js/euParliament/visualizations/wordCloud_keywords.js?v.${version}" ></script>
-
-
-<!DOCTYPE HTML>
 <fmt:setBundle basename="Bundle" var="msg"/>
 
-<jsp:include page="header.jsp" >    
-    <jsp:param name="showUserLogged" value="true" />
-</jsp:include>  
-
-<div class="container"> 
-    <h5>
-        <a href="upload-and-launch.jsp?task_code=${param.task_code}">
-            <fmt:message key="Jsp_euParliament_visualizations_back" bundle="${msg}"/>
-        </a>
-    </h5>
-</div>
-
-<div class="container">   
-    <div class="well" id="instructions">
+<t:generic-template>
+    <jsp:attribute name="resources">
+        <jsp:include page="layout/resources.jsp" />
         
-        <h4 style="text-align: center">
-            <fmt:message key="Jsp_euParliament_visualizations_title" bundle="${msg}"/>
-        </h4>
-        
-        <fmt:message key="Jsp_euParliament_visualizations_selectVisualizations" bundle="${msg}"/>:
-        <select class="chzn-select" id="visualization-selector" onchange="Visualizations.changeSelector();">   
-            <c:forEach items="${visualizationTypes}" var="iType">
-                <option value="${iType[0]}">${iType[1]}</option>
-            </c:forEach>
-        </select>
-        
-        <div id="chart1"></div>
-    </div>
-</div>
+        <%-- Library: NDD3.js - D3.js --%>
+        <link href="${pageContext.request.contextPath}/nvd3/nv.d3.css" rel="stylesheet" type="text/css">
+        <script src="${pageContext.request.contextPath}/nvd3/d3.min.js" charset="utf-8"></script>
+        <script src="${pageContext.request.contextPath}/nvd3/nv.d3.js"></script>
 
-<jsp:include page="footer.jsp" />
+        <%-- Module - word cloud --%>
+        <script src="${pageContext.request.contextPath}/nvd3/d3.layout.cloud.js" ></script>
+
+        <%-- JavaScript Development - Custom visualizations --%>
+        <script src="${pageContext.request.contextPath}/js/euParliament/util.js?v.${version}" ></script>
+        <script src="${pageContext.request.contextPath}/js/euParliament/visualizations/visualizations.js?v.${version}" ></script>
+        <script src="${pageContext.request.contextPath}/js/euParliament/visualizations/barChart_generalIndicators.js?v.${version}" ></script>
+        <script src="${pageContext.request.contextPath}/js/euParliament/visualizations/barChart_speechesByCountry.js?v.${version}" ></script>
+        <script src="${pageContext.request.contextPath}/js/euParliament/visualizations/lineChart_keywordsEvolution.js?v.${version}" ></script>
+        <script src="${pageContext.request.contextPath}/js/euParliament/visualizations/wordCloud_keywords.js?v.${version}" ></script>
+    </jsp:attribute>
+    <jsp:attribute name="header">
+        <jsp:include page="layout/header.jsp" >  
+            <jsp:param name="showUserLogged" value="true" />
+        </jsp:include>
+    </jsp:attribute>
+    <jsp:attribute name="footer">
+        <jsp:include page="layout/footer.jsp" />
+    </jsp:attribute>
+    <jsp:body> 
+
+        <h5>
+            <a href="upload-and-launch.jsp?task_code=${param.task_code}">
+                <fmt:message key="Jsp_euParliament_visualizations_back" bundle="${msg}"/>
+            </a>
+        </h5>
+            
+        <div class="well" id="instructions">
+
+            <h4 style="text-align: center">
+                <fmt:message key="Jsp_euParliament_visualizations_title" bundle="${msg}"/>
+            </h4>
+
+            <fmt:message key="Jsp_euParliament_visualizations_selectVisualizations" bundle="${msg}"/>:
+            <select class="chzn-select" id="visualization-selector" onchange="Visualizations.changeSelector();">   
+                <c:forEach items="${visualizationTypes}" var="iType">
+                    <option value="${iType[0]}">${iType[1]}</option>
+                </c:forEach>
+            </select>
+
+            <div id="chart1"></div>
+        </div>
+
+    </jsp:body>
+</t:generic-template>
 
 <script>
     var jsonData_ontologies;
@@ -135,4 +141,3 @@
     
     Visualizations.init();    
 </script>
-    

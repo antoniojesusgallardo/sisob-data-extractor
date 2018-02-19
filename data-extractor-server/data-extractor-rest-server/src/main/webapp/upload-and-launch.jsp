@@ -17,8 +17,7 @@
     You should have received a copy of the GNU General Public License
     along with SISOB Data Extractor. If not, see <http://www.gnu.org/licenses/>.
 --%>
-<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
-
+<!DOCTYPE HTML>
 <%@page import="eu.sisob.uma.restserver.services.communications.OutputTaskStatus"%>
 <%@page import="eu.sisob.uma.restserver.RESTClient"%>
 <%@page import="java.util.Map"%>
@@ -60,29 +59,42 @@
     request.setAttribute("TASK_STATUS_NO_AUTH", OutputTaskStatus.TASK_STATUS_NO_AUTH);
     request.setAttribute("TASK_STATUS_NO_ACCESS", OutputTaskStatus.TASK_STATUS_NO_ACCESS);
 %>
-<!DOCTYPE HTML>
-<jsp:include page="header.jsp" >
-    <jsp:param name="showUserLogged" value="true" />
-</jsp:include>
 
-<div class="container"> 
-    <h5>
-        <a href="list-tasks.jsp">Back to listing</a>
-    </h5>
-</div>  
+<%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
+<%@taglib prefix="t" tagdir="/WEB-INF/tags" %>
 
-<div class="container">
-    <c:choose>
-        <c:when test="${TASK_STATUS_NO_AUTH==task.status || TASK_STATUS_NO_ACCESS==task.status || TASK_STATUS_EXECUTING==task.status}">
-            <jsp:include page="upload-and-launch-executing.jsp" />
-        </c:when>
-        <c:when test="${TASK_STATUS_EXECUTED == task.status}">
-            <jsp:include page="upload-and-launch-executed.jsp" />
-        </c:when>
-        <c:when test="${TASK_STATUS_TO_EXECUTE == task.status}">
-            <jsp:include page="upload-and-launch-to-execute.jsp" />
-        </c:when>
-    </c:choose>
-</div>
+<fmt:setBundle basename="Bundle" var="msg"/>
+
+<t:generic-template>
+    <jsp:attribute name="resources">
+        <jsp:include page="layout/resources.jsp" />
+    </jsp:attribute>
+    <jsp:attribute name="header">
+        <jsp:include page="layout/header.jsp" >  
+            <jsp:param name="showUserLogged" value="false" />
+        </jsp:include>
+    </jsp:attribute>
+    <jsp:attribute name="footer">
+        <jsp:include page="layout/footer.jsp" />
+    </jsp:attribute>
+    <jsp:body>
+
+        <h5>
+            <a href="list-tasks.jsp">Back to listing</a>
+        </h5>
+        
+        <c:choose>
+            <c:when test="${TASK_STATUS_NO_AUTH==task.status || TASK_STATUS_NO_ACCESS==task.status || TASK_STATUS_EXECUTING==task.status}">
+                <jsp:include page="upload-and-launch-executing.jsp" />
+            </c:when>
+            <c:when test="${TASK_STATUS_EXECUTED == task.status}">
+                <jsp:include page="upload-and-launch-executed.jsp" />
+            </c:when>
+            <c:when test="${TASK_STATUS_TO_EXECUTE == task.status}">
+                <jsp:include page="upload-and-launch-to-execute.jsp" />
+            </c:when>
+        </c:choose>
  
-<jsp:include page="footer.jsp" />
+    </jsp:body>
+</t:generic-template>

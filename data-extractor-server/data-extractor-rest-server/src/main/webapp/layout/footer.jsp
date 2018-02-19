@@ -17,15 +17,20 @@
     You should have received a copy of the GNU General Public License
     along with SISOB Data Extractor. If not, see <http://www.gnu.org/licenses/>.
 --%>
-<div class="container" style="text-align: center">    
+
+<div style="text-align: center">    
     <div>
-        <img src="img/seventh.png" alt="Seventh Framework Programme" width="60" height="60"/>                             
-        <img src="img/flag.png" alt="EU flag" width="85" height="60"/>   
+        <img src="${pageContext.request.contextPath}/img/seventh.png" 
+             alt="Seventh Framework Programme" width="60" height="60"/>                             
+        <img src="${pageContext.request.contextPath}/img/flag.png" 
+             alt="EU flag" width="85" height="60"/>   
         <a href="http://www.uma.es">
-            <img src="img/uma.jpg" height="60" alt="Universidad de Malaga" />
+            <img src="${pageContext.request.contextPath}/img/uma.jpg" 
+                alt="Universidad de Malaga" height="60"/>
 	</a>
 	<a href="http://iaia.lcc.uma.es">
-            <img src="img/ia2s.gif" height="60" width="234" alt="(IA)2 research group"/>
+            <img src="${pageContext.request.contextPath}/img/ia2s.gif"
+                alt="(IA)2 research group" height="60" width="234"/>
 	</a>
     </div>    
     <div>
@@ -33,13 +38,10 @@
         <a href="http://www.uma.es">Universidad de M&aacute;laga</a>. 
         SISOB Consortium 2011-2013.
         <br/> 
-        The <a href="http://sisob.lcc.uma.es">SISOB project</a> 
-        was supported by the European Commission, 
+        The <a href="http://sisob.lcc.uma.es">SISOB project</a> was 
+        supported by the European Commission, 
         <br/>
         call FP7-SCIENCE-IN-SOCIETY-2010-1, as a Collaborative Project under 
         the 7th Framework Programme, Grant agreement no.: 266588.
     </div>
 </div>
-    
-</body> 
-</html>

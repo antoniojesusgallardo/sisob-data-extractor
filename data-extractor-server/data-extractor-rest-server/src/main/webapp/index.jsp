@@ -18,9 +18,6 @@
     along with SISOB Data Extractor. If not, see <http://www.gnu.org/licenses/>.
 --%>
 <!DOCTYPE HTML>
-<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
-<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
-
 <%@page import="eu.sisob.uma.restserver.TheResourceBundle"%>
 
 <%
@@ -47,55 +44,66 @@
     request.setAttribute("typeMessage", typeMessage);
 %>
 
+<%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
+<%@taglib prefix="t" tagdir="/WEB-INF/tags" %>
+
 <fmt:setBundle basename="Bundle" var="msg"/>
 
-<jsp:include page="header.jsp" >  
-    <jsp:param name="showUserLogged" value="false" />
-</jsp:include>
+<t:generic-template>
+    <jsp:attribute name="resources">
+        <jsp:include page="layout/resources.jsp" />
+    </jsp:attribute>
+    <jsp:attribute name="header">
+        <jsp:include page="layout/header.jsp" >  
+            <jsp:param name="showUserLogged" value="false" />
+        </jsp:include>
+    </jsp:attribute>
+    <jsp:attribute name="footer">
+        <jsp:include page="layout/footer.jsp" />
+    </jsp:attribute>
+    <jsp:body>
       
-<div class="container">
-        
-    <table>
-        <tr>
-            <td>  
-                <blockquote>
-                    <fmt:message key="Jsp Welcome Message" bundle="${msg}"/>
-                </blockquote>
-            </td>
-            <td>
-                <div class="well">
-                    <form method="post" action="login.jsp">
-                        <label>Username:</label> 
-                        <input type="text" name="user" id="user">
-                        
-                        <label>Password:</label> 
-                        <input type="password" name="pass" id="pass">
-                        
-                        <br>
-                        <input  id="btnLogin"
-                                type="submit" 
-                                value="<fmt:message key='Jsp Auth Button' bundle='${msg}'/>" 
-                                class="btn btn-primary"/>
-                    </form>
-                </div>                
-            </td>
-        </tr>
-    </table>
-                                
-    <div class="modal fade" id="test_modal">
-        <div class="modal-header">
-            <a class="close" data-dismiss="modal">&times;</a>
-            <h3><fmt:message key="Jsp Popup Msg" bundle="${msg}"/></h3>
-        </div>
-        <div class="modal-body" id="operation-result">
-        </div>
-        <div class="modal-footer">
-            <a href="#" class="btn" data-dismiss="modal">Close</a>            
-        </div>
-    </div> 
-</div>
-        
-<jsp:include page="footer.jsp" />
+        <table>
+            <tr>
+                <td>  
+                    <blockquote>
+                        <fmt:message key="Jsp Welcome Message" bundle="${msg}"/>
+                    </blockquote>
+                </td>
+                <td>
+                    <div class="well">
+                        <form method="post" action="login.jsp">
+                            <label>Username:</label> 
+                            <input type="text" name="user" id="user">
+
+                            <label>Password:</label> 
+                            <input type="password" name="pass" id="pass">
+
+                            <br>
+                            <input  id="btnLogin"
+                                    type="submit" 
+                                    value="<fmt:message key='Jsp Auth Button' bundle='${msg}'/>" 
+                                    class="btn btn-primary"/>
+                        </form>
+                    </div>                
+                </td>
+            </tr>
+        </table>
+
+        <div class="modal fade" id="test_modal">
+            <div class="modal-header">
+                <a class="close" data-dismiss="modal">&times;</a>
+                <h3><fmt:message key="Jsp Popup Msg" bundle="${msg}"/></h3>
+            </div>
+            <div class="modal-body" id="operation-result">
+            </div>
+            <div class="modal-footer">
+                <a href="#" class="btn" data-dismiss="modal">Close</a>            
+            </div>
+        </div> 
+    </jsp:body>
+</t:generic-template>
         
 <script type="text/javascript">    
     $(document).ready(function()

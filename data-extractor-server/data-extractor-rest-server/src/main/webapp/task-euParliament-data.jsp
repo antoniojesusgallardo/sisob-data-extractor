@@ -23,9 +23,6 @@
 --%>
 
 <!DOCTYPE HTML>
-<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
-<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
-
 <%@page import="eu.sisob.uma.restserver.AuthorizationManager"%>
 <%@page import="eu.sisob.uma.restserver.SystemManager"%>
 
@@ -56,58 +53,67 @@
                                                               AuthorizationManager.detailed_results_dirname);
     
     request.setAttribute("urlJson", urlJson);
-    
+    request.setAttribute("version", version);
 %>
 
-<%-- Library: NDD3.js - D3.js --%>
-<link href="nvd3/nv.d3.css" rel="stylesheet" type="text/css">
-<!--<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.2/d3.min.js" charset="utf-8"></script>-->
-<script src="nvd3/d3.min.js" charset="utf-8"></script>
-<script src="nvd3/nv.d3.js"></script>
-<script src="nvd3/d3.js"></script>
-
-<%-- JavaScript Development --%>
-<script src="js/euParliament/util.js?v.<%=version%>" ></script>
-<script src="js/euParliament/data/loadData.js?v.<%=version%>" ></script>
+<%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
+<%@taglib prefix="t" tagdir="/WEB-INF/tags" %>
 
 <fmt:setBundle basename="Bundle" var="msg"/>
 
-<jsp:include page="header.jsp" >   
-    <jsp:param name="showUserLogged" value="true" />
-</jsp:include>  
-      
-<div class="container">   
-    <div class="well">        
+<t:generic-template>
+    <jsp:attribute name="resources">
+        <jsp:include page="layout/resources.jsp" />
         
-        <table style="width:100%; font-size:14px; line-height:20px;">
-            <tr>
-                <td>                    
-                    <h4 style="text-align: center">
-                        <fmt:message key="Jsp_euParliament_data_title_details" bundle="${msg}"/>
-                    </h4>                    
-                    <div id="contentData"></div>
-                </td>
-                <td>
-                    <h4 style="text-align: center">
-                        <fmt:message key="Jsp_euParliament_data_title_legend" bundle="${msg}"/>
-                    </h4>
-                    <div id="contentLegend" ></div>
-                </td>
-            </tr>
-        </table>
-    </div>
-</div>          
-            
-<div class="container">   
-    <div class="well">
-        <h4 style="text-align: center">
-            <fmt:message key="Jsp_euParliament_data_title_text" bundle="${msg}"/>
-        </h4>
-        <div id="contentText"></div>
-    </div>
-</div>      
+        <%-- Library: NDD3.js - D3.js --%>
+        <link href="${pageContext.request.contextPath}/nvd3/nv.d3.css" rel="stylesheet" type="text/css">
+        <!--<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.2/d3.min.js" charset="utf-8"></script>-->
+        <script src="${pageContext.request.contextPath}/nvd3/d3.min.js" charset="utf-8"></script>
+        <script src="${pageContext.request.contextPath}/nvd3/nv.d3.js"></script>
+        <script src="${pageContext.request.contextPath}/nvd3/d3.js"></script>
 
-<jsp:include page="footer.jsp" />
+        <%-- JavaScript Development --%>
+        <script src="${pageContext.request.contextPath}/js/euParliament/util.js?v.${version}" ></script>
+        <script src="${pageContext.request.contextPath}/js/euParliament/data/loadData.js?v.${version}" ></script>
+    </jsp:attribute>
+    <jsp:attribute name="header">
+        <jsp:include page="layout/header.jsp" >  
+            <jsp:param name="showUserLogged" value="false" />
+        </jsp:include>
+    </jsp:attribute>
+    <jsp:attribute name="footer">
+        <jsp:include page="layout/footer.jsp" />
+    </jsp:attribute>
+    <jsp:body> 
+
+        <div class="well"> 
+            <table style="width:100%; font-size:14px; line-height:20px;">
+                <tr>
+                    <td>                    
+                        <h4 style="text-align: center">
+                            <fmt:message key="Jsp_euParliament_data_title_details" bundle="${msg}"/>
+                        </h4>                    
+                        <div id="contentData"></div>
+                    </td>
+                    <td>
+                        <h4 style="text-align: center">
+                            <fmt:message key="Jsp_euParliament_data_title_legend" bundle="${msg}"/>
+                        </h4>
+                        <div id="contentLegend" ></div>
+                    </td>
+                </tr>
+            </table>
+        </div>
+
+        <div class="well">
+            <h4 style="text-align: center">
+                <fmt:message key="Jsp_euParliament_data_title_text" bundle="${msg}"/>
+            </h4>
+            <div id="contentText"></div>
+        </div>
+    </jsp:body>
+</t:generic-template>
 
 <script>
     var urlJson = '${urlJson}';
