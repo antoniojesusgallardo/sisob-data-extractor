@@ -307,7 +307,7 @@
            with a Cultural Heritage taxonomy.</p>      
         
         <div style="text-align: center">
-            <img src='img/ontologyCulturalHeritage.png' alt='View' 
+            <img src='static/img/ontologyCulturalHeritage.png' alt='View' 
                  style='border: 1px solid #e3e3e3; border-radius: 4px;' >
         </div>
       
@@ -344,8 +344,8 @@
             </ol>
           
             <div style="text-align: center">
-                <img src='img/TOE-SiSOB-Integration.png' alt='View' 
-                    style='border: 1px solid #e3e3e3; border-radius: 4px;' > <!--style='width:18px;height:18px'-->
+                <img src='static/img/TOE-SiSOB-Integration.png' 
+                    alt='View' style='border: 1px solid #e3e3e3; border-radius: 4px;' />
             </div>
         </div>
       

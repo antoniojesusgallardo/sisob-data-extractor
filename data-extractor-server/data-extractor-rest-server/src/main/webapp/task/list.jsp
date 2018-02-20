@@ -63,15 +63,15 @@
 
 <t:generic-template>
     <jsp:attribute name="resources">
-        <jsp:include page="layout/resources.jsp" />
+        <jsp:include page="../layout/resources.jsp" />
     </jsp:attribute>
     <jsp:attribute name="header">
-        <jsp:include page="layout/header.jsp" >  
+        <jsp:include page="../layout/header.jsp" >  
             <jsp:param name="showUserLogged" value="false" />
         </jsp:include>
     </jsp:attribute>
     <jsp:attribute name="footer">
-        <jsp:include page="layout/footer.jsp" />
+        <jsp:include page="../layout/footer.jsp" />
     </jsp:attribute>
     <jsp:body>
 
@@ -117,7 +117,7 @@
                                 <td>${iTask.date_finished}</td>
                                 <td>
                                     <a class="btn btn-primary" 
-                                       href="upload-and-launch.jsp?task_code=${iTask.name}">
+                                       href="task/details.jsp?task_code=${iTask.name}">
                                         View
                                     </a>
                                 </td>
@@ -154,13 +154,7 @@
 
 <script type="text/javascript">    
     $(document).ready(function()
-    {
-        function showModal(pType, pMessage){
-            var htmlMessage = "<h4 class='text-"+pType+"'>" + pMessage + "</h4>";
-            $("div#task-result").html(htmlMessage);
-            $('#test_modal').modal('show');
-        }
-        
+    {   
         $("button#task-creator").click(function(){
             var data = {
                 user: "${sessionScope.user}", 
@@ -169,7 +163,7 @@
 
             $.ajax({ 
                 type: "POST",
-                url: "resources/task/add",
+                url: "${pageContext.request.contextPath}/resources/task/add",
                 data: JSON.stringify(data),
                 dataType: "json",         
                 contentType: 'application/json',                                                      
@@ -177,7 +171,7 @@
                     if(result.status === "${TASK_STATUS_TO_EXECUTE}"){
                         showModal("success", result.message);
                         setTimeout(function() {
-                            window.location = 'upload-and-launch.jsp?task_code=' + result.task_code;
+                            window.location = 'task/details.jsp?task_code='+result.task_code;
                         }, 2000);
                     }
                     else{
@@ -191,5 +185,11 @@
                 }
             });
         });
+        
+        function showModal(pType, pMessage){
+            var htmlMessage = "<h4 class='text-"+pType+"'>" + pMessage + "</h4>";
+            $("div#task-result").html(htmlMessage);
+            $('#test_modal').modal('show');
+        }
     });
 </script>  

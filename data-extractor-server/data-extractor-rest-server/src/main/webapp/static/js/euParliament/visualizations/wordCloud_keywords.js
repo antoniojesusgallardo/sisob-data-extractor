@@ -134,12 +134,12 @@ function drawKeywords(pJsonData){
                 "</TD>" +
                 "<TD>" +
                     "<A href='#HREF_TEXT_DETAILS#' target='_blank'>" +
-                        "<img src='img/view-icone.png' alt='View' style='width:18px;height:18px'>" +
+                        "<img src='static/img/view-icone.png' alt='View' style='width:18px;height:18px'>" +
                     "</A>" +
                 "</TD>" +
                 "<TD>" +
                     "<A href='#HREF_TEXT_EU#' target='_blank'>" +
-                        "<img src='img/eu_logo.png' alt='View' style='width:26px;height:18px'>"+
+                        "<img src='static/img/eu_logo.png' alt='View' style='width:26px;height:18px'>"+
                     "</A>" +
                 "</TD>" +
             "</TR>"; 
@@ -148,7 +148,7 @@ function drawKeywords(pJsonData){
         $.each(pData.speeches, function (indexSpeech, iSpeech) {
            
             var speechData      = iSpeech.id.replace(/_/g, " ");
-            var hrefTextDetails = "task-euParliament-data.jsp"+
+            var hrefTextDetails = "task/euParliament/data.jsp"+
                                         "?task_code="+taskCode+
                                         "&speech_id="+iSpeech.id;
             var hrefTextEU      = iSpeech.textURI;

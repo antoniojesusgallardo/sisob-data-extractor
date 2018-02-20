@@ -20,17 +20,15 @@
 
 <div style="text-align: center">    
     <div>
-        <img src="${pageContext.request.contextPath}/img/seventh.png" 
-             alt="Seventh Framework Programme" width="60" height="60"/>                             
-        <img src="${pageContext.request.contextPath}/img/flag.png" 
-             alt="EU flag" width="85" height="60"/>   
+        <img src="static/img/seventh.png" alt="Seventh Framework Programme" 
+             width="60" height="60"/>                             
+        <img src="static/img/flag.png" alt="EU flag" width="85" height="60"/>   
         <a href="http://www.uma.es">
-            <img src="${pageContext.request.contextPath}/img/uma.jpg" 
-                alt="Universidad de Malaga" height="60"/>
+            <img src="static/img/uma.jpg" alt="Universidad de Malaga" height="60"/>
 	</a>
 	<a href="http://iaia.lcc.uma.es">
-            <img src="${pageContext.request.contextPath}/img/ia2s.gif"
-                alt="(IA)2 research group" height="60" width="234"/>
+            <img src="static/img/ia2s.gif" alt="(IA)2 research group" 
+                height="60" width="234"/>
 	</a>
     </div>    
     <div>

@@ -54,7 +54,7 @@
     <c:if test="${GateTaskCH == task.kind}">
         <div style="text-align: center">
             <a class="btn btn-primary" 
-               href="task-euParliament-visualizations.jsp?task_code=${task.task_code}">
+               href="task/euParliament/visualizations.jsp?task_code=${task.task_code}">
                 <fmt:message key="Jsp_euParliament_show_visualizations" bundle="${msg}"/>
             </a>
         </div>
@@ -86,7 +86,7 @@
     </c:if>
     
     <h5>Notes of the files to download:</h5>        
-    <jsp:include page="get-task-results-desc.jsp" >
+    <jsp:include page="get-results-desc.jsp" >
         <jsp:param name="taskKind" value="${task.kind}" />    
     </jsp:include>  
     
@@ -201,7 +201,7 @@ $(document).ready(function(){
         
         $.ajax({ 
             type: "POST",
-            url: "resources/task/relaunch",
+            url: "${pageContext.request.contextPath}/resources/task/relaunch",
             data: JSON.stringify(data),
             dataType: "json",         
             contentType: 'application/json',                            
@@ -209,7 +209,7 @@ $(document).ready(function(){
                 if(result.success == "true"){
                     showModal("success", "("+task_kind+")  "+result.message);
                     setTimeout(function() {
-                        window.location = 'upload-and-launch.jsp?task_code=' + task_code;
+                        window.location = 'task/details.jsp?task_code=' + task_code;
                     }, 2000);                                        
                 }
                 else{
@@ -234,7 +234,7 @@ $(document).ready(function(){
 
         $.ajax({ 
             type: "POST",
-            url: "resources/task/delete",
+            url: "${pageContext.request.contextPath}/resources/task/delete",
             data: JSON.stringify(data),
             dataType: "json",         
             contentType: 'application/json',                            
@@ -242,7 +242,7 @@ $(document).ready(function(){
                 if(result.success == "true"){
                     showModal("success", "("+task_kind+")  "+result.message);
                     setTimeout(function() {
-                        window.location = 'list-tasks.jsp';
+                        window.location = 'task/list.jsp';
                     }, 2000);                                        
                 }
                 else{

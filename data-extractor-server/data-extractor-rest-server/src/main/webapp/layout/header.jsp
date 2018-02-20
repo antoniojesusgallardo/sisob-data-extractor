@@ -28,7 +28,7 @@
     <table>
         <tr>
             <td>
-                <img src="img/sisob_logo.png" />
+                <img src="static/img/sisob_logo.png" />
             </td>
             <td>
                 <h1><fmt:message key="Jsp System Title" bundle="${msg}"/></h1>          

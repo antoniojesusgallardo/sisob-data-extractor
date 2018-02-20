@@ -54,18 +54,20 @@
     params.put("pass", pass);
     RESTClient restClient = new RESTClient("/authorization", OutputAuthorizationResult.class, params);
     OutputAuthorizationResult auth_result = (OutputAuthorizationResult)restClient.get();
-           
+    
     // Redirect
+    String urlRedirect = request.getContextPath();
     if(!auth_result.success){
-        response.sendRedirect("index.jsp?message=unauth_data"); 
+        urlRedirect += "/index.jsp?message=unauth_data"; 
     }
     else if(!auth_result.account_type.equals(OutputAuthorizationResult.ACCOUNT_TYPE_USER)){
-        response.sendRedirect("index.jsp?message=unauth_type"); 
+        urlRedirect += "/index.jsp?message=unauth_type"; 
     }
     else {
         session.setAttribute("user",user);
         session.setAttribute("pass",pass);
 
-        response.sendRedirect("list-tasks.jsp"); 
+        urlRedirect += "/task/list.jsp"; 
     }
+    response.sendRedirect(urlRedirect);
 %>

@@ -277,7 +277,7 @@ $(document).ready(function()
         var taskKind = $("select#task-selector").val();
         $.ajax({
             type: "GET",
-            url: "get-task-desc.jsp",
+            url: "task/get-desc.jsp",
             dataType: 'text',
             data: "taskKind=" + taskKind,
             success: function(result){                        
@@ -332,7 +332,7 @@ $(document).ready(function()
                     if(result.success == "true"){
                         showModal("success", "("+taskKind+")  "+result.message);
                         setTimeout(function() {
-                            window.location = 'upload-and-launch.jsp?task_code=' + '${task.task_code}';
+                            window.location = 'task/details.jsp?task_code=' + '${task.task_code}';
                         }, 2000);                                        
                     }
                     else{

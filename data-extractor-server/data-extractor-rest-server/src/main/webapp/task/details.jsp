@@ -68,31 +68,31 @@
 
 <t:generic-template>
     <jsp:attribute name="resources">
-        <jsp:include page="layout/resources.jsp" />
+        <jsp:include page="../layout/resources.jsp" />
     </jsp:attribute>
     <jsp:attribute name="header">
-        <jsp:include page="layout/header.jsp" >  
+        <jsp:include page="../layout/header.jsp" >  
             <jsp:param name="showUserLogged" value="false" />
         </jsp:include>
     </jsp:attribute>
     <jsp:attribute name="footer">
-        <jsp:include page="layout/footer.jsp" />
+        <jsp:include page="../layout/footer.jsp" />
     </jsp:attribute>
     <jsp:body>
 
         <h5>
-            <a href="list-tasks.jsp">Back to listing</a>
+            <a href="task/list.jsp">Back to listing</a>
         </h5>
         
         <c:choose>
             <c:when test="${TASK_STATUS_NO_AUTH==task.status || TASK_STATUS_NO_ACCESS==task.status || TASK_STATUS_EXECUTING==task.status}">
-                <jsp:include page="upload-and-launch-executing.jsp" />
+                <jsp:include page="details-executing.jsp" />
             </c:when>
             <c:when test="${TASK_STATUS_EXECUTED == task.status}">
-                <jsp:include page="upload-and-launch-executed.jsp" />
+                <jsp:include page="details-executed.jsp" />
             </c:when>
             <c:when test="${TASK_STATUS_TO_EXECUTE == task.status}">
-                <jsp:include page="upload-and-launch-to-execute.jsp" />
+                <jsp:include page="details-to-execute.jsp" />
             </c:when>
         </c:choose>
  
