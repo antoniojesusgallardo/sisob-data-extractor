@@ -20,6 +20,8 @@
 package eu.sisob.uma.restserver;
 
 import com.sun.mail.smtp.SMTPTransport;
+import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
 import java.util.Date;
 import java.util.List;
 import java.util.Properties;
@@ -29,13 +31,14 @@ import javax.mail.MessagingException;
 import javax.mail.Session;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
+import org.apache.commons.io.IOUtils;
 
 public class Mailer 
 {    
     private static final java.util.logging.Logger LOG = java.util.logging.Logger.getLogger(Mailer.class.getName());
     
-    public static void sendMail(String to, String subject, String content) throws MessagingException
-    {    
+    public static void sendMail(String to, String subject, String content) throws MessagingException, UnsupportedEncodingException
+    {
         String server_email = TheConfig.getProperty(TheConfig.SYSTEMEMAIL_ADDRESS);
         String server_pwd = TheConfig.getProperty(TheConfig.SYSTEMEMAIL_PASSWORD);
                 
@@ -45,10 +48,10 @@ public class Mailer
         Session session = Session.getInstance(props, null);
         
         Message msg = new MimeMessage(session);
-        msg.setFrom(new InternetAddress(server_email));
+        msg.setFrom(new InternetAddress(server_email, "SISOB Notification"));
         msg.setRecipients(Message.RecipientType.TO, InternetAddress.parse(to, false));
         msg.setSubject(subject);
-        msg.setText(content);
+        msg.setContent(content, "text/html; charset=utf-8");
         msg.setHeader("X-Mailer", "Sisob Data Extractor System");
         msg.setSentDate(new Date());
         
@@ -77,34 +80,56 @@ public class Mailer
     {
         LOG.info("Notyfing task is finish (" + user + ", " + task_code + ", " + task_kind + ")");
         boolean success = false;
-        String files = "";
-        List<String> fresults = AuthorizationManager.getResultFiles(user, task_code);
         
-        for(String fresult : fresults)
-        {
-            String file_url = AuthorizationManager.getGetFileUrl(user, pass, task_code, fresult, "results");
-            files += fresult + ": " + file_url + "\r\n\r\n";
-        }
-       
-        try {        
-            Mailer.sendMail(email,
-                                      "Your " + task_kind + " task has been finished [code=" + task_code + "]", 
-                                      "Dear user " + email + "r\n\r\n" + 
-                                      "Your task with the code " + task_code + " has been finished.\r\n\r\n" + 
-                                      "The results of the task there are in these files:\r\n\r\n" + 
-                                      files + "\r\n\r\n" + 
-                                      "You can download these files now." + 
-                                      "\r\n" + "Access again to the platform, go the tasks list and press 'view' to task number " + task_code + 
-                                      "\r\n" + TheConfig.SERVER_URL + 
-                                      "\r\n\r\n" + extra_msg);            
+        try {
+            
+            String subject = "Your " + task_kind + " task has been finished [code=" + task_code + "]";
+            
+            String serverUrl = TheConfig.getInstance().getString(TheConfig.SERVER_URL);
+            
+            // Get the email layout
+            InputStream inputStream =  Mailer.class.getClassLoader().getResourceAsStream("email/layout.html");
+            String emailHtml = IOUtils.toString(inputStream);
+            
+            // Get html that contains the result files
+            String htmlFile =   "<li>" +
+                                    "#FILE_NAME# | " +
+                                    "<a target='_blank' href='#HREF#'>" +
+                                        "Download" +
+                                    "</a>" +
+                                "</li>";
+            String htmlListFiles = "";
+            List<String> fresults = AuthorizationManager.getResultFiles(user, task_code);
+            for(String iFileName : fresults){
+                String iFileUrl = serverUrl + "/download-file.jsp"
+                                            + "?task-code="+task_code  
+                                            + "&file-name="+iFileName;
+                
+                String iHtmlFile = htmlFile.replaceAll("#HREF#", iFileUrl);
+                iHtmlFile = iHtmlFile.replaceAll("#FILE_NAME#", iFileName);
+
+                htmlListFiles += iHtmlFile;
+            }
+            
+            // Set the the list files, server url, task code and extra message 
+            emailHtml = emailHtml.replaceAll("#LIST_FILES#", htmlListFiles);
+            emailHtml = emailHtml.replaceAll("#SERVER_URL#", serverUrl);
+            emailHtml = emailHtml.replaceAll("#TASK_CODE#", task_code);
+            emailHtml = emailHtml.replaceAll("#EXTRA_MSG#", extra_msg);
+            
+            // Send Mail
+            Mailer.sendMail(email, subject, emailHtml);           
             
             success = true;
         } 
-        catch (MessagingException ex) 
-        {
+        catch (MessagingException ex){
             LOG.log(Level.SEVERE, "Error sending email to " + email, ex);            
             AuthorizationManager.notifyResultError(user, task_code, "Error sending email to " + email);
         } 
+        catch (Exception ex){
+            LOG.log(Level.SEVERE, "Error sending email to " + email, ex);            
+            AuthorizationManager.notifyResultError(user, task_code, "Error sending email to " + email);
+        }
         
         return success;
     }

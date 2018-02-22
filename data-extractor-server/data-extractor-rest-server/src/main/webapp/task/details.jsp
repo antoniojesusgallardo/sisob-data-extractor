@@ -72,7 +72,7 @@
     </jsp:attribute>
     <jsp:attribute name="header">
         <jsp:include page="../layout/header.jsp" >  
-            <jsp:param name="showUserLogged" value="false" />
+            <jsp:param name="showUserLogged" value="true" />
         </jsp:include>
     </jsp:attribute>
     <jsp:attribute name="footer">
