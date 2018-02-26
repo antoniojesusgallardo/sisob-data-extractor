@@ -138,11 +138,13 @@ function drawKeywords(pJsonData){
                     "</A>" +
                 "</TD>" +
                 "<TD>" +
-                    "<A href='#HREF_TEXT_EU#' target='_blank'>" +
-                        "<img src='static/img/eu_logo.png' alt='View' style='width:26px;height:18px'>"+
-                    "</A>" +
+                    "#LINK#" +
                 "</TD>" +
             "</TR>"; 
+        
+        var htmlLink =  "<A href='#HREF_TEXT#' target='_blank'>" +
+                            "<img src='static/img/eu_logo.png' alt='View' style='width:26px;height:18px'>"+
+                        "</A>";
 
         var htmlRows = "";  
         $.each(pData.speeches, function (indexSpeech, iSpeech) {
@@ -151,12 +153,19 @@ function drawKeywords(pJsonData){
             var hrefTextDetails = "task/euParliament/data.jsp"+
                                         "?task_code="+taskCode+
                                         "&speech_id="+iSpeech.id;
-            var hrefTextEU      = iSpeech.textURI;
+            var hrefTextEU      = iSpeech.textURI == null ? "" :  iSpeech.textURI;
             
             htmlRows += htmlTemplateRow;
             htmlRows = htmlRows.replace("#SPEECH_DATA#", speechData);
             htmlRows = htmlRows.replace("#HREF_TEXT_DETAILS#", hrefTextDetails);
-            htmlRows = htmlRows.replace("#HREF_TEXT_EU#", hrefTextEU);
+            
+            if(hrefTextEU!=""){
+                htmlRows = htmlRows.replace("#LINK#", htmlLink);
+                htmlRows = htmlRows.replace("#HREF_TEXT#", hrefTextEU);
+            }
+            else{
+                htmlRows = htmlRows.replace("#LINK#", "-");
+            }
         });
         
         var categories = Object.values(pData.categories);

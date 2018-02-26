@@ -317,15 +317,21 @@
             <ol>
                 <li>
                     Using CSV files generated for us, a CSV file for each year, from 1999 to 2000.
-                    The CSV files are stored in <a href="https://www.dropbox.com/sh/ytoqe0unxyf1zla/AAAh6fI0iZYbHlt6sMZGNmBja?dl=0" target="_blank">Dropbox</a>.  
+                    The CSV files are stored in <a href="https://www.dropbox.com/sh/a2mvkbaz34tsy1k/AACcqqpRnMpsqOrtGMuuB1nia?dl=0" target="_blank">Dropbox</a>.  
                 </li>
                 <li>
-                    Using <a href="http://linkedpolitics.ops.few.vu.nl/yasgui/index.html" target="_blank">
-                    SPARQL Editor of Talk for Europe</a>, following these steps: 
+                    Using 
+                    <a href="http://linkedpolitics.ops.few.vu.nl/yasgui/index.html" target="_blank">
+                        SPARQL Editor of Talk for Europe
+                    </a>
+                    , following these steps: 
                     <ul>
                         <li>
                             Create a query in SPARQL (i.e.                    
-                            <a href="https://www.dropbox.com/s/tegytmblf9ylbgi/querySPARQL.sql?dl=0" target="_blank">querySPARQL.sql</a>
+                            <a href="https://www.dropbox.com/s/e17qj3jbu6xqxpz/querySPARQL.sql?dl=0" 
+                               target="_blank">
+                                querySPARQL.sql
+                            </a>
                             )
                         </li>
                         <li>
@@ -333,7 +339,10 @@
                         </li>
                         <li>
                             Escape the separators and quotes (with this 
-                            <a href="https://www.dropbox.com/s/sqdqvug61oawdey/scriptProcessCsv.sh?dl=0" target="_blank">script</a>
+                            <a href="https://www.dropbox.com/s/9lyskcxo56wataq/scriptProcessCsv.sh?dl=0" 
+                               target="_blank">
+                                script
+                            </a>
                             )
                         </li>
                         <li>

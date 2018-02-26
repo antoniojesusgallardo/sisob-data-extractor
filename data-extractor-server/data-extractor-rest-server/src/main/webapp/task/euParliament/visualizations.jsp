@@ -36,7 +36,7 @@
         if(session != null){
             session.invalidate();
         }
-        response.sendRedirect("index.jsp?message=notAllowed");
+        response.sendRedirect(request.getContextPath()+"/index.jsp?message=notAllowed");
         return;
     }
     

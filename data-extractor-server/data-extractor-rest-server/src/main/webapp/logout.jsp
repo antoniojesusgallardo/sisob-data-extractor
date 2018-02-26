@@ -31,5 +31,5 @@
         session.invalidate();
     }
   
-    response.sendRedirect("index.jsp?message=logout");
+    response.sendRedirect(request.getContextPath()+"/index.jsp?message=logout");
 %>

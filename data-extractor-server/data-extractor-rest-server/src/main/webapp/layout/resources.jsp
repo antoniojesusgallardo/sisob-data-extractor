@@ -43,12 +43,12 @@
 <!-- Bootstrap styles for responsive website layout, supporting different screen sizes -->
 <link rel="stylesheet" href="static/css/bootstrap-responsive.min.2.3.2.css">
 <!-- Bootstrap CSS fixes for IE6 -->
-<!--[if lt IE 7]><link rel="stylesheet" href="css/bootstrap-ie6.min.css"><![endif]-->
+<!--[if lt IE 7]><link rel="stylesheet" href="static/css/bootstrap-ie6.min.css"><![endif]-->
 <!-- Bootstrap Image Gallery styles -->
 <link rel="stylesheet" href="static/css/bootstrap-image-gallery.min.2.3.2.css">
 <!-- CSS to style the file input field as button and adjust the Bootstrap progress bars -->
 <!-- Shim to make HTML5 elements usable in older Internet Explorer versions -->
-<!--[if lt IE 9]><script src="js/html5.js"></script><![endif]-->
+<!--[if lt IE 9]><script src="static/js/html5.js"></script><![endif]-->
 <script src="static/js/sha256.js"></script>    
 <!-- blueimp Gallery styles -->
 <link rel="stylesheet" href="static/css/blueimp-gallery.min.css">

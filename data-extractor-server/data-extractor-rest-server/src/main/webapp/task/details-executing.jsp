@@ -26,11 +26,11 @@
         if(session != null){
             session.invalidate();
         }
-        response.sendRedirect("index.jsp?message=notAllowed");
+        response.sendRedirect(request.getContextPath()+"/index.jsp?message=notAllowed");
         return;
     }
     if(request.getAttribute("task") == null){
-        response.sendRedirect("error.jsp");
+        response.sendRedirect(request.getContextPath()+"/error.jsp");
         return;
     }
 %>                

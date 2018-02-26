@@ -32,11 +32,11 @@
         if(session != null){
             session.invalidate();
         }
-        response.sendRedirect("index.jsp?message=notAllowed");
+        response.sendRedirect(request.getContextPath()+"/index.jsp?message=notAllowed");
         return;
     }
     if(request.getAttribute("task") == null){
-        response.sendRedirect("error.jsp");
+        response.sendRedirect(request.getContextPath()+"/error.jsp");
         return;
     }
     
@@ -246,25 +246,25 @@
 {% } %}
 </script>
 <!-- The Templates plugin is included to render the upload/download listings http://blueimp.github.com/JavaScript-Templates/tmpl.min.js -->
-<script src="js/tmpl.min.js"></script>
+<script src="static/js/tmpl.min.js"></script>
 <!-- The Load Image plugin is included for the preview images and image resizing functionality http://blueimp.github.com/JavaScript-Load-Image/load-image.min.js -->
-<script src="js/load-image.min.js"></script>
+<script src="static/js/load-image.min.js"></script>
 <!-- The Canvas to Blob plugin is included for image resizing functionality http://blueimp.github.com/JavaScript-Canvas-to-Blob/canvas-to-blob.min.js -->
-<script src="js/canvas-to-blob.min.js"></script>
+<script src="static/js/canvas-to-blob.min.js"></script>
 <!-- The Iframe Transport is required for browsers without support for XHR file uploads -->
-<script src="js/jquery.iframe-transport.js"></script>
+<script src="static/js/jquery.iframe-transport.js"></script>
 <!-- The basic File Upload plugin -->
-<script src="js/jquery.fileupload.js"></script>
+<script src="static/js/jquery.fileupload.js"></script>
 <!-- The File Upload file processing plugin -->
-<script src="js/jquery.fileupload-fp.js"></script>
+<script src="static/js/jquery.fileupload-fp.js"></script>
 <!-- The File Upload user interface plugin -->
-<script src="js/jquery.fileupload-ui.js"></script>
+<script src="static/js/jquery.fileupload-ui.js"></script>
 <!-- The localization script -->
-<script src="js/locale.js"></script>
+<script src="static/js/locale.js"></script>
 <!-- The main application script -->
-<script src="js/main.js"></script>
+<script src="static/js/main.js"></script>
 <!-- The XDomainRequest Transport is included for cross-domain file deletion for IE8+ -->
-<!--[if gte IE 8]><script src="js/cors/jquery.xdr-transport.js"></script><![endif]-->
+<!--[if gte IE 8]><script src="static/js/cors/jquery.xdr-transport.js"></script><![endif]-->
 <script type="text/javascript"> 
     
 $(document).ready(function()
@@ -294,19 +294,7 @@ $(document).ready(function()
     $("button#task-launcher").click(function(){
 
         var taskKind = $("select#task-selector").val();
-        var parameters_names = new Array();
-        var parameters_values = new Array();
-
-        $('#params-block :checked').each(function(index ) {   
-            parameters_names[index] = $(this).attr("id");
-            parameters_values[index] = "true";    
-        });
-
-        $('#params-block input[type=text]').each(function(index) {            
-            parameters_names[index] = $(this).attr("id");
-            parameters_values[index] = $(this).val();    
-        });
-
+        
         var data = {
             user: user, 
             pass: pass, 
@@ -314,12 +302,18 @@ $(document).ready(function()
             task_kind: taskKind,
             parameters: []
         }
+        
+        $('#params-block :checked').each(function(){   
+            var id = $(this).attr("id");
+            var value = "true";
+            data.parameters.push({ key: id, value: value});
+        });
 
-        for(i = 0; i < parameters_names.length; i++){
-            data.parameters.push({ key: parameters_names[i],
-                                   value: parameters_values[i]
-            });
-        }
+        $('#params-block input[type=text]').each(function(){  
+            var id = $(this).attr("id");
+            var value= $(this).val();
+            data.parameters.push({ key: id, value: value});    
+        });
 
         if(taskKind != "none"){
             $.ajax({ 
