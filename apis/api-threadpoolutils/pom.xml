@@ -2,13 +2,16 @@
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>eu.sisob.uma</groupId>
-    <artifactId>api-threadpoolutils</artifactId>
-    <version>1.0.0-RELEASE</version>
-    <packaging>jar</packaging>
+    <parent>
+        <groupId>eu.sisob.uma</groupId>
+        <artifactId>sisob-data-extractor</artifactId>
+        <version>1.0.0-RELEASE</version>
+        <relativePath>../../</relativePath>
+    </parent>
 
+    <artifactId>api-threadpoolutils</artifactId>
+    <packaging>jar</packaging>
     <name>api-threadpoolutils</name>
-    <url>http://maven.apache.org</url>
     
     <properties>
       <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>

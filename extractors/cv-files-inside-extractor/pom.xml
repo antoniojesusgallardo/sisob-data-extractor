@@ -2,19 +2,40 @@
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
+  <parent>
+    <groupId>eu.sisob.uma</groupId>
+    <artifactId>sisob-data-extractor</artifactId>
+    <version>1.0.0-RELEASE</version>
+    <relativePath>../../</relativePath>
+  </parent>
+
   <groupId>eu.sisob.uma</groupId>
   <artifactId>internal-cv-files-extractor</artifactId>
-  <version>1.0.0-RELEASE</version>
   <packaging>jar</packaging>
-
   <name>internal-cv-files-extractor</name>
-  <url>http://maven.apache.org</url>
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
   </properties>
 
   <dependencies>
+    <!-- sisob dependencies-->
+    <dependency>
+      <groupId>eu.sisob.uma</groupId>
+      <artifactId>api-extractors-data-format</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>eu.sisob.uma</groupId>
+      <artifactId>api-threadpoolutils</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    <dependency>
+      <groupId>eu.sisob.uma</groupId>
+      <artifactId>api-footils</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
@@ -58,24 +79,9 @@
       <version>4.2.1</version>
     </dependency>
     <dependency>
-      <groupId>eu.sisob.uma</groupId>
-      <artifactId>api-extractors-data-format</artifactId>
-      <version>1.0.0-RELEASE</version>
-    </dependency>
-    <dependency>
-      <groupId>eu.sisob.uma</groupId>
-      <artifactId>api-threadpoolutils</artifactId>
-      <version>1.0.0-RELEASE</version>
-    </dependency>
-    <dependency>
       <groupId>net.lingala.zip4j</groupId>
       <artifactId>zip4j</artifactId>
       <version>1.3.1</version>
-    </dependency>
-    <dependency>
-      <groupId>eu.sisob.uma</groupId>
-      <artifactId>api-footils</artifactId>
-      <version>1.0.0-RELEASE</version>
     </dependency>
   </dependencies>
 </project>

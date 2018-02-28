@@ -2,11 +2,15 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>eu.sisob.uma</groupId>
-    <artifactId>data-extractor-rest-server</artifactId>
-    <version>1.0.2-RELEASE</version>
-    <packaging>war</packaging>
+    <parent>
+        <groupId>eu.sisob.uma</groupId>
+        <artifactId>sisob-data-extractor</artifactId>
+        <version>1.0.0-RELEASE</version>
+        <relativePath>../../</relativePath>
+    </parent>
 
+    <artifactId>data-extractor-rest-server</artifactId>
+    <packaging>war</packaging>
     <name>data-extractor-rest-server</name>
 
     <properties>
@@ -15,6 +19,49 @@
     </properties>
 
     <dependencies>
+        <!-- sisob dependencies-->
+        <dependency>
+            <groupId>eu.sisob.uma</groupId>
+            <artifactId>gate-data-extractor</artifactId>
+            <version>${project.version}</version>
+            <exclusions>
+                <exclusion>
+                    <artifactId>icu4j</artifactId>
+                    <groupId>com.ibm.icu</groupId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>eu.sisob.uma</groupId>
+            <artifactId>data-extractor-rest-server-communications</artifactId>
+            <version>${project.version}</version>
+        </dependency>                
+        <dependency>
+            <groupId>eu.sisob.uma</groupId>
+            <artifactId>researcher-crawler-extractor</artifactId>
+            <version>${project.version}</version>
+        </dependency>         
+        <dependency>
+            <groupId>eu.sisob.uma</groupId>
+            <artifactId>web-searchers-extractor</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>eu.sisob.uma</groupId>
+            <artifactId>email-extractor</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>eu.sisob.uma</groupId>
+            <artifactId>internal-cv-files-extractor</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>eu.sisob.uma</groupId>
+            <artifactId>api-google-drive-utils</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+        
         <dependency>
             <groupId>com.sun.jersey</groupId>
             <artifactId>jersey-json</artifactId>
@@ -65,13 +112,6 @@
             <artifactId>commons-io</artifactId>
             <version>2.4</version>
         </dependency>
-        <!--
-        <dependency>
-            <groupId>commons-logging</groupId>
-            <artifactId>commons-logging</artifactId>
-            <version>1.1.1</version>
-        </dependency>
-        -->
         <dependency>
             <groupId>log4j</groupId>
             <artifactId>log4j</artifactId>
@@ -103,47 +143,6 @@
           <artifactId>junit</artifactId>
           <version>4.8.1</version>
           <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>eu.sisob.uma.NPL.Researchers</groupId>
-            <artifactId>gate-data-extractor</artifactId>
-            <version>1.0.0-RELEASE</version>
-            <exclusions>
-                <exclusion>
-                    <artifactId>icu4j</artifactId>
-                    <groupId>com.ibm.icu</groupId>
-                </exclusion>
-            </exclusions>
-        </dependency>
-        <dependency>
-            <groupId>eu.sisob.uma</groupId>
-            <artifactId>data-extractor-rest-server-communications</artifactId>
-            <version>1.0.0-RELEASE</version>
-        </dependency>                
-        <dependency>
-            <groupId>eu.sisob.uma</groupId>
-            <artifactId>researcher-crawler-extractor</artifactId>
-            <version>1.0.0-RELEASE</version>
-        </dependency>         
-        <dependency>
-            <groupId>eu.sisob.uma</groupId>
-            <artifactId>web-searchers-extractor</artifactId>
-            <version>1.0.0-RELEASE</version>
-        </dependency>
-        <dependency>
-            <groupId>eu.sisob.uma</groupId>
-            <artifactId>email-extractor</artifactId>
-            <version>1.0.0-RELEASE</version>
-        </dependency>
-        <dependency>
-            <groupId>eu.sisob.uma</groupId>
-            <artifactId>internal-cv-files-extractor</artifactId>
-            <version>1.0.0-RELEASE</version>
-        </dependency>
-        <dependency>
-            <groupId>eu.sisob.uma</groupId>
-            <artifactId>api-google-drive-utils</artifactId>
-            <version>1.0.0-RELEASE</version>
         </dependency>
         <dependency>
             <groupId>org.apache.commons</groupId>
@@ -208,14 +207,5 @@
         </plugins>
     </build>
     <repositories>
-        <!--
-        <repository>
-            <url>http://download.java.net/maven/2/</url>
-            <id>restlib</id>
-            <layout>default</layout>
-            <name>Repository for library Library[restlib]</name>
-        </repository>
-        
-        -->
     </repositories>
 </project>

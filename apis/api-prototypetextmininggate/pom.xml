@@ -3,14 +3,28 @@
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
   <modelVersion>4.0.0</modelVersion>
   
-  <groupId>eu.sisob.uma</groupId>
+  <parent>
+    <groupId>eu.sisob.uma</groupId>
+    <artifactId>sisob-data-extractor</artifactId>
+    <version>1.0.0-RELEASE</version>
+    <relativePath>../../</relativePath>
+  </parent>
+  
   <artifactId>api-prototypeTextMiningGate</artifactId>
-  <version>1.0.0-RELEASE</version>
-  <url>http://maven.apache.org</url>
+  <name>api-prototypeTextMiningGate</name>
+  
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
   </properties>
+  
   <dependencies>
+    <!-- sisob dependencies-->
+    <dependency>
+      <groupId>eu.sisob.uma</groupId>
+      <artifactId>api-prototypeTextMining</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    
     <dependency>
       <groupId>uk.ac.gate</groupId>
       <artifactId>gate-core</artifactId>
@@ -26,11 +40,5 @@
       <artifactId>jsoup</artifactId>
       <version>1.5.2</version>
     </dependency>
-    <dependency>
-      <groupId>eu.sisob.uma</groupId>
-      <artifactId>api-prototypeTextMining</artifactId>
-      <version>1.0.0-RELEASE</version>
-    </dependency>
-  </dependencies>
-    <name>api-prototypeTextMiningGate</name>
+  </dependencies>   
 </project>

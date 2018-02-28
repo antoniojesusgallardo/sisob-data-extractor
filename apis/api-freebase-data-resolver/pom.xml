@@ -2,13 +2,16 @@
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
-  <groupId>eu.sisob.uma</groupId>
-  <artifactId>api-freebase-data-resolver</artifactId>
-  <version>1.0.0-RELEASE</version>
-  <packaging>jar</packaging>
+  <parent>
+    <groupId>eu.sisob.uma</groupId>
+    <artifactId>sisob-data-extractor</artifactId>
+    <version>1.0.0-RELEASE</version>
+    <relativePath>../../</relativePath>
+  </parent>
 
+  <artifactId>api-freebase-data-resolver</artifactId>
+  <packaging>jar</packaging>
   <name>api-freebase-data-resolver</name>
-  <url>http://maven.apache.org</url>
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -22,6 +25,13 @@
   </repositories>
 
   <dependencies>
+    <!-- sisob dependencies-->
+    <dependency>
+      <groupId>eu.sisob.uma</groupId>
+      <artifactId>api-h2-db-pool</artifactId>
+      <version>${project.version}</version>
+    </dependency>
+    
     <dependency>
       <groupId>commons-io</groupId>
       <artifactId>commons-io</artifactId>
@@ -38,14 +48,7 @@
       <version>4.8.2</version>
       <scope>test</scope>
     </dependency>
-    <!--
     <dependency>
-      <groupId>com.google.apis</groupId>
-      <artifactId>google-api-services-freebase</artifactId>
-      <version>v1-rev7-1.6.0-beta</version>
-    </dependency>  
-    -->  
-     <dependency>
 	<groupId>com.google.apis</groupId>
 	<artifactId>google-api-services-freebase</artifactId>
 	<version>v1sandbox-rev55-1.19.0</version>    
@@ -59,11 +62,6 @@
       <groupId>dom4j</groupId>
       <artifactId>dom4j</artifactId>
       <version>1.6.1</version>
-    </dependency>
-    <dependency>
-      <groupId>eu.sisob.uma</groupId>
-      <artifactId>api-h2-db-pool</artifactId>
-      <version>1.0.0-RELEASE</version>
     </dependency>
     <dependency>
       <artifactId>h2</artifactId>

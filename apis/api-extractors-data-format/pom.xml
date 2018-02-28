@@ -2,12 +2,17 @@
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
-  <groupId>eu.sisob.uma</groupId>
-  <artifactId>api-extractors-data-format</artifactId>
-  <version>1.0.0-RELEASE</version>
-  <packaging>jar</packaging>
-  <url>http://maven.apache.org</url>
+  <parent>
+    <groupId>eu.sisob.uma</groupId>
+    <artifactId>sisob-data-extractor</artifactId>
+    <version>1.0.0-RELEASE</version>
+    <relativePath>../../</relativePath>
+  </parent>
 
+  <artifactId>api-extractors-data-format</artifactId>
+  <packaging>jar</packaging>
+  <name>api-extractors-data-format</name>
+  
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
   </properties>
@@ -49,6 +54,5 @@
         <artifactId>log4j</artifactId>
         <version>1.2.16</version>
     </dependency>
-  </dependencies>
-    <name>api-extractors-data-format</name>
+  </dependencies>  
 </project>

@@ -2,11 +2,17 @@
   xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
-  <groupId>eu.sisob.uma</groupId>
-  <version>1.0.0-RELEASE</version>
-  <packaging>jar</packaging>
-  <url>http://maven.apache.org</url>
+  <parent>
+    <groupId>eu.sisob.uma</groupId>
+    <artifactId>sisob-data-extractor</artifactId>
+    <version>1.0.0-RELEASE</version>
+    <relativePath>../../</relativePath>
+  </parent>
 
+  <artifactId>api-google-drive-utils</artifactId>
+  <packaging>jar</packaging>
+  <name>api-google-drive-utils</name>
+  
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
   </properties>
@@ -19,30 +25,11 @@
   </repositories>
   
   <dependencies>
-    <!--  
     <dependency>
-      <groupId>com.google.api-client</groupId>
-      <artifactId>google-api-client</artifactId>
-      <version>1.13.1-beta</version>
+      <groupId>com.google.gdata</groupId>
+      <artifactId>core</artifactId>
+      <version>1.47.1</version>
     </dependency>
-    <dependency>
-      <groupId>com.google.api-client</groupId>
-      <artifactId>google-api-client-java6</artifactId>
-      <version>1.13.1-beta</version>
-    </dependency>
- 
-  <dependency>
-	<groupId>com.google.api-client</groupId>
-	<artifactId>google-api-client</artifactId>
-	<version>1.19.0</version>
-</dependency>
--->
-      <dependency>
-	<groupId>com.google.gdata</groupId>
-	<artifactId>core</artifactId>
-	<version>1.47.1</version>
-</dependency>
-
     <dependency>
       <groupId>com.google.code.gson</groupId>
       <artifactId>gson</artifactId>
@@ -54,52 +41,10 @@
       <version>v2-rev49-1.13.2-beta</version>
     </dependency>
     <dependency>
-        <groupId>geronimo-spec</groupId>
-        <artifactId>geronimo-spec-j2ee</artifactId>
-        <version>1.4-rc3</version>
-      </dependency>    
-   <!--   
-    <dependency>
-      <groupId>com.google.api-client</groupId>
-      <artifactId>gdata-spreadsheet</artifactId>
-      <version>3.0</version>
+      <groupId>geronimo-spec</groupId>
+      <artifactId>geronimo-spec-j2ee</artifactId>
+      <version>1.4-rc3</version>
     </dependency>
-    <dependency>
-      <groupId>com.google.api-client</groupId>
-      <artifactId>gdata-spreadsheet-meta</artifactId>
-      <version>3.0</version>
-    </dependency>
-    <dependency>
-      <groupId>com.google.api-client</groupId>
-      <artifactId>gdata-base</artifactId>
-      <version>1.0</version>
-    </dependency>
-    <dependency>
-      <groupId>com.google.api-client</groupId>
-      <artifactId>gdata-client</artifactId>
-      <version>1.0</version>
-    </dependency>
-    <dependency>
-      <groupId>com.google.api-client</groupId>
-      <artifactId>gdata-core</artifactId>
-      <version>1.0</version>
-    </dependency>
-    <dependency>
-      <groupId>com.google.api-client</groupId>
-      <artifactId>gdata-docs</artifactId>
-      <version>3.0</version>
-    </dependency>
-    <dependency>
-      <groupId>com.google.api-client</groupId>
-      <artifactId>gdata-docs-meta</artifactId>
-      <version>3.0</version>
-    </dependency>
-    <dependency>
-      <groupId>com.google.api-client</groupId>
-      <artifactId>gdata-media</artifactId>
-      <version>1.0</version>
-    </dependency>
-    -->
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
@@ -111,6 +56,4 @@
       <version>1.2.16</version>
     </dependency>
   </dependencies>
-  <name>api-google-drive-utils</name>
-  <artifactId>api-google-drive-utils</artifactId>
 </project>
