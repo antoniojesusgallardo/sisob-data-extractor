@@ -46,7 +46,7 @@
     params.put("user", user);
     params.put("pass", pass);
     params.put("task_code", task_code);
-    RESTClient restClient = new RESTClient("/task", OutputTaskStatus.class, params);
+    RESTClient restClient = new RESTClient("/task", params, OutputTaskStatus.class);
     OutputTaskStatus task = (OutputTaskStatus)restClient.get();
     
     // Save the result in the request

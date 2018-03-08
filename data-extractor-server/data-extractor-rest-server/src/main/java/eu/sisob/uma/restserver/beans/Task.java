@@ -17,28 +17,44 @@
     You should have received a copy of the GNU General Public License
     along with SISOB Data Extractor. If not, see <http://www.gnu.org/licenses/>.
 */
-package eu.sisob.uma.restserver.services.communications;
 
-import javax.xml.bind.annotation.XmlRootElement;
+package eu.sisob.uma.restserver.beans;
 
-@XmlRootElement
-public class OutputTaskStatusList 
-{
-    /**
-     *
-     */
-    public boolean success;
-    /**
-     *
-     */
-    private OutputTaskStatus[] task_status_list;
-
+/**
+ *
+ * @author Antonio Jesus Gallardo Albarran - antonio.jesus.gallardo@gmail.com
+ */
+public class Task {
     
-    public OutputTaskStatus[] getTask_status_list() {
-        return task_status_list;
+    private String status;      
+    
+    private String message;
+    
+    private String code;
+    
+    
+    
+    public String getStatus() {
+        return status;
     }
 
-    public void setTask_status_list(OutputTaskStatus[] task_status_list) {
-        this.task_status_list = task_status_list;
+    public void setStatus(String status) {
+        this.status = status;
+    }
+
+    public String getMessage() {
+        return message;
+    }
+
+    public void setMessage(String message) {
+        this.message = message;
+    }
+    
+    public String getCode() {
+        return code;
+    }
+
+    public void setCode(String code) {
+        this.code = code;
     }
 }

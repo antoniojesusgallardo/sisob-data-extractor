@@ -19,18 +19,15 @@
 */
 package eu.sisob.uma.restserver.restservices;
 
-import eu.sisob.uma.restserver.AuthorizationManager;
-import eu.sisob.uma.restserver.TheResourceBundle;
-import eu.sisob.uma.restserver.UserAttributes;
+import eu.sisob.uma.restserver.managers.AuthorizationManager;
+import eu.sisob.uma.restserver.beans.AuthorizationResult;
 import eu.sisob.uma.restserver.services.communications.OutputAuthorizationResult;
-import java.io.StringWriter;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.UriInfo;
 import javax.ws.rs.Path;
 import javax.ws.rs.GET;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
-import javax.ws.rs.core.Response;
 
 @Path("/authorization")
 public class RESTSERVICEAuthorization 
@@ -51,37 +48,26 @@ public class RESTSERVICEAuthorization
      */
     @GET
     @Produces("application/json")
-    public OutputAuthorizationResult authorization(@QueryParam("user") String user, @QueryParam("pass") String pass) {        
-        StringWriter message = new StringWriter();    
-        UserAttributes user_att = new UserAttributes();        
-        boolean valid = false;
+    public OutputAuthorizationResult authorization(@QueryParam("user") String user, 
+                                                   @QueryParam("pass") String pass) {        
         
         OutputAuthorizationResult r = new OutputAuthorizationResult();   
-        //Security
+        
         if(user.contains("'") || pass.contains("'")) { 
             r.success = false;
             r.message = "Please, insert a valid username and password";
             return r;
         }        
         
-        synchronized(AuthorizationManager.getLocker(user))
-        {
-            
-            valid = AuthorizationManager.validateAccess(user, pass, user_att, message);
+        AuthorizationResult autResult;
+        synchronized(AuthorizationManager.getLocker(user)){
+            autResult = AuthorizationManager.validateAccess(user, pass);
         }
         
-        if(valid)
-        {            
-            r.success = true;
-            r.account_type = user_att.getAccountType();
-        }
-        else
-        {
-            r.success = false;
-        }
-        
-        r.message = message.toString();
+        r.account_type  = autResult.getAccountType();
+        r.success       = autResult.getSuccess();
+        r.message       = autResult.getMessage();
         
         return r;
-    }    
+    }
 }

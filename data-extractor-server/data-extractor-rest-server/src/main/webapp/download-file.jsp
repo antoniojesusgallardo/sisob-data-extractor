@@ -23,7 +23,8 @@
 --%>
 
 <!DOCTYPE HTML>
-<%@page import="eu.sisob.uma.restserver.AuthorizationManager"%>
+<%@page import="eu.sisob.uma.restserver.managers.TaskFileManager"%>
+<%@page import="eu.sisob.uma.restserver.managers.RestUriManager"%>
 <%@page import="java.io.File"%>
 
 <%@page session="true"%>
@@ -51,9 +52,9 @@
         return;
     }
     
-    File file = AuthorizationManager.getFile(user, taskCode, fileName, "results");
+    File file = TaskFileManager.getFile(user, taskCode, fileName, "results");
     if(file != null){
-        String strUrl= AuthorizationManager.getGetFileUrl(user, pass, taskCode, fileName, "results");
+        String strUrl= RestUriManager.getUriFileToDownload(user, pass, taskCode, fileName, "results");
         response.sendRedirect(strUrl);
         return;
     }

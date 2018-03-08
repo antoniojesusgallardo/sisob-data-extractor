@@ -65,9 +65,9 @@ public class OutputTaskStatus
         date_started = "";
         date_finished = "";
 
-        results = new ArrayList<String[]>();      
-        source = new ArrayList<String[]>();
-        verbose = new ArrayList<String[]>();
+        results = new ArrayList<String>();      
+        source = new ArrayList<String>();
+        verbose = new ArrayList<String>();
         params = new ArrayList<String[]>(); 
         errors = "";
 
@@ -115,15 +115,15 @@ public class OutputTaskStatus
     /**
      *
      */ 
-    private List<String[]> results;
+    private List<String> results;
     /**
      *
      */
-    private List<String[]> source;  
+    private List<String> source;  
     /**
      *
      */
-    private List<String[]> verbose;  
+    private List<String> verbose;  
     /**
      *
      */
@@ -206,27 +206,27 @@ public class OutputTaskStatus
         this.date_finished = date_finished;
     }
 
-    public List<String[]> getResults() {
+    public List<String> getResults() {
         return results;
     }
 
-    public void setResults(List<String[]> results) {
+    public void setResults(List<String> results) {
         this.results = results;
     }
 
-    public List<String[]> getSource() {
+    public List<String> getSource() {
         return source;
     }
 
-    public void setSource(List<String[]> source) {
+    public void setSource(List<String> source) {
         this.source = source;
     }
 
-    public List<String[]> getVerbose() {
+    public List<String> getVerbose() {
         return verbose;
     }
 
-    public void setVerbose(List<String[]> verbose) {
+    public void setVerbose(List<String> verbose) {
         this.verbose = verbose;
     }
 

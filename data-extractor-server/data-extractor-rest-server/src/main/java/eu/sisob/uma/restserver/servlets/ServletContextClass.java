@@ -18,7 +18,7 @@
     along with SISOB Data Extractor. If not, see <http://www.gnu.org/licenses/>.
 */
 package eu.sisob.uma.restserver.servlets;
-import eu.sisob.uma.restserver.SystemManager;
+import eu.sisob.uma.restserver.managers.SystemManager;
 import eu.sisob.uma.restserver.TheConfig;
 import java.util.logging.Level;
 import javax.servlet.ServletContextEvent;

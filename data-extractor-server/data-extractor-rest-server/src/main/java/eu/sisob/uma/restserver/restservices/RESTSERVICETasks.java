@@ -19,14 +19,11 @@
 */
 package eu.sisob.uma.restserver.restservices;
 
-import eu.sisob.uma.restserver.AuthorizationManager;
-import eu.sisob.uma.restserver.TaskManager;
+import eu.sisob.uma.restserver.managers.TaskManager;
+import eu.sisob.uma.restserver.managers.AuthorizationManager;
+import eu.sisob.uma.restserver.beans.AuthorizationResult;
 import eu.sisob.uma.restserver.services.communications.OutputTaskStatus;
-import eu.sisob.uma.restserver.services.communications.OutputTaskStatusList;
-import java.io.StringWriter;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.Comparator;
+import java.util.Date;
 import java.util.List;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.UriInfo;
@@ -55,49 +52,21 @@ public class RESTSERVICETasks
      */
     @GET
     @Produces("application/json")
-    public OutputTaskStatusList getTasksList(@QueryParam("user") String user, @QueryParam("pass") String pass) 
+    public List<OutputTaskStatus> getTasksList( @QueryParam("user") String user, 
+                                                @QueryParam("pass") String pass) 
     {           
-        OutputTaskStatusList result = new OutputTaskStatusList();
+        List<OutputTaskStatus> rListTask = null;
         
         if(user == null) user = "";
         if(pass == null) pass = "";
         
         synchronized(user){
-            
-            if(AuthorizationManager.validateAccess(user, pass, new StringWriter())){
-                
-                List<String> task_codes = TaskManager.listTasks(user, pass);
-                List<OutputTaskStatus> task_status_list = new ArrayList<OutputTaskStatus>();
-                
-                for(String task_code : task_codes){
-                    OutputTaskStatus task_status = TaskManager.getTaskStatus(user, pass, task_code, true, false, false);
-                    task_status_list.add(task_status);
-                }
-                
-                Collections.sort(task_status_list, new Comparator<OutputTaskStatus>() {
-
-                    @Override
-                    public int compare(OutputTaskStatus o1, OutputTaskStatus o2) {                        
-                        int r = -1;                    
-                        try {                            
-                            Integer i1 = Integer.parseInt(o1.getTask_code());                            
-                            r = i1.compareTo(Integer.parseInt(o2.getTask_code()));
-                        } catch(Exception ex) {
-                            
-                        }
-                        return r;
-                    }
-                });
-                
-                result.success = true;                
-                result.setTask_status_list(task_status_list.toArray(new OutputTaskStatus[task_status_list.size()]));
-            }
-            else{
-                result.success = false;
-                result.setTask_status_list(null);
-            }      
+            AuthorizationResult autResult = AuthorizationManager.validateAccess(user, pass);
+            if(autResult.getSuccess()){
+                rListTask = TaskManager.getTasks(user, pass);
+            }    
         }
         
-        return result;
+        return rListTask;
     }
 }

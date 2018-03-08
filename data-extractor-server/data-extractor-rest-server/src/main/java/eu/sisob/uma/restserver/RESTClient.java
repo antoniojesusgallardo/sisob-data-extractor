@@ -21,6 +21,7 @@
 package eu.sisob.uma.restserver;
 
 import com.sun.jersey.api.client.Client;
+import com.sun.jersey.api.client.GenericType;
 import com.sun.jersey.api.client.WebResource;
 import com.sun.jersey.core.util.MultivaluedMapImpl;
 import java.util.Map;
@@ -42,6 +43,8 @@ public class RESTClient {
     
     private Class outputClass;
     
+    private GenericType genericType;
+    
     static {
         rootPath = TheConfig.getInstance().getString(TheConfig.SERVER_URL) + "/resources";
     }
@@ -55,9 +58,32 @@ public class RESTClient {
      * @param outputClass
      * @param params 
      */
-    public RESTClient(String path, Class outputClass, Map<String,String> params) {
+    public RESTClient(String path, Map<String,String> params, Class outputClass) {
+        
+        initialize(path, params, outputClass, null);
+    }
+    
+    /**
+     * Constructor that initializes the REST client.
+     * @param path
+     * @param params 
+     * @param genericType
+     */
+    public RESTClient(String path, Map<String,String> params, GenericType genericType) {
+        
+        initialize(path, params, null, genericType);
+    }
+    
+    private void initialize(String path, Map<String,String> params, Class outputClass, GenericType genericType){
+    
+        if(outputClass != null){
+            this.outputClass = outputClass;
+        }
+        else if (genericType != null) {
+            this.genericType = genericType;
+        }
+        
         this.path = path;
-        this.outputClass = outputClass;
         
         this.params = new MultivaluedMapImpl();
         if (params != null) {
@@ -78,9 +104,19 @@ public class RESTClient {
         Client client = Client.create();
         WebResource webResource = client.resource(fullPath); 
         
-        Object rObject = webResource.queryParams(this.params)
+        Object rObject = null;
+        
+        if(outputClass != null){
+            rObject = webResource.queryParams(this.params)
                                     .accept(MediaType.APPLICATION_JSON)
                                     .get(outputClass);
+        }
+        else if (genericType != null) {
+            rObject = Client.create().resource(fullPath).
+                                        queryParams(this.params)
+                                        .get(genericType);
+        }
+        
         return rObject;
-    } 
+    }
 }

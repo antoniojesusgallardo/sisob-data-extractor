@@ -52,7 +52,7 @@
     Map params = new HashMap();
     params.put("user", user);
     params.put("pass", pass);
-    RESTClient restClient = new RESTClient("/authorization", OutputAuthorizationResult.class, params);
+    RESTClient restClient = new RESTClient("/authorization", params, OutputAuthorizationResult.class);
     OutputAuthorizationResult auth_result = (OutputAuthorizationResult)restClient.get();
     
     // Redirect

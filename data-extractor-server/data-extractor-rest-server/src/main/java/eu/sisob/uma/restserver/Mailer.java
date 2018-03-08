@@ -19,6 +19,7 @@
 */
 package eu.sisob.uma.restserver;
 
+import eu.sisob.uma.restserver.managers.TaskFileManager;
 import com.sun.mail.smtp.SMTPTransport;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
@@ -26,6 +27,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Properties;
 import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.mail.Message;
 import javax.mail.MessagingException;
 import javax.mail.Session;
@@ -35,7 +37,7 @@ import org.apache.commons.io.IOUtils;
 
 public class Mailer 
 {    
-    private static final java.util.logging.Logger LOG = java.util.logging.Logger.getLogger(Mailer.class.getName());
+    private static final Logger LOG = Logger.getLogger(Mailer.class.getName());
     
     public static void sendMail(String to, String subject, String content) throws MessagingException, UnsupportedEncodingException
     {
@@ -59,7 +61,7 @@ public class Mailer
         t.connect(TheConfig.getProperty("mail.smtps.host"), server_email, server_pwd);
         t.sendMessage(msg, msg.getAllRecipients());
         
-        LOG.info("Email Response To " + to + ": " + t.getLastServerResponse());
+        LOG.log(Level.INFO, "Email Response To {0}: {1}", new Object[]{to, t.getLastServerResponse()});
         t.close(); 
     }
     
@@ -76,9 +78,13 @@ public class Mailer
      * @param extra_msg
      * @return
      */
-    public static boolean notifyResultsOfTask(String user, String pass, String task_code, String email, String task_kind, String extra_msg)
+    public static boolean notifyResultsOfTask(String user, String pass, 
+                                                String task_code, String email, 
+                                                String task_kind, String extra_msg)
     {
-        LOG.info("Notyfing task is finish (" + user + ", " + task_code + ", " + task_kind + ")");
+        LOG.log(Level.INFO, "Notyfing task is finish ({0}, {1}, {2})", 
+                new Object[]{user, task_code, task_kind});
+        
         boolean success = false;
         
         try {
@@ -99,7 +105,7 @@ public class Mailer
                                     "</a>" +
                                 "</li>";
             String htmlListFiles = "";
-            List<String> fresults = AuthorizationManager.getResultFiles(user, task_code);
+            List<String> fresults = TaskFileManager.getResultFiles(user, task_code);
             for(String iFileName : fresults){
                 String iFileUrl = serverUrl + "/download-file.jsp"
                                             + "?task-code="+task_code  
@@ -124,11 +130,11 @@ public class Mailer
         } 
         catch (MessagingException ex){
             LOG.log(Level.SEVERE, "Error sending email to " + email, ex);            
-            AuthorizationManager.notifyResultError(user, task_code, "Error sending email to " + email);
+            TaskFileManager.notifyResultError(user, task_code, "Error sending email to " + email);
         } 
         catch (Exception ex){
             LOG.log(Level.SEVERE, "Error sending email to " + email, ex);            
-            AuthorizationManager.notifyResultError(user, task_code, "Error sending email to " + email);
+            TaskFileManager.notifyResultError(user, task_code, "Error sending email to " + email);
         }
         
         return success;

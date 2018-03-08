@@ -86,17 +86,17 @@ public class TheConfig
             String debug = instance.getString(SERVER_DEBUG);
             
             if(debug.equals("true")) {
-                LOG.info("Configuration in debug mode: " + filepath);
+                LOG.log(Level.INFO, "Configuration in debug mode: {0}", filepath);
                 instance.setProperty(TheConfig.SERVER_URL, instance.getString(SERVER_DEBUG_URL));
             }
             else {
-                LOG.info("Configuration in production mode: " + filepath);
+                LOG.log(Level.INFO, "Configuration in production mode: {0}", filepath);
                 instance.setProperty(TheConfig.SERVER_URL, instance.getString(SERVER_URL));
             }            
             
             instance.setProperty(SERVER_REAL_PATH, path);
             
-            LOG.info("Configuration object initialized from: " + filepath);                        
+            LOG.log(Level.INFO, "Configuration object initialized from: {0}", filepath);                        
         }
     }   
 }

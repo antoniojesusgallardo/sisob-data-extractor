@@ -23,8 +23,9 @@
 --%>
 
 <!DOCTYPE HTML>
-<%@page import="eu.sisob.uma.restserver.AuthorizationManager"%>
-<%@page import="eu.sisob.uma.restserver.SystemManager"%>
+<%@page import="eu.sisob.uma.restserver.managers.AuthorizationManager"%>
+<%@page import="eu.sisob.uma.restserver.managers.RestUriManager"%>
+<%@page import="eu.sisob.uma.restserver.managers.SystemManager"%>
 
 <%@page session="true"%>
 <%  
@@ -46,11 +47,11 @@
     String task_code    = request.getParameter("task_code");
     String speech_id    = request.getParameter("speech_id");
 
-    String urlJson = AuthorizationManager.getGetFileUrlToShow(user, 
-                                                              pass, 
-                                                              task_code, 
-                                                              speech_id+".json", 
-                                                              AuthorizationManager.detailed_results_dirname);
+    String urlJson = RestUriManager.getUriFileToShow(user, 
+                                                    pass, 
+                                                    task_code, 
+                                                    speech_id+".json", 
+                                                    AuthorizationManager.detailed_results_dirname);
     
     request.setAttribute("urlJson", urlJson);
     request.setAttribute("version", version);

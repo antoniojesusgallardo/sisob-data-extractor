@@ -27,11 +27,10 @@ import eu.sisob.uma.euParliament.FileGeneratorJSON;
 import eu.sisob.uma.euParliament.FormatConversor;
 import eu.sisob.uma.npl.culturalHeritage.GateConstantCH;
 import eu.sisob.uma.npl.culturalHeritage.GateDataExtractorCH;
-import eu.sisob.uma.restserver.AuthorizationManager;
+import eu.sisob.uma.restserver.managers.AuthorizationManager;
 import eu.sisob.uma.restserver.Mailer;
+import eu.sisob.uma.restserver.managers.TaskFileManager;
 import java.io.File;
-import java.io.IOException;
-import java.nio.file.Paths;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -68,9 +67,7 @@ class GateDataExtractorTaskCH extends GateDataExtractorCH{
     public void executeCallBackOfTask() { 
         
         String email = this.user;
-        String taskCodeFolder = Paths.get(AuthorizationManager.TASKS_USERS_PATH, 
-                                          user, 
-                                          taskCode).toString();
+        String taskCodeFolder = TaskFileManager.getTaskFolder(user, taskCode);
         
         // Generate result files. XML, JSON and CSV files.  
         synchronized(AuthorizationManager.getLocker(email)){
@@ -80,23 +77,15 @@ class GateDataExtractorTaskCH extends GateDataExtractorCH{
             } 
             catch (Exception ex) {
                 log.log(Level.SEVERE, "Error creating results", ex); 
-                AuthorizationManager.notifyResultError(email, this.taskCode, "Error creating results.");
+                TaskFileManager.notifyResultError(email, this.taskCode, "Error creating results.");
             }
-        }        
+        }
         
         // Send mail
         Mailer.notifyResultsOfTask( user, pass, taskCode, email, GateTaskCH.NAME, "");        
         
-        // Generate end flag
         synchronized(AuthorizationManager.getLocker(email)){
-            try {
-                File fileEndFlag = new File(taskCodeFolder, AuthorizationManager.end_flag_file);
-                fileEndFlag.createNewFile();
-            }
-            catch (IOException ex) {
-                log.log(Level.SEVERE, "Error creating " + AuthorizationManager.end_flag_file + "(" + taskCodeFolder + ")", ex);  //FIXME                
-                AuthorizationManager.notifyResultError(this.user, this.taskCode, "Error creating end notification flag.");
-            }
+            TaskFileManager.registerTaskFinished(taskCodeFolder);
         }
         
         // Set the task as finish

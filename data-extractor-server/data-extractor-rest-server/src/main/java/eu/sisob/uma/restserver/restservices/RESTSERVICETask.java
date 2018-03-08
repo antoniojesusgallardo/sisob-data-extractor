@@ -19,29 +19,17 @@
 */
 package eu.sisob.uma.restserver.restservices;
 
-import eu.sisob.uma.extractors.adhoc.websearchers.WebSearchersExtractor;
+import eu.sisob.uma.restserver.beans.AuthorizationResult;
+import eu.sisob.uma.restserver.managers.TaskManager;
+import eu.sisob.uma.restserver.managers.AuthorizationManager;
 import eu.sisob.uma.restserver.services.communications.OutputTaskOperationResult;
 import eu.sisob.uma.restserver.services.communications.OutputTaskStatus;
 
-import eu.sisob.uma.restserver.AuthorizationManager;
-import eu.sisob.uma.restserver.TaskManager;
-import eu.sisob.uma.restserver.TheResourceBundle;
+import eu.sisob.uma.restserver.beans.Task;
+import eu.sisob.uma.restserver.managers.TaskFileManager;
 import eu.sisob.uma.restserver.services.communications.InputAddTask;
 import eu.sisob.uma.restserver.services.communications.InputLaunchTask;
-import eu.sisob.uma.restserver.services.communications.InputParameter;
-import eu.sisob.uma.restserver.services.communications.TasksParams;
-import eu.sisob.uma.restserver.services.crawler.CrawlerTask;
-import eu.sisob.uma.restserver.services.email.EmailTask;
-import eu.sisob.uma.restserver.services.gate.GateTask;
-import eu.sisob.uma.restserver.services.gateCH.GateTaskCH;
-import eu.sisob.uma.restserver.services.internalcvfiles.InternalCVFilesTask;
-import eu.sisob.uma.restserver.services.websearchers.WebSearcherCVTask;
-import eu.sisob.uma.restserver.services.websearchers.WebSearcherTask;
 import java.io.File;
-import java.io.IOException;
-import java.io.StringWriter;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.logging.Level;
 import javax.ws.rs.core.Context;
 import javax.ws.rs.core.UriInfo;
@@ -74,39 +62,53 @@ public class RESTSERVICETask {
      */
     @GET
     @Produces("application/json")
-    public OutputTaskStatus getTaskStatus(@QueryParam("user") String user, @QueryParam("pass") String pass, @QueryParam("task_code") String task_code) 
+    public OutputTaskStatus getTaskStatus(@QueryParam("user") String user, 
+                                        @QueryParam("pass") String pass, 
+                                        @QueryParam("task_code") String task_code) 
     {
-        OutputTaskStatus task_status = null;                             
+        OutputTaskStatus taskStatus = new OutputTaskStatus();                             
         
-        synchronized (AuthorizationManager.getLocker(user)) {                
-
-            task_status = TaskManager.getTaskStatus(user, pass, task_code, true, true, true);  
+        synchronized (AuthorizationManager.getLocker(user)) {
+            
+            AuthorizationResult autResult = AuthorizationManager.validateAccess(user, pass);
+            if(!autResult.getSuccess()){
+                taskStatus.setTask_code("");
+                taskStatus.setStatus(OutputTaskStatus.TASK_STATUS_NO_AUTH);
+                taskStatus.setMessage(autResult.getMessage());
+                return taskStatus;
+            }
+            
+            taskStatus = TaskManager.getTask(user, pass, task_code, true);  
         }
                        
-        return task_status;        
+        return taskStatus;        
     }
     
     @POST
     @Produces("application/json")    
     @Path("/add")
     public OutputTaskStatus addNewTask(InputAddTask input) 
-    {        
-        StringWriter status = new StringWriter();        
-        StringWriter message = new StringWriter();    
+    {
+        OutputTaskStatus taskStatus = new OutputTaskStatus();
         
-        String new_task_code = "";
-        synchronized(AuthorizationManager.getLocker(input.user))
-        {
-            new_task_code = TaskManager.prepareNewTask(input.user, input.pass, status, message);
+        synchronized(AuthorizationManager.getLocker(input.user)){
+            
+            AuthorizationResult autResult = AuthorizationManager.validateAccess(input.user, input.pass);
+            if(!autResult.getSuccess()){
+                taskStatus.setTask_code("");
+                taskStatus.setStatus(OutputTaskStatus.TASK_STATUS_NO_AUTH);
+                taskStatus.setMessage(autResult.getMessage());
+                return taskStatus;
+            }
+            
+            Task newTask = TaskManager.prepareNewTask(input.user, input.pass);
+                
+            taskStatus.setTask_code(newTask.getCode());
+            taskStatus.setStatus(newTask.getStatus());
+            taskStatus.setMessage(newTask.getMessage());
         }
         
-        OutputTaskStatus r = new OutputTaskStatus();            
-        
-        r.setStatus(status.toString());
-        r.setMessage(message.toString());
-        r.setTask_code(new_task_code);
-        
-        return r;
+        return taskStatus;
     }   
     
     @POST
@@ -117,36 +119,41 @@ public class RESTSERVICETask {
         OutputTaskOperationResult result = new OutputTaskOperationResult();            
         
         synchronized (AuthorizationManager.getLocker(input.user)) 
-        {                
-            OutputTaskStatus task = TaskManager.getTaskStatus(input.user, input.pass, input.task_code, false, false, false);            
+        {
+            AuthorizationResult autResult = AuthorizationManager.validateAccess(input.user, input.pass);
+            if(!autResult.getSuccess()){
+                result.success = autResult.getSuccess();
+                result.message = autResult.getMessage();
+                return result;
+            }
             
-            if( task.getStatus().equals(OutputTaskStatus.TASK_STATUS_NO_AUTH) ||
-                task.getStatus().equals(OutputTaskStatus.TASK_STATUS_NO_ACCESS) ||
-                task.getStatus().equals(OutputTaskStatus.TASK_STATUS_EXECUTING) ||
-                task.getStatus().equals(OutputTaskStatus.TASK_STATUS_TO_EXECUTE) )
+            OutputTaskStatus task = TaskManager.getTask(input.user, input.pass, input.task_code, false);            
+            
+            if( OutputTaskStatus.TASK_STATUS_NO_AUTH.equals(task.getStatus()) ||
+                OutputTaskStatus.TASK_STATUS_NO_ACCESS.equals(task.getStatus()) ||
+                OutputTaskStatus.TASK_STATUS_EXECUTING.equals(task.getStatus()) ||
+                OutputTaskStatus.TASK_STATUS_TO_EXECUTE.equals(task.getStatus()) )
             {   
                 result.success = false;                 
                 result.message = "The task couldn't be deleted. " + task.getMessage();
             }           
-            else if(task.getStatus().equals(OutputTaskStatus.TASK_STATUS_EXECUTED))
+            else if(OutputTaskStatus.TASK_STATUS_EXECUTED.equals(task.getStatus()))
             { 
-                String code_task_folder = AuthorizationManager.TASKS_USERS_PATH + File.separator + 
-                                            input.user + File.separator + 
-                                            input.task_code;
-                File dir_to_delete = new File(code_task_folder);
+                String taskFolder = TaskFileManager.getTaskFolder(input.user, input.task_code);
+                File dir_to_delete = new File(taskFolder);
                 try{
                     FileUtils.deleteDirectory(dir_to_delete);   
                     if(dir_to_delete.exists()){
                         result.success = false;              
-                        result.message = "The task couldn't be deleted"; // FIXME;
+                        result.message = "The task couldn't be deleted";
                     }else{
                         result.success = true;              
                         result.message = "The task " + input.task_code + " has been deleted";
                     }
                 }catch(Exception ex){
                     result.success = false;              
-                    result.message = ""; // FIXME;
-                    LOG.log(Level.SEVERE, "Error deleting task " + input.task_code, ex); //FIXME
+                    result.message = "";
+                    LOG.log(Level.SEVERE, "Error deleting task " + input.task_code, ex);
                 }
             }
         }
@@ -166,189 +173,16 @@ public class RESTSERVICETask {
     {        
         OutputTaskOperationResult result = new OutputTaskOperationResult();            
         
-        synchronized (AuthorizationManager.getLocker(input.user)) 
-        {                
-            OutputTaskStatus task_status = TaskManager.getTaskStatus(input.user, input.pass, input.task_code, false, false, false);            
+        synchronized (AuthorizationManager.getLocker(input.user)){
             
-            result.message = task_status.getMessage();
-            if(task_status.getStatus().equals(OutputTaskStatus.TASK_STATUS_NO_AUTH) || 
-                task_status.getStatus().equals(OutputTaskStatus.TASK_STATUS_NO_ACCESS) || 
-                task_status.getStatus().equals(OutputTaskStatus.TASK_STATUS_EXECUTING) || 
-                task_status.getStatus().equals(OutputTaskStatus.TASK_STATUS_TO_EXECUTE))            
-            {
-                result.success = false;                 
-                result.message = task_status.getMessage();
-            }           
-            else if(task_status.getStatus().equals(OutputTaskStatus.TASK_STATUS_EXECUTED))
-            { 
-                String code_task_folder = AuthorizationManager.TASKS_USERS_PATH + File.separator + 
-                                            input.user + File.separator + 
-                                            input.task_code;           
-                
-                try {
-                       File params_file = (new File(code_task_folder + File.separator + AuthorizationManager.params_flag_file));
-                       
-                       List<String> params = FileUtils.readLines(params_file);
-
-                       input.parameters = new InputParameter[params.size()];
-                       
-                       int i = 0;
-                       for(String l : params)
-                       {
-                           String[] values = l.split("\\$");
-                           if(values.length == 2){
-                            InputParameter ip = new InputParameter();
-                            ip.key = values[0];
-                            ip.value = values[1];
-                            input.parameters[i] = ip;
-                            i++;                            
-                           }                           
-                       }                            
-    
-                } catch (Exception ex) {
-                    LOG.log(Level.SEVERE, "Error reading params filename " + AuthorizationManager.params_flag_file + "(" + code_task_folder + ")", ex); //FIXME
-                }   
-                
-                if(input.task_kind.equals("crawler"))
-                {                       
-                    StringWriter message = new StringWriter();
-
-                    result.success = CrawlerTask.launch(input.user, input.pass, input.task_code, code_task_folder, input.user, message);                    
-                    result.message = message.toString();   
-                
-                } else if(input.task_kind.equals("websearcher")) {                       
-                    
-                    StringWriter message = new StringWriter();
-                    
-                    WebSearchersExtractor.SearchPatterns pattern = WebSearchersExtractor.SearchPatterns.P2;
-                    String value_mode = null;
-                    
-                    try{
-                        value_mode = InputParameter.get(TasksParams.PARAM_CRAWLER_P1, input.parameters);
-                        if(value_mode != null && value_mode.equals(TasksParams.PARAM_TRUE))
-                            pattern = WebSearchersExtractor.SearchPatterns.P1;
-                        
-                        value_mode = InputParameter.get(TasksParams.PARAM_CRAWLER_P2, input.parameters);
-                        if(value_mode != null && value_mode.equals(TasksParams.PARAM_TRUE))
-                            pattern = WebSearchersExtractor.SearchPatterns.P2;
-                        
-                        value_mode = InputParameter.get(TasksParams.PARAM_CRAWLER_P3, input.parameters);
-                        if(value_mode != null && value_mode.equals(TasksParams.PARAM_TRUE))
-                            pattern = WebSearchersExtractor.SearchPatterns.P3;
-                        
-                        value_mode = InputParameter.get(TasksParams.PARAM_CRAWLER_P4, input.parameters);
-                        if(value_mode != null && value_mode.equals(TasksParams.PARAM_TRUE))
-                            pattern = WebSearchersExtractor.SearchPatterns.P4;
-                        
-                        value_mode = InputParameter.get(TasksParams.PARAM_CRAWLER_P5, input.parameters);
-                        if(value_mode != null && value_mode.equals(TasksParams.PARAM_TRUE))
-                            pattern = WebSearchersExtractor.SearchPatterns.P5;
-                        
-                    }catch(Exception ex){
-                        pattern = WebSearchersExtractor.SearchPatterns.P2;
-                    }
-                    
-                    
-                    result.success = WebSearcherTask.launch(input.user, input.pass, input.task_code, code_task_folder, input.user, pattern, message);                    
-                    
-                    result.message = message.toString();                       
-                
-                } else if(input.task_kind.equals("websearcher_cv")) {                       
-                    
-                    StringWriter message = new StringWriter();
-
-                    result.success = WebSearcherCVTask.launch(input.user, input.pass, input.task_code, code_task_folder, input.user, message);                    
-                    result.message = message.toString();      
-                    
-                } else if(input.task_kind.equals("internalcvfiles")) {                       
-
-                    StringWriter message = new StringWriter();
-                    
-                    result.success = InternalCVFilesTask.launch(input.user, input.pass, input.task_code, code_task_folder, input.user, message);                    
-                    result.message = message.toString();                      
-                
-                } else if(input.task_kind.equals("email")) {                       
-
-                    StringWriter message = new StringWriter();
-                    
-                    String value_filters = InputParameter.get(TasksParams.PARAM_EMAIL_FILTERS, input.parameters);
-                    List<String> filters = new ArrayList<String>();
-                    if(value_filters != null && !value_filters.equals(""))
-                    {
-                        String[] filters_string = value_filters.split(",");
-                        for(String filter : filters_string){
-                            filters.add(filter.trim());
-                        }                     
-                    }
-                    
-                    result.success = EmailTask.launch(input.user, input.pass, input.task_code, code_task_folder, input.user, filters, message);                    
-                    result.message = message.toString();                      
-                
-                } else if(input.task_kind.equals("gate")) {   
-                    
-                    StringWriter message = new StringWriter();
-                    
-                    boolean verbose = false;
-                    String value_verbose = null;
-                    try{
-                        value_verbose = InputParameter.get(TasksParams.PARAM_GATE_VERBOSE, input.parameters);
-                        if(value_verbose != null && value_verbose.equals(TasksParams.PARAM_TRUE))
-                            verbose = true;
-                    }catch(Exception ex){
-                        verbose = true;
-                    }
-                    
-                    boolean split = false;
-                    String value_split = null;
-                    try{
-                        value_split = InputParameter.get(TasksParams.PARAM_GATE_SPLIT, input.parameters);
-                        if(value_split != null && value_split.equals(TasksParams.PARAM_TRUE))
-                            split = true;
-                    }catch(Exception ex){
-                        split = false;
-                    }
-                    
-                    result.success = GateTask.launch(input.user, input.pass, input.task_code, code_task_folder, input.user, message, verbose, split);
-                    result.message = message.toString();      
-                }  
-                else if(input.task_kind.equals(GateTaskCH.NAME)) {   
-                    OutputTaskOperationResult resultCH = GateTaskCH.launch( input.user, 
-                                                                            input.pass, 
-                                                                            input.task_code);
-                    result.success = resultCH.success;
-                    result.message = resultCH.message;     
-                }
-                else
-                {
-                    result.success = false;
-                    result.message = TheResourceBundle.getString("Jsp Task Unknowed Msg");
-                }
-                
-                /*
-                 * Delete delete flags
-                 */
-                if(result.success)
-                {
-                    try {
-                        (new File(code_task_folder + File.separator + AuthorizationManager.begin_flag_file)).delete();
-                    } catch (Exception ex) {
-                        LOG.log(Level.SEVERE, "Error deleting " + AuthorizationManager.begin_flag_file + "(" + code_task_folder + ")", ex); //FIXME
-                    }                    
-                    
-                    try {                        
-                        (new File(code_task_folder + File.separator + AuthorizationManager.begin_flag_file)).createNewFile();
-                    } catch (IOException ex) {
-                        LOG.log(Level.SEVERE, "Error creating " + AuthorizationManager.begin_flag_file + "(" + code_task_folder + ")", ex); //FIXME
-                    }
-                    
-                    try {
-                        (new File(code_task_folder + File.separator + AuthorizationManager.end_flag_file)).delete();
-                    } catch (Exception ex) {
-                        LOG.log(Level.SEVERE, "Error deleting " + AuthorizationManager.end_flag_file + "(" + code_task_folder + ")", ex); //FIXME
-                    }                  
-                                        
-                }   
+            AuthorizationResult autResult = AuthorizationManager.validateAccess(input.user, input.pass);
+            if(!autResult.getSuccess()){
+                result.success = autResult.getSuccess();
+                result.message = autResult.getMessage();
+                return result;
             }
+            
+            result = TaskManager.launchTask(input, true);
         }
         
         return result;
@@ -364,172 +198,18 @@ public class RESTSERVICETask {
     @Path("/launch")
     public OutputTaskOperationResult launchTask(InputLaunchTask input) 
     {        
-        OutputTaskOperationResult result = new OutputTaskOperationResult();            
+        OutputTaskOperationResult result= new OutputTaskOperationResult();
         
-        synchronized (AuthorizationManager.getLocker(input.user)) 
-        {                
-            OutputTaskStatus task_status = TaskManager.getTaskStatus(input.user, input.pass, input.task_code, false, false, false);
+        synchronized (AuthorizationManager.getLocker(input.user)){
             
-            result.message = task_status.getMessage();
-            if(task_status.getStatus().equals(OutputTaskStatus.TASK_STATUS_NO_AUTH) || 
-                task_status.getStatus().equals(OutputTaskStatus.TASK_STATUS_NO_ACCESS) ||
-                task_status.getStatus().equals(OutputTaskStatus.TASK_STATUS_EXECUTING) ||
-                task_status.getStatus().equals(OutputTaskStatus.TASK_STATUS_EXECUTED))            
-            {
-                result.success = false;                 
-                result.message = task_status.getMessage();
-            }         
-            else if(task_status.getStatus().equals(OutputTaskStatus.TASK_STATUS_TO_EXECUTE))
-            {     
-                String code_task_folder = AuthorizationManager.TASKS_USERS_PATH + File.separator + input.user + File.separator + input.task_code;                 
-
-                if(input.task_kind.equals("crawler"))
-                {                       
-                    StringWriter message = new StringWriter();
-
-                    result.success = CrawlerTask.launch(input.user, input.pass, input.task_code, code_task_folder, input.user, message);                    
-                    result.message = message.toString();                        
-                
-                } else if(input.task_kind.equals("websearcher")) {                       
-                    
-                    StringWriter message = new StringWriter();
-                    
-                    WebSearchersExtractor.SearchPatterns pattern = WebSearchersExtractor.SearchPatterns.P2;
-                    String value_mode = null;
-                    
-                    try{
-                        value_mode = InputParameter.get(TasksParams.PARAM_CRAWLER_P1, input.parameters);
-                        if(value_mode != null && value_mode.equals(TasksParams.PARAM_TRUE))
-                            pattern = WebSearchersExtractor.SearchPatterns.P1;
-                        
-                        value_mode = InputParameter.get(TasksParams.PARAM_CRAWLER_P2, input.parameters);
-                        if(value_mode != null && value_mode.equals(TasksParams.PARAM_TRUE))
-                            pattern = WebSearchersExtractor.SearchPatterns.P2;
-                        
-                        value_mode = InputParameter.get(TasksParams.PARAM_CRAWLER_P3, input.parameters);
-                        if(value_mode != null && value_mode.equals(TasksParams.PARAM_TRUE))
-                            pattern = WebSearchersExtractor.SearchPatterns.P3;
-                        
-                        value_mode = InputParameter.get(TasksParams.PARAM_CRAWLER_P4, input.parameters);
-                        if(value_mode != null && value_mode.equals(TasksParams.PARAM_TRUE))
-                            pattern = WebSearchersExtractor.SearchPatterns.P4;
-                        
-                        value_mode = InputParameter.get(TasksParams.PARAM_CRAWLER_P5, input.parameters);
-                        if(value_mode != null && value_mode.equals(TasksParams.PARAM_TRUE))
-                            pattern = WebSearchersExtractor.SearchPatterns.P5;
-                        
-                    }catch(Exception ex){
-                        pattern = WebSearchersExtractor.SearchPatterns.P2;
-                    }
-                    
-                    
-                    result.success = WebSearcherTask.launch(input.user, input.pass, input.task_code, code_task_folder, input.user, pattern, message);                    
-                    result.message = message.toString();                         
-                
-                } else if(input.task_kind.equals("websearcher_cv")) {                                   
-                    
-                    StringWriter message = new StringWriter();
-
-                    result.success = WebSearcherCVTask.launch(input.user, input.pass, input.task_code, code_task_folder, input.user, message);                    
-                    result.message = message.toString();      
-                    
-                } else if(input.task_kind.equals("internalcvfiles")) {                       
-
-                    StringWriter message = new StringWriter();
-                    
-                    result.success = InternalCVFilesTask.launch(input.user, input.pass, input.task_code, code_task_folder, input.user, message);                    
-                    result.message = message.toString();                      
-                
-                } else if(input.task_kind.equals("email")) {                    
-                    
-                    StringWriter message = new StringWriter();
-                    
-                    String value_filters = InputParameter.get(TasksParams.PARAM_EMAIL_FILTERS, input.parameters);
-                    List<String> filters = new ArrayList<String>();
-                    if(value_filters != null && !value_filters.equals(""))
-                    {
-                        String[] filters_string = value_filters.split(",");
-                        for(String filter : filters_string){
-                            filters.add(filter.trim());
-                        }
-                        //filters = Arrays.asList(filters_string);                        
-                    }
-
-                    result.success = EmailTask.launch(input.user, input.pass, input.task_code, code_task_folder, input.user, filters, message);                    
-                    result.message = message.toString();      
-                    
-                } else if(input.task_kind.equals("gate")) {                       
-                    StringWriter message = new StringWriter();
-                    
-                    boolean verbose = false;
-                    String value_verbose = null;
-                    try{
-                        value_verbose = InputParameter.get(TasksParams.PARAM_GATE_VERBOSE, input.parameters);
-                        if(value_verbose != null && value_verbose.equals(TasksParams.PARAM_TRUE))
-                            verbose = true;
-                    }catch(Exception ex){
-                        verbose = true;
-                    }
-                    
-                    boolean split = false;
-                    String value_split = null;
-                    try{
-                        value_split = InputParameter.get(TasksParams.PARAM_GATE_SPLIT, input.parameters);
-                        if(value_split != null && value_split.equals(TasksParams.PARAM_TRUE))
-                            split = true;
-                    }catch(Exception ex){
-                        split = false;
-                    }
-                    
-                    result.success = GateTask.launch(input.user, input.pass, input.task_code, code_task_folder, input.user, message, verbose, split);
-                    result.message = message.toString();      
-                }
-                else if(input.task_kind.equals(GateTaskCH.NAME)) {                       
-                    
-                    OutputTaskOperationResult resultCH = GateTaskCH.launch( input.user, 
-                                                                            input.pass, 
-                                                                            input.task_code);
-                    result.success = resultCH.success;
-                    result.message = resultCH.message;
-                }                
-                else
-                {
-                    result.success = false;
-                    result.message = TheResourceBundle.getString("Jsp Task Unknowed Msg");
-                }
-                
-                /*
-                 * Notify in the folder that the task has been launched
-                 */
-                if(result.success)
-                {
-                    try {
-                        (new File(code_task_folder + File.separator + AuthorizationManager.begin_flag_file)).createNewFile();
-                    } catch (IOException ex) {
-                        LOG.log(Level.SEVERE, "Error creating " + AuthorizationManager.begin_flag_file + "(" + code_task_folder + ")", ex); //FIXME
-                    }
-
-                    try {
-                        FileUtils.writeStringToFile(new File(code_task_folder + File.separator + AuthorizationManager.kind_flag_file), input.task_kind);                                                        
-                    } catch (IOException ex) {
-                        LOG.log(Level.SEVERE, "Error creating " + AuthorizationManager.kind_flag_file + "(" + code_task_folder + ")", ex); //FIXME
-                    }
-                    
-                    try {
-                        File params_file = (new File(code_task_folder + File.separator + AuthorizationManager.params_flag_file));
-                        params_file.createNewFile();
-                        
-                        FileUtils.write(params_file, "", "UTF-8", false);
-                        if(input.parameters != null){
-                            for(InputParameter ip : input.parameters){
-                                FileUtils.write(params_file, ip.key + "$" + ip.value + "\r\n", "UTF-8", true);
-                            }                            
-                        }                          
-                    } catch (Exception ex) {
-                        LOG.log(Level.SEVERE, "Error creating params filename " + AuthorizationManager.params_flag_file + "(" + code_task_folder + ")", ex); //FIXME
-                    }  
-                }   
-            }            
+            AuthorizationResult autResult = AuthorizationManager.validateAccess(input.user, input.pass);
+            if(!autResult.getSuccess()){
+                result.success = autResult.getSuccess();
+                result.message = autResult.getMessage();
+                return result;
+            }
+            
+            result = TaskManager.launchTask(input, false);
         }
 
         return result;

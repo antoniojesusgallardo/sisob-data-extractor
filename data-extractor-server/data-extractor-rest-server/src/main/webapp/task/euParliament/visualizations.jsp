@@ -22,8 +22,9 @@
     Author: Antonio Jesus Gallardo Albarran - antonio.jesus.gallardo@gmail.com
 --%>
 
-<%@page import="eu.sisob.uma.restserver.AuthorizationManager"%>
-<%@page import="eu.sisob.uma.restserver.SystemManager"%>
+<%@page import="eu.sisob.uma.restserver.managers.AuthorizationManager"%>
+<%@page import="eu.sisob.uma.restserver.managers.RestUriManager"%>
+<%@page import="eu.sisob.uma.restserver.managers.SystemManager"%>
 <%@page import="eu.sisob.uma.restserver.TheResourceBundle"%>
 <%@page import="java.util.ArrayList"%>
 <%@page import="java.util.List"%>
@@ -46,11 +47,11 @@
     String task_code    = request.getParameter("task_code");
     
     String version      = SystemManager.getInstance().getVersion();
-    String urlBaseJson  = AuthorizationManager.getGetFileUrlToShow(user, 
-                                                                  pass, 
-                                                                  task_code, 
-                                                                  "", 
-                                                                  AuthorizationManager.results_dirname);
+    String urlBaseJson  = RestUriManager.getUriFileToShow(user, 
+                                                        pass, 
+                                                        task_code, 
+                                                        "", 
+                                                        AuthorizationManager.results_dirname);
     
     List<String> visualizationNames = new ArrayList<String>();
     visualizationNames.add("temporalEvolution");

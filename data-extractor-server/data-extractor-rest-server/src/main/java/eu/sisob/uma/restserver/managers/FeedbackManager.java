@@ -17,7 +17,7 @@
     You should have received a copy of the GNU General Public License
     along with SISOB Data Extractor. If not, see <http://www.gnu.org/licenses/>.
 */
-package eu.sisob.uma.restserver;
+package eu.sisob.uma.restserver.managers;
 
 import com.google.gdata.data.acl.AclRole;
 import com.google.gdata.data.acl.AclScope;
@@ -28,6 +28,7 @@ import com.google.gdata.data.docs.DocumentListEntry;
 import com.google.gdata.data.spreadsheet.SpreadsheetEntry;
 import com.google.gdata.util.ServiceException;
 import eu.sisob.uma.api.googledrive.Utils;
+import eu.sisob.uma.restserver.TheConfig;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -39,16 +40,13 @@ public class FeedbackManager {
     
     private static final Logger LOG = Logger.getLogger(FeedbackManager.class.getName());        
     
-    /*
-     * Create spreadsheet google docs documents, if exist, return the exist
-     * @return url of document
-     */
     /**
-     *
+     * Create spreadsheet google docs documents, if exist, return the exist
+     * 
      * @param user
      * @param task_code
      * @param filename
-     * @return
+     * @return url of document
      */
     public static String createNewFeedBackDoc(String user, String task_code, String filename)
     {

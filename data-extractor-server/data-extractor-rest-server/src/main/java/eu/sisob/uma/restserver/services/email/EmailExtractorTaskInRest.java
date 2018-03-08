@@ -19,15 +19,12 @@
 */
 package eu.sisob.uma.restserver.services.email;
 
-import eu.sisob.uma.api.concurrent.threadpoolutils.CallbackableTask;
-import eu.sisob.uma.api.concurrent.threadpoolutils.CallbackableTaskWithResource;
 import eu.sisob.uma.extractors.adhoc.email.EmailExtractorTask;
-import eu.sisob.uma.restserver.AuthorizationManager;
+import eu.sisob.uma.restserver.managers.AuthorizationManager;
 import eu.sisob.uma.restserver.Mailer;
+import eu.sisob.uma.restserver.managers.TaskFileManager;
 import java.io.File;
-import java.io.IOException;
 import java.util.List;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 
@@ -65,17 +62,8 @@ public class EmailExtractorTaskInRest extends EmailExtractorTask
     {            
         Mailer.notifyResultsOfTask(user, pass, task_code, email, "email", "This kind of task has not feedback document associated, please report any problem using this email.");  
         
-        synchronized(AuthorizationManager.getLocker(user))
-        {
-            try 
-            {
-                (new File(task_code_folder + File.separator + AuthorizationManager.end_flag_file)).createNewFile();
-            } 
-            catch (IOException ex) 
-            {
-                LOG.log(Level.SEVERE, "Error creating " + AuthorizationManager.end_flag_file + "(" + task_code_folder + ")", ex);  //FIXME                
-                AuthorizationManager.notifyResultError(this.user, this.task_code, "Error creating end notification flag.");
-            }
+        synchronized(AuthorizationManager.getLocker(user)){
+            TaskFileManager.registerTaskFinished(this.task_code_folder);
         }
             
         super.executeCallBackOfTask();

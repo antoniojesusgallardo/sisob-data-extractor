@@ -25,10 +25,11 @@ import eu.sisob.uma.api.prototypetextmining.MiddleData;
 import eu.sisob.uma.api.prototypetextmining.RepositoryPreprocessDataMiddleData;
 import eu.sisob.uma.api.prototypetextmining.globals.DataExchangeLiterals;
 import eu.sisob.uma.euParliament.FileFormat;
-import eu.sisob.uma.restserver.AuthorizationManager;
-import eu.sisob.uma.restserver.FileSystemManager;
+import eu.sisob.uma.restserver.managers.AuthorizationManager;
+import eu.sisob.uma.restserver.managers.FileSystemManager;
 import eu.sisob.uma.restserver.TheResourceBundle;
 import eu.sisob.uma.npl.culturalHeritage.GateDataExtractorServiceCH;
+import eu.sisob.uma.restserver.managers.TaskFileManager;
 import eu.sisob.uma.restserver.services.communications.OutputTaskOperationResult;
 import java.io.File;
 import java.io.FileInputStream;
@@ -64,9 +65,7 @@ public class GateTaskCH  {
         OutputTaskOperationResult rResult = new OutputTaskOperationResult();
         
         try {
-            String taskDirectory = Paths.get(AuthorizationManager.TASKS_USERS_PATH, 
-                                             user, 
-                                             taskCode).toString();
+            String taskDirectory = TaskFileManager.getTaskFolder(user, taskCode);
             
             // Validation - fileName
             File csvFile = FileSystemManager.getFileIfExists(new File(taskDirectory), 

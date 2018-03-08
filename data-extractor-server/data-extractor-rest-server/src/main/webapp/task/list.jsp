@@ -18,11 +18,12 @@
     along with SISOB Data Extractor. If not, see <http://www.gnu.org/licenses/>.
 --%>
 <!DOCTYPE HTML>
+<%@page import="com.sun.jersey.api.client.GenericType"%>
 <%@page import="eu.sisob.uma.restserver.RESTClient"%>
-<%@page import="eu.sisob.uma.restserver.services.communications.OutputTaskStatusList"%>
 <%@page import="eu.sisob.uma.restserver.services.communications.OutputTaskStatus"%>
-<%@page import="java.util.Map"%>
 <%@page import="java.util.HashMap"%>
+<%@page import="java.util.List"%>
+<%@page import="java.util.Map"%>
 
 <%@page session="true"%>
 <%
@@ -43,11 +44,11 @@
     Map params = new HashMap();
     params.put("user", user);
     params.put("pass", pass);
-    RESTClient restClient = new RESTClient("/tasks", OutputTaskStatusList.class, params);
-    OutputTaskStatusList taskStatusList = (OutputTaskStatusList)restClient.get();
+    RESTClient restClient = new RESTClient("/tasks", params, new GenericType<List<OutputTaskStatus>>(){});
+    List<OutputTaskStatus> listTasks = (List<OutputTaskStatus>)restClient.get();
     
     // Save the result in the request
-    request.setAttribute("listTasks", taskStatusList.getTask_status_list());
+    request.setAttribute("listTasks", listTasks);
     
     // Save constant in the request
     request.setAttribute("TASK_STATUS_EXECUTED", OutputTaskStatus.TASK_STATUS_EXECUTED);

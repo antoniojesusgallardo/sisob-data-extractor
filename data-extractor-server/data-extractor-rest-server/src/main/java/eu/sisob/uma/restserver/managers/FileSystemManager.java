@@ -17,16 +17,21 @@
     You should have received a copy of the GNU General Public License
     along with SISOB Data Extractor. If not, see <http://www.gnu.org/licenses/>.
 */
-package eu.sisob.uma.restserver;
+package eu.sisob.uma.restserver.managers;
 
 import java.io.File;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import org.apache.commons.io.FileUtils;
 
 public class FileSystemManager {
+    
+    private static final Logger log = Logger.getLogger(FileSystemManager.class.getName()); 
+    
     
     /**
      *
@@ -35,7 +40,9 @@ public class FileSystemManager {
      * @param filename_ext
      * @return
      */
-    public static File getFileIfExists(File code_task_folder_dir, final String filename_prefix, final String filename_ext){
+    public static File getFileIfExists(File code_task_folder_dir, 
+                                        final String filename_prefix, 
+                                        final String filename_ext){
         
         List<File> list = null;
         if(code_task_folder_dir.exists()){
@@ -69,5 +76,31 @@ public class FileSystemManager {
         }   
         
         return dir;
+    }
+    
+    public static boolean deleteFile(String pathFile){
+        boolean resultDelete = false;
+        
+        try {
+            File file = new File(pathFile);
+            file.delete();
+            resultDelete = true;
+        } catch (Exception ex) {
+            log.log(Level.SEVERE, "Error deleting " + pathFile, ex);
+        }
+        return resultDelete;
+    }
+    
+    public static boolean createFile(String pathFile){
+        boolean resultCreate = false;
+        
+        try {
+            File file = new File(pathFile);
+            resultCreate = file.createNewFile();
+            
+        } catch (Exception ex) {
+            log.log(Level.SEVERE, "Error creating " + pathFile, ex );
+        }
+        return resultCreate;
     }
 }

@@ -20,6 +20,7 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 
+<%@page import="eu.sisob.uma.restserver.managers.RestUriManager"%>
 <%@page import="eu.sisob.uma.restserver.services.communications.OutputTaskStatus"%>
 <%@page import="eu.sisob.uma.restserver.services.gateCH.GateTaskCH"%>
 
@@ -39,8 +40,17 @@
         response.sendRedirect(request.getContextPath()+"/error.jsp");
         return;
     }
+    
+    String user = (String)session.getAttribute("user");
+    String pass = (String)session.getAttribute("pass");
+    OutputTaskStatus task = (OutputTaskStatus)request.getAttribute("task");
+    
+    String urlShow = RestUriManager.getUriRoot(user, pass, task.getTask_code(), "show");
+    String urlDownload = RestUriManager.getUriRoot(user, pass, task.getTask_code(), "download");
      
     request.setAttribute("GateTaskCH", GateTaskCH.NAME);
+    request.setAttribute("urlShow", urlShow);
+    request.setAttribute("urlDownload", urlDownload);
 %>
 
 <fmt:setBundle basename="Bundle" var="msg"/>
@@ -66,10 +76,18 @@
         <c:if test="${task.results != null}">
             <c:forEach items="${task.results}" var="iResult">
                 <p style='font-size:14px; margin-bottom: 10px;' >
-                    ${iResult[0]}
+                    ${iResult}
                     <b>  
-                        | <a href='${iResult[1]}'>Download</a>
-                        | <a href='${iResult[2]}' target='_blank'>Show</a>
+                        | 
+                        <a href='${urlDownload}${iResult}&type=results'
+                           target='_blank'>
+                            Download
+                        </a>
+                        | 
+                        <a href='${urlShow}${iResult}&type=results' 
+                           target='_blank'>
+                            Show
+                        </a>
                     </b>
                 </p>
             </c:forEach>
@@ -139,8 +157,9 @@
         <h4>The verbose files generated in the task:</h5>
         <blockquote>
             <c:forEach items="${task.verbose}" var="iVerbose">
-                <a href='${iVerbose[1]}'target='_blank' >
-                    ${iVerbose[0]}
+                <a href='${urlDownload}${iVerbose}&type=verbose'
+                    target='_blank'>
+                    ${iVerbose}
                 </a><br><br>
             </c:forEach>
         </blockquote>
@@ -158,8 +177,8 @@
         <h4>The sources used in the task:</h5>
         <blockquote>
             <c:forEach items="${task.source}" var="iSource">
-                <a href='${iSource[1]}'target='_blank' >
-                    ${iSource[0]}
+                <a href='${urlDownload}${iSource}' target='_blank' >
+                    ${iSource}
                 </a><br><br>
             </c:forEach>
         </blockquote>

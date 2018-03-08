@@ -17,38 +17,52 @@
     You should have received a copy of the GNU General Public License
     along with SISOB Data Extractor. If not, see <http://www.gnu.org/licenses/>.
 */
-package eu.sisob.uma.restserver;
 
-public class UserAttributes 
-{    
-    private String account_type;
-    private Integer n_tasks_allow;
+package eu.sisob.uma.restserver.beans;
 
-    /**
-     * @return the account_type
-     */
+/**
+ *
+ * @author Antonio Jesus Gallardo Albarran - antonio.jesus.gallardo@gmail.com
+ */
+public class AuthorizationResult {
+
+    private Boolean success;
+    
+    private String message;
+    
+    private String accountType;
+    
+    private Integer numTasksAllow;
+
+    public Boolean getSuccess() {
+        return success;
+    }
+
+    public void setSuccess(Boolean success) {
+        this.success = success;
+    }
+
+    public String getMessage() {
+        return message;
+    }
+
+    public void setMessage(String message) {
+        this.message = message;
+    }
+    
     public String getAccountType() {
-        return account_type;
+        return accountType;
     }
 
-    /**
-     * @param account_type the account_type to set
-     */
-    public void setAccountType(String account_type) {
-        this.account_type = account_type;
+    public void setAccountType(String accountType) {
+        this.accountType = accountType;
     }
 
-    /**
-     * @return the n_tasks_allow
-     */
-    public Integer getNTasksAllow() {
-        return n_tasks_allow;
+    public Integer getNumTasksAllow() {
+        return numTasksAllow;
     }
 
-    /**
-     * @param n_tasks_allow the n_tasks_allow to set
-     */
-    public void setNTasksAllow(Integer n_tasks_allow) {
-        this.n_tasks_allow = n_tasks_allow;
+    public void setNumTasksAllow(Integer numTasksAllow) {
+        this.numTasksAllow = numTasksAllow;
     }
 }

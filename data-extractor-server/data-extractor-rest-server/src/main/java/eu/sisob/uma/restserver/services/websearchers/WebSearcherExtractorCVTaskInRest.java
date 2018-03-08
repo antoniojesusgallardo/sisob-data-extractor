@@ -20,11 +20,10 @@
 package eu.sisob.uma.restserver.services.websearchers;
 
 import eu.sisob.uma.extractors.adhoc.websearchers_cv.WebSearchersCVExtractorTask;
-import eu.sisob.uma.restserver.AuthorizationManager;
+import eu.sisob.uma.restserver.managers.AuthorizationManager;
 import eu.sisob.uma.restserver.Mailer;
+import eu.sisob.uma.restserver.managers.TaskFileManager;
 import java.io.File;
-import java.io.IOException;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 
@@ -61,22 +60,13 @@ public class WebSearcherExtractorCVTaskInRest extends WebSearchersCVExtractorTas
     {    
         if(this.error_sw != null){
             if(!this.error_sw.toString().equals("")){
-                AuthorizationManager.notifyResultError(this.user, this.task_code, error_sw.toString());
+                TaskFileManager.notifyResultError(this.user, this.task_code, error_sw.toString());
             }
         }
         Mailer.notifyResultsOfTask(user, pass, task_code, email, "websearcher_cv", "This kind of task has not feedback document associated, please report any problem using this email.");  
         
-        synchronized(AuthorizationManager.getLocker(user))
-        {
-            try 
-            {
-                (new File(task_code_folder + File.separator + AuthorizationManager.end_flag_file)).createNewFile();
-            } 
-            catch (IOException ex) 
-            {
-                LOG.log(Level.SEVERE, "Error creating " + AuthorizationManager.end_flag_file + "(" + task_code_folder + ")", ex);  //FIXME                
-                AuthorizationManager.notifyResultError(this.user, this.task_code, "Error creating end notification flag.");
-            }
+        synchronized(AuthorizationManager.getLocker(user)){
+            TaskFileManager.registerTaskFinished(this.task_code_folder);
         }
             
         super.executeCallBackOfTask();
