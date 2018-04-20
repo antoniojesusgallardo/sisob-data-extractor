@@ -22,6 +22,7 @@
     Author: Antonio Jesus Gallardo Albarran - antonio.jesus.gallardo@gmail.com
 --%>
 
+<%@page import="eu.sisob.uma.restserver.client.UtilJsp"%>
 <%@page import="eu.sisob.uma.restserver.managers.AuthorizationManager"%>
 <%@page import="eu.sisob.uma.restserver.managers.RestUriManager"%>
 <%@page import="eu.sisob.uma.restserver.managers.SystemManager"%>
@@ -31,12 +32,7 @@
 
 <%@page session="true"%>
 <%  
-    if( session == null || 
-        session.getAttribute("user")==null ||
-        session.getAttribute("pass")==null ){
-        if(session != null){
-            session.invalidate();
-        }
+    if (!UtilJsp.validateSession(session)){
         response.sendRedirect(request.getContextPath()+"/index.jsp?message=notAllowed");
         return;
     }

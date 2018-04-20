@@ -84,7 +84,7 @@ public class AuthorizationManager
     
     public static final int MAX_TASKS_PER_USER = 5;
     
-    private static final HashMap<String, Object> FILE_LOCKERS = new HashMap<String, Object>();
+    private static final HashMap<String, Object> FILE_LOCKERS = new HashMap();
     
     static
     {
@@ -137,6 +137,12 @@ public class AuthorizationManager
             result.setMessage(TheResourceBundle.getString("Jsp Params Invalid Msg"));
             return result;
         }
+        
+        if(user.contains("'") || pass.contains("'")) { 
+            result.setSuccess(Boolean.FALSE);
+            result.setMessage("Please, insert a valid username and password");
+            return result;
+        }  
         
         UserAttributes userDB = DBAuthorizeUserIn(user, pass);
         if(userDB!=null){

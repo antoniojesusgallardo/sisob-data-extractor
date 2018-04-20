@@ -19,25 +19,21 @@
 */
 package eu.sisob.uma.restserver.restservices;
 
-import eu.sisob.uma.restserver.managers.AuthorizationManager;
 import eu.sisob.uma.restserver.beans.AuthorizationResult;
+import eu.sisob.uma.restserver.managers.AuthorizationManager;
+import eu.sisob.uma.restserver.restservices.exceptions.InternalServerErrorException;
+import eu.sisob.uma.restserver.restservices.exceptions.UnAuthorizedException;
 import eu.sisob.uma.restserver.services.communications.OutputAuthorizationResult;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.UriInfo;
 import javax.ws.rs.Path;
 import javax.ws.rs.GET;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.MediaType;
 
 @Path("/authorization")
-public class RESTSERVICEAuthorization 
-{
-    @Context
-    private UriInfo context;
+public class RESTSERVICEAuthorization {
 
-    /** Creates a new instance of HelloWorld */
     public RESTSERVICEAuthorization() {
-
     }        
 
     /**
@@ -47,27 +43,23 @@ public class RESTSERVICEAuthorization
      * @return If the authorization is correct
      */
     @GET
-    @Produces("application/json")
+    @Produces(MediaType.APPLICATION_JSON)
     public OutputAuthorizationResult authorization(@QueryParam("user") String user, 
-                                                   @QueryParam("pass") String pass) {        
-        
-        OutputAuthorizationResult r = new OutputAuthorizationResult();   
-        
-        if(user.contains("'") || pass.contains("'")) { 
-            r.success = false;
-            r.message = "Please, insert a valid username and password";
-            return r;
-        }        
-        
-        AuthorizationResult autResult;
-        synchronized(AuthorizationManager.getLocker(user)){
-            autResult = AuthorizationManager.validateAccess(user, pass);
+                                                    @QueryParam("pass") String pass) {        
+        try {
+            synchronized(AuthorizationManager.getLocker(user)){
+
+                AuthorizationResult autResult = RESTSERVICEUtils.validateAccess(user, pass);
+                
+                OutputAuthorizationResult rAutResult = new OutputAuthorizationResult();
+                rAutResult.account_type  = autResult.getAccountType();
+                
+                return rAutResult;
+            }
+        } catch (UnAuthorizedException | InternalServerErrorException ex) {
+            throw ex;
+        } catch (Exception e) {
+            throw new InternalServerErrorException(e.getMessage());
         }
-        
-        r.account_type  = autResult.getAccountType();
-        r.success       = autResult.getSuccess();
-        r.message       = autResult.getMessage();
-        
-        return r;
     }
 }

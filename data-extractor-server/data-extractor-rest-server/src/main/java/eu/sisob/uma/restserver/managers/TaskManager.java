@@ -20,14 +20,14 @@
 package eu.sisob.uma.restserver.managers;
 
 import eu.sisob.uma.extractors.adhoc.websearchers.WebSearchersExtractor;
+import eu.sisob.uma.restserver.beans.Task;
+import eu.sisob.uma.restserver.beans.TaskOperationResult;
 import eu.sisob.uma.restserver.TheResourceBundle;
 import static eu.sisob.uma.restserver.managers.AuthorizationManager.error_flag_file;
 import static eu.sisob.uma.restserver.managers.AuthorizationManager.feedback_flag_file;
 import static eu.sisob.uma.restserver.managers.AuthorizationManager.params_flag_file;
-import eu.sisob.uma.restserver.beans.Task;
 import eu.sisob.uma.restserver.services.communications.InputLaunchTask;
 import eu.sisob.uma.restserver.services.communications.InputParameter;
-import eu.sisob.uma.restserver.services.communications.OutputTaskOperationResult;
 import eu.sisob.uma.restserver.services.communications.OutputTaskStatus;
 import eu.sisob.uma.restserver.services.communications.TasksParams;
 import eu.sisob.uma.restserver.services.crawler.CrawlerTask;
@@ -69,9 +69,11 @@ public class TaskManager {
      * @param task_code
      * @param retrieveDetails
      * @return
+     * @throws java.lang.Exception
      */
     public static OutputTaskStatus getTask(String user, String pass, String task_code, 
-                                                boolean retrieveDetails)
+                                            boolean retrieveDetails)
+                                            throws Exception
     {
         OutputTaskStatus task_status = new OutputTaskStatus();
         task_status.setName(task_code);
@@ -81,9 +83,7 @@ public class TaskManager {
         String taskFolder = TaskFileManager.getTaskFolder(user, task_code);            
         File fileTaskFolder = new File(taskFolder);
         if (!fileTaskFolder.exists()) {
-            task_status.setStatus(OutputTaskStatus.TASK_STATUS_NO_ACCESS);   
-            task_status.setMessage(TheResourceBundle.getString("Jsp Task Unknowed Msg"));
-            return task_status;
+            throw new Exception(TheResourceBundle.getString("Jsp Task Unknowed Msg"));
         }
         
         // Get TaskData
@@ -96,16 +96,19 @@ public class TaskManager {
             task_status.setDate_created((String)properties.getProperty(TaskFileManager.PROPERTY_TASK_DATE_CREATED));
         }
         
-        // Get Message
-        if (OutputTaskStatus.TASK_STATUS_TO_EXECUTE.equals(task_status.getStatus())) {
-            task_status.setMessage(TheResourceBundle.getString("Jsp Task To Execute Msg"));
-        }
-        else if (OutputTaskStatus.TASK_STATUS_EXECUTING.equals(task_status.getStatus())) {
-            task_status.setMessage(TheResourceBundle.getString("Jsp Task Executing Msg"));
-        }            
-        else if (OutputTaskStatus.TASK_STATUS_EXECUTED.equals(task_status.getStatus())) {
-            task_status.setMessage(TheResourceBundle.getString("Jsp Task Executed Msg"));
-        }                            
+        if (task_status.getStatus() != null){
+            switch (task_status.getStatus()) {
+                case OutputTaskStatus.TASK_STATUS_TO_EXECUTE:
+                    task_status.setMessage(TheResourceBundle.getString("Jsp Task To Execute Msg"));
+                    break;
+                case OutputTaskStatus.TASK_STATUS_EXECUTING:
+                    task_status.setMessage(TheResourceBundle.getString("Jsp Task Executing Msg"));
+                    break;
+                case OutputTaskStatus.TASK_STATUS_EXECUTED:
+                    task_status.setMessage(TheResourceBundle.getString("Jsp Task Executed Msg"));
+                    break;
+            }
+        }                           
         
         if(retrieveDetails){
 
@@ -162,8 +165,9 @@ public class TaskManager {
      * @param user
      * @param pass
      * @return
+     * @throws java.lang.Exception
      */
-    public static Task prepareNewTask(String user, String pass)
+    public static Task prepareNewTask(String user, String pass) throws Exception
     {
         Task rTask = new Task();
         
@@ -179,10 +183,8 @@ public class TaskManager {
         }
         
         if(num_tasks_alive >= AuthorizationManager.MAX_TASKS_PER_USER){
-            rTask.setStatus(OutputTaskStatus.TASK_STATUS_EXECUTING);
-            rTask.setMessage("There are still tasks running or there are a task created ready to be launched.");
-            rTask.setCode("");
-            return rTask;
+            String msg = "There are still tasks running or there are a task created ready to be launched.";
+            throw new Exception(msg);
         }
             
         int max = 1; 
@@ -205,9 +207,7 @@ public class TaskManager {
             rTask.setMessage("A new task has been created successfully."); 
         }
         else{
-            rTask.setStatus(OutputTaskStatus.TASK_STATUS_NO_ACCESS);
-            rTask.setMessage("Error creating place for the new task."); 
-            rTask.setCode("");
+            throw new Exception("Error creating place for the new task.");
         }
         
         return rTask;
@@ -222,10 +222,11 @@ public class TaskManager {
      * @param user
      * @param pass
      * @return
+     * @throws java.lang.Exception
      */
-    public static List<OutputTaskStatus> getTasks(String user, String pass){
+    public static List<OutputTaskStatus> getTasks(String user, String pass) throws Exception{
         
-        List<OutputTaskStatus> rListTask = new ArrayList<OutputTaskStatus>();
+        List<OutputTaskStatus> rListTask = new ArrayList();
         
         List<Integer> listTaskCode = TaskManager.listTaskCode(user);
         
@@ -248,7 +249,7 @@ public class TaskManager {
      */
     private static List<Integer> listTaskCode(String user){
         
-        List<Integer> listTaskCode = new ArrayList<Integer>();
+        List<Integer> listTaskCode = new ArrayList();
         
         String pathTasksFolder = TaskFileManager.getUserFolder(user);
         File fileTasksFolder = new File(pathTasksFolder);
@@ -267,11 +268,11 @@ public class TaskManager {
     
     
     
-    public static OutputTaskOperationResult launchTask(InputLaunchTask input, boolean isRelaunch){
+    public static TaskOperationResult launchTask(InputLaunchTask input, boolean isRelaunch) throws Exception{
         
-        OutputTaskOperationResult result = new OutputTaskOperationResult(); 
+        TaskOperationResult result = new TaskOperationResult(); 
         
-        OutputTaskStatus task = TaskManager.getTask(input.user, input.pass, input.task_code, false);            
+        OutputTaskStatus task = TaskManager.getTask(input.user, input.pass, input.task_code, false);
          
         boolean isValidToExecute = false;
         if(isRelaunch && OutputTaskStatus.TASK_STATUS_EXECUTED.equals(task.getStatus())){
@@ -371,7 +372,7 @@ public class TaskManager {
         else if("email".equals(input.task_kind)) {                    
 
             String value_filters = InputParameter.get(TasksParams.PARAM_EMAIL_FILTERS, input.parameters);
-            List<String> filters = new ArrayList<String>();
+            List<String> filters = new ArrayList();
             if(value_filters != null && !value_filters.equals(""))
             {
                 String[] filters_string = value_filters.split(",");
@@ -411,9 +412,9 @@ public class TaskManager {
         }  
         else if(GateTaskCH.NAME.equals(input.task_kind)) {                       
 
-            OutputTaskOperationResult resultCH = GateTaskCH.launch( input.user, 
-                                                                    input.pass, 
-                                                                    input.task_code);
+            TaskOperationResult resultCH = GateTaskCH.launch(input.user, 
+                                                            input.pass, 
+                                                            input.task_code);
             result.success = resultCH.success;
             result.message = resultCH.message;
         }                
@@ -446,6 +447,41 @@ public class TaskManager {
                 }
             }
         }   
+        
+        return result;
+    }
+    
+    public static TaskOperationResult deleteTask(String user, String pass, String task_code) throws Exception {
+        
+        TaskOperationResult result = new TaskOperationResult();
+        
+        OutputTaskStatus task = TaskManager.getTask(user, pass, task_code, false);            
+
+        if( OutputTaskStatus.TASK_STATUS_EXECUTING.equals(task.getStatus()) ||
+            OutputTaskStatus.TASK_STATUS_TO_EXECUTE.equals(task.getStatus()) )
+        {   
+            result.success = false;                 
+            result.message = "The task couldn't be deleted. " + task.getMessage();
+        }           
+        else if(OutputTaskStatus.TASK_STATUS_EXECUTED.equals(task.getStatus()))
+        { 
+            String taskFolder = TaskFileManager.getTaskFolder(user, task_code);
+            File dir_to_delete = new File(taskFolder);
+            try{
+                FileUtils.deleteDirectory(dir_to_delete);   
+                if(dir_to_delete.exists()){
+                    result.success = false;              
+                    result.message = "The task couldn't be deleted";
+                }else{
+                    result.success = true;              
+                    result.message = "The task " + task_code + " has been deleted";
+                }
+            }catch(Exception ex){
+                result.success = false;              
+                result.message = "";
+                LOG.log(Level.SEVERE, "Error deleting task " + task_code, ex);
+            }
+        }
         
         return result;
     }

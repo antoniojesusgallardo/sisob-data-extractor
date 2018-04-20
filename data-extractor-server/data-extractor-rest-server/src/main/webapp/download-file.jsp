@@ -23,19 +23,14 @@
 --%>
 
 <!DOCTYPE HTML>
+<%@page import="eu.sisob.uma.restserver.client.UtilJsp"%>
 <%@page import="eu.sisob.uma.restserver.managers.TaskFileManager"%>
 <%@page import="eu.sisob.uma.restserver.managers.RestUriManager"%>
 <%@page import="java.io.File"%>
 
 <%@page session="true"%>
 <%
-    // Validate the session
-    if( session == null || 
-        session.getAttribute("user")==null ||
-        session.getAttribute("pass")==null ){
-        if(session != null){
-            session.invalidate();
-        }
+    if (!UtilJsp.validateSession(session)){
         response.sendRedirect(request.getContextPath()+"/index.jsp?message=notAllowed");
         return;
     }
@@ -53,7 +48,7 @@
     }
     
     File file = TaskFileManager.getFile(user, taskCode, fileName, "results");
-    if(file != null){
+    if(file.exists()){
         String strUrl= RestUriManager.getUriFileToDownload(user, pass, taskCode, fileName, "results");
         response.sendRedirect(strUrl);
         return;

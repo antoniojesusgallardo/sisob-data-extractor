@@ -17,6 +17,8 @@
     You should have received a copy of the GNU General Public License
     along with SISOB Data Extractor. If not, see <http://www.gnu.org/licenses/>.
 --%>
+
+<%@page import="eu.sisob.uma.restserver.client.UtilJsp"%>
 <%@page import="eu.sisob.uma.restserver.TheConfig"%>
 <%@page import="eu.sisob.uma.restserver.TheResourceBundle"%>   
 <%@page import="eu.sisob.uma.restserver.services.gateCH.GateTaskCH"%>
@@ -26,12 +28,7 @@
 <%@page session="true"%>
 <%
     // Validate data
-    if( session == null || 
-        session.getAttribute("user")==null ||
-        session.getAttribute("pass")==null ){
-        if(session != null){
-            session.invalidate();
-        }
+    if (!UtilJsp.validateSession(session)){
         response.sendRedirect(request.getContextPath()+"/index.jsp?message=notAllowed");
         return;
     }
@@ -40,7 +37,7 @@
         return;
     }
     
-    List<String[]> taskTypes = new ArrayList<String[]>();
+    List<String[]> taskTypes = new ArrayList();
     String[] none = {"none", TheResourceBundle.getString("Jsp Select Task Msg")};  
     taskTypes.add(none);
 
@@ -320,24 +317,16 @@ $(document).ready(function()
                 type: "POST",
                 url: "resources/task/launch",
                 data: JSON.stringify(data),
-                dataType: "json",         
-                contentType: 'application/json',                            
+                contentType: 'application/json',
                 success: function(result){
-                    if(result.success == "true"){
-                        showModal("success", "("+taskKind+")  "+result.message);
-                        setTimeout(function() {
-                            window.location = 'task/details.jsp?task_code=' + '${task.task_code}';
-                        }, 2000);                                        
-                    }
-                    else{
-                        showModal("warning", "("+taskKind+")  "+result.message);
-                    }
+                    showModal("success", "("+taskKind+")  "+result);
+                    setTimeout(function() {
+                        window.location.reload();
+                    }, 2000);
                 },
-                error: function(xml,result){
+                error: function(xml){
                     $("button#task-launcher").removeAttr("disabled");
-                    var messageError =  '<fmt:message key="Jsp Was Error" bundle="${msg}"/> '+
-                                        '<fmt:message key="Jsp Contact To Admin" bundle="${msg}"/>';
-                    showModal("error", messageError);
+                    showModal("error", xml.responseText);
                 }
             });                                                           
         }

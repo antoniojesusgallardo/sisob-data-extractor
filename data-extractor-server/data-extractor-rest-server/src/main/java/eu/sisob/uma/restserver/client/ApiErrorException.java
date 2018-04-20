@@ -17,27 +17,39 @@
     You should have received a copy of the GNU General Public License
     along with SISOB Data Extractor. If not, see <http://www.gnu.org/licenses/>.
 */
-package eu.sisob.uma.restserver.services.communications;
 
-import javax.xml.bind.annotation.XmlRootElement;
+package eu.sisob.uma.restserver.client;
 
-
-@XmlRootElement
-public class OutputAuthorizationResult
-{
-    /**
-     *
-     */
-    public static String ACCOUNT_TYPE_USER = "user";
-    /**
-     *
-     */
-    public static String ACCOUNT_TYPE_APP = "app";
+/**
+ *
+ * @author Antonio Jesus Gallardo Albarran - antonio.jesus.gallardo@gmail.com
+ */
+public class ApiErrorException extends Exception{
     
-    /**
-     *
-     */
-    public String account_type = "";
+    private Integer status;
+    
+    private String message;
+
+    public ApiErrorException(Integer status, String message) {
+        super();
+        
+        this.status = status;
+        this.message = message;
+    }
+
+    public Integer getStatus() {
+        return status;
+    }
+
+    public void setStatus(Integer status) {
+        this.status = status;
+    }
+
+    public String getMessage() {
+        return message;
+    }
+
+    public void setMessage(String message) {
+        this.message = message;
+    }
 }
-
-    

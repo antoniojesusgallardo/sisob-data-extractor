@@ -17,27 +17,27 @@
     You should have received a copy of the GNU General Public License
     along with SISOB Data Extractor. If not, see <http://www.gnu.org/licenses/>.
 */
-package eu.sisob.uma.restserver.services.communications;
 
-import javax.xml.bind.annotation.XmlRootElement;
+package eu.sisob.uma.restserver.restservices;
 
+import eu.sisob.uma.restserver.beans.AuthorizationResult;
+import eu.sisob.uma.restserver.managers.AuthorizationManager;
+import eu.sisob.uma.restserver.restservices.exceptions.UnAuthorizedException;
 
-@XmlRootElement
-public class OutputAuthorizationResult
-{
-    /**
-     *
-     */
-    public static String ACCOUNT_TYPE_USER = "user";
-    /**
-     *
-     */
-    public static String ACCOUNT_TYPE_APP = "app";
+/**
+ *
+ * @author Antonio Jesus Gallardo Albarran - antonio.jesus.gallardo@gmail.com
+ */
+public class RESTSERVICEUtils {
     
-    /**
-     *
-     */
-    public String account_type = "";
+    public static AuthorizationResult validateAccess(String user, String pass) 
+                                                    throws UnAuthorizedException{
+    
+        AuthorizationResult autResult = AuthorizationManager.validateAccess(user, pass);
+        if(!autResult.getSuccess()){
+            throw new UnAuthorizedException(autResult.getMessage());
+        }
+        
+        return autResult;
+    }   
 }
-
-    

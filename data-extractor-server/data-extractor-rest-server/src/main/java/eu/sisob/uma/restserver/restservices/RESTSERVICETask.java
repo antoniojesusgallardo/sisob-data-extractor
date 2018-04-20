@@ -19,38 +19,26 @@
 */
 package eu.sisob.uma.restserver.restservices;
 
-import eu.sisob.uma.restserver.beans.AuthorizationResult;
-import eu.sisob.uma.restserver.managers.TaskManager;
-import eu.sisob.uma.restserver.managers.AuthorizationManager;
-import eu.sisob.uma.restserver.services.communications.OutputTaskOperationResult;
-import eu.sisob.uma.restserver.services.communications.OutputTaskStatus;
-
 import eu.sisob.uma.restserver.beans.Task;
-import eu.sisob.uma.restserver.managers.TaskFileManager;
+import eu.sisob.uma.restserver.beans.TaskOperationResult;
+import eu.sisob.uma.restserver.managers.AuthorizationManager;
+import eu.sisob.uma.restserver.managers.TaskManager;
+import eu.sisob.uma.restserver.restservices.exceptions.InternalServerErrorException;
+import eu.sisob.uma.restserver.restservices.exceptions.UnAuthorizedException;
 import eu.sisob.uma.restserver.services.communications.InputAddTask;
 import eu.sisob.uma.restserver.services.communications.InputLaunchTask;
-import java.io.File;
-import java.util.logging.Level;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.UriInfo;
+import eu.sisob.uma.restserver.services.communications.OutputTaskStatus;
 import javax.ws.rs.Path;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
-import org.apache.commons.io.FileUtils;
+import javax.ws.rs.core.MediaType;
 
 @Path("/task")
 public class RESTSERVICETask {
-    private static final java.util.logging.Logger LOG = java.util.logging.Logger.getLogger(RESTSERVICETask.class.getName());        
-
-    @Context
-    private UriInfo context;
-
-    /** Creates a new instance of HelloWorld */
-    public RESTSERVICETask() 
-    {
-        
+    
+    public RESTSERVICETask(){
     }
 
     /**
@@ -61,104 +49,75 @@ public class RESTSERVICETask {
      * @return an instance of CrawlerTaskStatus with code provided
      */
     @GET
-    @Produces("application/json")
+    @Produces(MediaType.APPLICATION_JSON)
     public OutputTaskStatus getTaskStatus(@QueryParam("user") String user, 
-                                        @QueryParam("pass") String pass, 
-                                        @QueryParam("task_code") String task_code) 
+                                    @QueryParam("pass") String pass, 
+                                    @QueryParam("task_code") String task_code) 
     {
-        OutputTaskStatus taskStatus = new OutputTaskStatus();                             
-        
-        synchronized (AuthorizationManager.getLocker(user)) {
-            
-            AuthorizationResult autResult = AuthorizationManager.validateAccess(user, pass);
-            if(!autResult.getSuccess()){
-                taskStatus.setTask_code("");
-                taskStatus.setStatus(OutputTaskStatus.TASK_STATUS_NO_AUTH);
-                taskStatus.setMessage(autResult.getMessage());
+        try {
+            synchronized (AuthorizationManager.getLocker(user)) {
+
+                RESTSERVICEUtils.validateAccess(user, pass);
+
+                OutputTaskStatus taskStatus = TaskManager.getTask(user, pass, task_code, true); 
                 return taskStatus;
             }
-            
-            taskStatus = TaskManager.getTask(user, pass, task_code, true);  
+        } catch (UnAuthorizedException | InternalServerErrorException ex) {
+            throw ex;
+        } catch (Exception e) {
+            throw new InternalServerErrorException(e.getMessage());
         }
-                       
-        return taskStatus;        
     }
     
     @POST
-    @Produces("application/json")    
+    @Produces(MediaType.APPLICATION_JSON)    
     @Path("/add")
     public OutputTaskStatus addNewTask(InputAddTask input) 
     {
-        OutputTaskStatus taskStatus = new OutputTaskStatus();
-        
-        synchronized(AuthorizationManager.getLocker(input.user)){
+        try {
+            synchronized(AuthorizationManager.getLocker(input.user)){
             
-            AuthorizationResult autResult = AuthorizationManager.validateAccess(input.user, input.pass);
-            if(!autResult.getSuccess()){
-                taskStatus.setTask_code("");
-                taskStatus.setStatus(OutputTaskStatus.TASK_STATUS_NO_AUTH);
-                taskStatus.setMessage(autResult.getMessage());
+                RESTSERVICEUtils.validateAccess(input.user, input.pass);
+                
+                Task newTask = TaskManager.prepareNewTask(input.user, input.pass);
+                
+                OutputTaskStatus taskStatus = new OutputTaskStatus();
+                taskStatus.setTask_code(newTask.getCode());
+                taskStatus.setStatus(newTask.getStatus());
+                taskStatus.setMessage(newTask.getMessage());
+
                 return taskStatus;
             }
-            
-            Task newTask = TaskManager.prepareNewTask(input.user, input.pass);
-                
-            taskStatus.setTask_code(newTask.getCode());
-            taskStatus.setStatus(newTask.getStatus());
-            taskStatus.setMessage(newTask.getMessage());
+        } catch (UnAuthorizedException | InternalServerErrorException ex) {
+            throw ex;
+        } catch (Exception e) {
+            throw new InternalServerErrorException(e.getMessage());
         }
-        
-        return taskStatus;
     }   
     
     @POST
-    @Produces("application/json")    
+    @Produces(MediaType.TEXT_PLAIN)    
     @Path("/delete")
-    public OutputTaskOperationResult deleteTask(InputLaunchTask input) 
-    {        
-        OutputTaskOperationResult result = new OutputTaskOperationResult();            
-        
-        synchronized (AuthorizationManager.getLocker(input.user)) 
-        {
-            AuthorizationResult autResult = AuthorizationManager.validateAccess(input.user, input.pass);
-            if(!autResult.getSuccess()){
-                result.success = autResult.getSuccess();
-                result.message = autResult.getMessage();
-                return result;
-            }
-            
-            OutputTaskStatus task = TaskManager.getTask(input.user, input.pass, input.task_code, false);            
-            
-            if( OutputTaskStatus.TASK_STATUS_NO_AUTH.equals(task.getStatus()) ||
-                OutputTaskStatus.TASK_STATUS_NO_ACCESS.equals(task.getStatus()) ||
-                OutputTaskStatus.TASK_STATUS_EXECUTING.equals(task.getStatus()) ||
-                OutputTaskStatus.TASK_STATUS_TO_EXECUTE.equals(task.getStatus()) )
-            {   
-                result.success = false;                 
-                result.message = "The task couldn't be deleted. " + task.getMessage();
-            }           
-            else if(OutputTaskStatus.TASK_STATUS_EXECUTED.equals(task.getStatus()))
-            { 
-                String taskFolder = TaskFileManager.getTaskFolder(input.user, input.task_code);
-                File dir_to_delete = new File(taskFolder);
-                try{
-                    FileUtils.deleteDirectory(dir_to_delete);   
-                    if(dir_to_delete.exists()){
-                        result.success = false;              
-                        result.message = "The task couldn't be deleted";
-                    }else{
-                        result.success = true;              
-                        result.message = "The task " + input.task_code + " has been deleted";
-                    }
-                }catch(Exception ex){
-                    result.success = false;              
-                    result.message = "";
-                    LOG.log(Level.SEVERE, "Error deleting task " + input.task_code, ex);
+    public String deleteTask(InputLaunchTask input) 
+    {   
+        try {
+            synchronized (AuthorizationManager.getLocker(input.user)){
+
+                RESTSERVICEUtils.validateAccess(input.user, input.pass);
+
+                TaskOperationResult result = TaskManager.deleteTask(input.user, input.pass, input.task_code);
+                
+                if (!result.success) {
+                    throw new InternalServerErrorException(result.message);
                 }
+                
+                return result.message;
             }
+        } catch (UnAuthorizedException | InternalServerErrorException ex) {
+            throw ex;
+        } catch (Exception e) {
+            throw new InternalServerErrorException(e.getMessage());
         }
-        
-        return result;
     }    
     
     /**
@@ -167,25 +126,28 @@ public class RESTSERVICETask {
      * @return an instance of RESTResult
      */
     @POST    
-    @Produces("application/json")
+    @Produces(MediaType.TEXT_PLAIN)
     @Path("/relaunch")
-    public OutputTaskOperationResult relaunchTask(InputLaunchTask input) 
-    {        
-        OutputTaskOperationResult result = new OutputTaskOperationResult();            
-        
-        synchronized (AuthorizationManager.getLocker(input.user)){
-            
-            AuthorizationResult autResult = AuthorizationManager.validateAccess(input.user, input.pass);
-            if(!autResult.getSuccess()){
-                result.success = autResult.getSuccess();
-                result.message = autResult.getMessage();
-                return result;
+    public String relaunchTask(InputLaunchTask input) 
+    {       
+        try {
+            synchronized (AuthorizationManager.getLocker(input.user)){
+
+                RESTSERVICEUtils.validateAccess(input.user, input.pass);
+
+                TaskOperationResult result = TaskManager.launchTask(input, true);
+                
+                if (!result.success) {
+                    throw new InternalServerErrorException(result.message);
+                }
+                
+                return result.message;
             }
-            
-            result = TaskManager.launchTask(input, true);
+        } catch (UnAuthorizedException | InternalServerErrorException ex) {
+            throw ex;
+        } catch (Exception e) {
+            throw new InternalServerErrorException(e.getMessage());
         }
-        
-        return result;
     }
 
     /**
@@ -194,24 +156,27 @@ public class RESTSERVICETask {
      * @return an instance of RESTResult
      */
     @POST    
-    @Produces("application/json")
+    @Produces(MediaType.TEXT_PLAIN)
     @Path("/launch")
-    public OutputTaskOperationResult launchTask(InputLaunchTask input) 
-    {        
-        OutputTaskOperationResult result= new OutputTaskOperationResult();
-        
-        synchronized (AuthorizationManager.getLocker(input.user)){
-            
-            AuthorizationResult autResult = AuthorizationManager.validateAccess(input.user, input.pass);
-            if(!autResult.getSuccess()){
-                result.success = autResult.getSuccess();
-                result.message = autResult.getMessage();
-                return result;
-            }
-            
-            result = TaskManager.launchTask(input, false);
-        }
+    public String launchTask(InputLaunchTask input) 
+    {   
+        try {
+            synchronized (AuthorizationManager.getLocker(input.user)){
 
-        return result;
+                RESTSERVICEUtils.validateAccess(input.user, input.pass);
+
+                TaskOperationResult result = TaskManager.launchTask(input, false);
+                
+                if (!result.success) {
+                    throw new InternalServerErrorException(result.message);
+                }
+                
+                return result.message;
+            }
+        } catch (UnAuthorizedException | InternalServerErrorException ex) {
+            throw ex;
+        } catch (Exception e) {
+            throw new InternalServerErrorException(e.getMessage());
+        }
     }
 }

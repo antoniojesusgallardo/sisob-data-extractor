@@ -18,15 +18,19 @@
     along with SISOB Data Extractor. If not, see <http://www.gnu.org/licenses/>.
 */
 
-package eu.sisob.uma.restserver;
+package eu.sisob.uma.restserver.client;
 
 import com.sun.jersey.api.client.Client;
+import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.GenericType;
 import com.sun.jersey.api.client.WebResource;
 import com.sun.jersey.core.util.MultivaluedMapImpl;
+import eu.sisob.uma.restserver.TheConfig;
 import java.util.Map;
+import java.util.logging.Logger;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.MultivaluedMap;
+import javax.ws.rs.core.Response;
 
 /**
  * REST Client used in JSP pages, this client use Jersey resources.
@@ -34,19 +38,23 @@ import javax.ws.rs.core.MultivaluedMap;
  * @author Antonio Jesus Gallardo Albarran - antonio.jesus.gallardo@gmail.com
  */
 public class RESTClient {
+    
+    private static final Logger log = Logger.getLogger(RESTClient.class.getName());
+    
 
+    public static final String REST_PATH = "/resources";
+    
     private static String rootPath;
     
     private String path;
     
     private MultivaluedMap params;
     
-    private Class outputClass;
-    
-    private GenericType genericType;
+    private Object outputType;
     
     static {
-        rootPath = TheConfig.getInstance().getString(TheConfig.SERVER_URL) + "/resources";
+        String serverUrl = TheConfig.getInstance().getString(TheConfig.SERVER_URL);
+        rootPath = serverUrl + REST_PATH;
     }
     
     private RESTClient() {
@@ -60,7 +68,7 @@ public class RESTClient {
      */
     public RESTClient(String path, Map<String,String> params, Class outputClass) {
         
-        initialize(path, params, outputClass, null);
+        initialize(path, params, outputClass);
     }
     
     /**
@@ -71,17 +79,12 @@ public class RESTClient {
      */
     public RESTClient(String path, Map<String,String> params, GenericType genericType) {
         
-        initialize(path, params, null, genericType);
+        initialize(path, params, genericType);
     }
     
-    private void initialize(String path, Map<String,String> params, Class outputClass, GenericType genericType){
+    private void initialize(String path, Map<String,String> params, Object outputType){
     
-        if(outputClass != null){
-            this.outputClass = outputClass;
-        }
-        else if (genericType != null) {
-            this.genericType = genericType;
-        }
+        this.outputType = outputType;
         
         this.path = path;
         
@@ -96,25 +99,31 @@ public class RESTClient {
     /**
      * Method that executes the request and return the results.
      * @return 
+     * @throws eu.sisob.uma.restserver.ApiErrorException 
      */
-    public Object get(){
+    public Object get() throws ApiErrorException{
         
         String fullPath = rootPath + path;
         
         Client client = Client.create();
         WebResource webResource = client.resource(fullPath); 
         
-        Object rObject = null;
-        
-        if(outputClass != null){
-            rObject = webResource.queryParams(this.params)
+        ClientResponse response = webResource.queryParams(this.params)
                                     .accept(MediaType.APPLICATION_JSON)
-                                    .get(outputClass);
+                                    .get(ClientResponse.class);
+        
+        if (response.getStatus() != Response.Status.OK.getStatusCode()) {
+            String errorMessage = response.getEntity(String.class);
+            log.warning(errorMessage);
+            throw new ApiErrorException(response.getStatus(), errorMessage);
         }
-        else if (genericType != null) {
-            rObject = Client.create().resource(fullPath).
-                                        queryParams(this.params)
-                                        .get(genericType);
+        
+        Object rObject = null;
+        if (outputType instanceof GenericType) {
+            rObject = response.getEntity((GenericType)outputType);
+        }
+        else if (outputType instanceof Class){
+            rObject = response.getEntity((Class)outputType);
         }
         
         return rObject;

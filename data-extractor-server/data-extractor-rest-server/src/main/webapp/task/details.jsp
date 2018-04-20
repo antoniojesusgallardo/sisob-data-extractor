@@ -18,20 +18,17 @@
     along with SISOB Data Extractor. If not, see <http://www.gnu.org/licenses/>.
 --%>
 <!DOCTYPE HTML>
+<%@page import="eu.sisob.uma.restserver.client.ApiErrorException"%>
+<%@page import="eu.sisob.uma.restserver.client.RESTClient"%>
+<%@page import="eu.sisob.uma.restserver.client.UtilJsp"%>
 <%@page import="eu.sisob.uma.restserver.services.communications.OutputTaskStatus"%>
-<%@page import="eu.sisob.uma.restserver.RESTClient"%>
 <%@page import="java.util.Map"%>
 <%@page import="java.util.HashMap"%>
+<%@page import="javax.ws.rs.core.Response;"%>
 
 <%@page session="true"%>
 <%  
-    // Validate data
-    if( session == null || 
-        session.getAttribute("user")==null ||
-        session.getAttribute("pass")==null ){
-        if(session != null){
-            session.invalidate();
-        }
+    if (!UtilJsp.validateSession(session)){
         response.sendRedirect(request.getContextPath()+"/index.jsp?message=notAllowed");
         return;
     }
@@ -47,17 +44,24 @@
     params.put("pass", pass);
     params.put("task_code", task_code);
     RESTClient restClient = new RESTClient("/task", params, OutputTaskStatus.class);
-    OutputTaskStatus task = (OutputTaskStatus)restClient.get();
+    
+    OutputTaskStatus task = null;
+    String errorMessage = null;
+    try{
+        task = (OutputTaskStatus)restClient.get();
+    }
+    catch(ApiErrorException ex){
+        errorMessage = ex.getMessage();
+    }
     
     // Save the result in the request
     request.setAttribute("task", task);
+    request.setAttribute("errorMessage", errorMessage);
     
     // Save constant in the request
     request.setAttribute("TASK_STATUS_EXECUTED", OutputTaskStatus.TASK_STATUS_EXECUTED);
     request.setAttribute("TASK_STATUS_EXECUTING", OutputTaskStatus.TASK_STATUS_EXECUTING);
     request.setAttribute("TASK_STATUS_TO_EXECUTE", OutputTaskStatus.TASK_STATUS_TO_EXECUTE);
-    request.setAttribute("TASK_STATUS_NO_AUTH", OutputTaskStatus.TASK_STATUS_NO_AUTH);
-    request.setAttribute("TASK_STATUS_NO_ACCESS", OutputTaskStatus.TASK_STATUS_NO_ACCESS);
 %>
 
 <%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
@@ -84,17 +88,25 @@
             <a href="task/list.jsp">Back to listing</a>
         </h5>
         
-        <c:choose>
-            <c:when test="${TASK_STATUS_NO_AUTH==task.status || TASK_STATUS_NO_ACCESS==task.status || TASK_STATUS_EXECUTING==task.status}">
-                <jsp:include page="details-executing.jsp" />
-            </c:when>
-            <c:when test="${TASK_STATUS_EXECUTED == task.status}">
-                <jsp:include page="details-executed.jsp" />
-            </c:when>
-            <c:when test="${TASK_STATUS_TO_EXECUTE == task.status}">
-                <jsp:include page="details-to-execute.jsp" />
-            </c:when>
-        </c:choose>
+        <c:if test="${task != null}">
+            <c:choose>
+                <c:when test="${TASK_STATUS_EXECUTING==task.status}">
+                    <jsp:include page="details-executing.jsp" />
+                </c:when>
+                <c:when test="${TASK_STATUS_EXECUTED == task.status}">
+                    <jsp:include page="details-executed.jsp" />
+                </c:when>
+                <c:when test="${TASK_STATUS_TO_EXECUTE == task.status}">
+                    <jsp:include page="details-to-execute.jsp" />
+                </c:when>
+            </c:choose>
+        </c:if>
+        
+        <c:if test="${errorMessage != null}">
+            <div class="well" id="instructions">   
+                <h4>${errorMessage}</h4>
+            </div>
+        </c:if>
  
     </jsp:body>
 </t:generic-template>

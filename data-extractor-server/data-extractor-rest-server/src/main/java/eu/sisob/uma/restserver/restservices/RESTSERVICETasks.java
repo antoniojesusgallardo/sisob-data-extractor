@@ -20,25 +20,19 @@
 package eu.sisob.uma.restserver.restservices;
 
 import eu.sisob.uma.restserver.managers.TaskManager;
-import eu.sisob.uma.restserver.managers.AuthorizationManager;
-import eu.sisob.uma.restserver.beans.AuthorizationResult;
+import eu.sisob.uma.restserver.restservices.exceptions.InternalServerErrorException;
+import eu.sisob.uma.restserver.restservices.exceptions.UnAuthorizedException;
 import eu.sisob.uma.restserver.services.communications.OutputTaskStatus;
-import java.util.Date;
 import java.util.List;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.UriInfo;
 import javax.ws.rs.Path;
 import javax.ws.rs.GET;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
+import javax.ws.rs.core.MediaType;
 
 @Path("/tasks")
-public class RESTSERVICETasks
-{
-    @Context
-    private UriInfo context;
+public class RESTSERVICETasks {
 
-    /** Creates a new instance of HelloWorld */
     public RESTSERVICETasks() {
 
     }       
@@ -51,22 +45,23 @@ public class RESTSERVICETasks
      * @return  If the authorization is correct and a new code task
      */
     @GET
-    @Produces("application/json")
-    public List<OutputTaskStatus> getTasksList( @QueryParam("user") String user, 
+    @Produces(MediaType.APPLICATION_JSON)
+    public List<OutputTaskStatus> getTasksList(@QueryParam("user") String user, 
                                                 @QueryParam("pass") String pass) 
-    {           
-        List<OutputTaskStatus> rListTask = null;
-        
-        if(user == null) user = "";
-        if(pass == null) pass = "";
-        
-        synchronized(user){
-            AuthorizationResult autResult = AuthorizationManager.validateAccess(user, pass);
-            if(autResult.getSuccess()){
-                rListTask = TaskManager.getTasks(user, pass);
-            }    
+    {    
+        try {
+            synchronized(user){
+
+                RESTSERVICEUtils.validateAccess(user, pass);
+
+                List<OutputTaskStatus> rListTask = TaskManager.getTasks(user, pass);
+                
+                return rListTask;
+            }
+        } catch (UnAuthorizedException | InternalServerErrorException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new InternalServerErrorException(e.getMessage());
         }
-        
-        return rListTask;
     }
 }

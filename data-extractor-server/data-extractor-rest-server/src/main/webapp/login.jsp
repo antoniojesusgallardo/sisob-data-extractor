@@ -23,12 +23,14 @@
 --%>
 
 <!DOCTYPE HTML>
-<%@page import="eu.sisob.uma.restserver.RESTClient"%>
+<%@page import="eu.sisob.uma.restserver.client.ApiErrorException"%>
+<%@page import="eu.sisob.uma.restserver.client.RESTClient"%>
 <%@page import="eu.sisob.uma.restserver.services.communications.OutputAuthorizationResult"%>
 <%@page import="eu.sisob.uma.restserver.TheConfig"%>
 <%@page import="java.security.MessageDigest"%>
 <%@page import="java.util.Map"%>
 <%@page import="java.util.HashMap"%>
+<%@page import="javax.ws.rs.core.Response;"%>
 
 <%@page session="true"%>
 <%
@@ -53,21 +55,33 @@
     params.put("user", user);
     params.put("pass", pass);
     RESTClient restClient = new RESTClient("/authorization", params, OutputAuthorizationResult.class);
-    OutputAuthorizationResult auth_result = (OutputAuthorizationResult)restClient.get();
     
-    // Redirect
-    String urlRedirect = request.getContextPath();
-    if(!auth_result.success){
-        urlRedirect += "/index.jsp?message=unauth_data"; 
-    }
-    else if(!auth_result.account_type.equals(OutputAuthorizationResult.ACCOUNT_TYPE_USER)){
-        urlRedirect += "/index.jsp?message=unauth_type"; 
-    }
-    else {
-        session.setAttribute("user",user);
-        session.setAttribute("pass",pass);
+    String urlRedirect = "";
+    
+    try{
+        OutputAuthorizationResult authResult = (OutputAuthorizationResult)restClient.get();
+        
+        if(OutputAuthorizationResult.ACCOUNT_TYPE_USER.equals(authResult.account_type)){
+            session.setAttribute("user",user);
+            session.setAttribute("pass",pass);
 
-        urlRedirect += "/task/list.jsp"; 
+            urlRedirect += "/task/list.jsp";
+        }
+        else if(OutputAuthorizationResult.ACCOUNT_TYPE_APP.equals(authResult.account_type)){
+            urlRedirect += "/index.jsp?message=unauth_type";
+        }
+        else{
+            urlRedirect += "/index.jsp?message=error";
+        };  
     }
-    response.sendRedirect(urlRedirect);
+    catch(ApiErrorException ex){
+        if(ex.getStatus() == Response.Status.UNAUTHORIZED.getStatusCode()){
+            urlRedirect += "/index.jsp?message=unauth_data";
+        }
+        else{
+            urlRedirect += "/index.jsp?message=error";
+        }
+    }
+    
+    response.sendRedirect(request.getContextPath() + urlRedirect);
 %>

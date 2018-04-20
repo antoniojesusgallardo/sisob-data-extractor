@@ -73,7 +73,7 @@ public class TaskFileManager {
     public static List<String> getResultFiles(String user, String task_code)
     {        
         
-        List<String> results = new ArrayList<String>();
+        List<String> results = new ArrayList();
         
         String pathResult = Paths.get(getTaskFolder(user, task_code), 
                                         AuthorizationManager.results_dirname).toString();
@@ -105,7 +105,7 @@ public class TaskFileManager {
     public static List<String> getSourceFiles(String user, String task_code)
     {        
         
-        List<String> sources = new ArrayList<String>();
+        List<String> sources = new ArrayList();
             
         File code_task_folder = new File(getTaskFolder(user, task_code));
         if(code_task_folder.exists())
@@ -134,7 +134,7 @@ public class TaskFileManager {
     public static List<String> getVerboseFiles(String user, String task_code)
     {        
         
-        List<String> results = new ArrayList<String>();
+        List<String> results = new ArrayList();
         
         String pathVerbose = Paths.get(getTaskFolder(user, task_code), 
                                         AuthorizationManager.verbose_dirname).toString();
@@ -227,12 +227,10 @@ public class TaskFileManager {
     {
         String file_task_folder = TaskFileManager.getTaskFolder(user, task_code) + 
                                     (!type.equals("") ? File.separator + type : "") + 
-                                    File.separator + file_name;   
+                                    File.separator + file_name;
+        
         File file = new File(file_task_folder);
-        if(file.exists())
-            return file;
-        else
-            return null;
+        return file;
     }
     
     public static void createFileTaskData(String pathTaskFolder){

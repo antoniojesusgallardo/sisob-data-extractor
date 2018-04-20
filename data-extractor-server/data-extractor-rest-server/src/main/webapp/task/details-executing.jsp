@@ -18,14 +18,11 @@
     along with SISOB Data Extractor. If not, see <http://www.gnu.org/licenses/>.
 --%>
 
+<%@page import="eu.sisob.uma.restserver.client.UtilJsp"%>
+
 <%
     // Validate data
-    if( session == null || 
-        session.getAttribute("user")==null ||
-        session.getAttribute("pass")==null ){
-        if(session != null){
-            session.invalidate();
-        }
+    if (!UtilJsp.validateSession(session)){
         response.sendRedirect(request.getContextPath()+"/index.jsp?message=notAllowed");
         return;
     }

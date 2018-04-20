@@ -21,13 +21,12 @@ package eu.sisob.uma.restserver.restservices;
 
 import eu.sisob.uma.restserver.managers.RestUriManager;
 import eu.sisob.uma.restserver.managers.TaskManager;
-import eu.sisob.uma.restserver.managers.AuthorizationManager;
 import com.sun.jersey.core.header.FormDataContentDisposition;
 import com.sun.jersey.multipart.FormDataParam;
 import eu.sisob.uma.restserver.TheResourceBundle;
-import eu.sisob.uma.restserver.beans.AuthorizationResult;
 import eu.sisob.uma.restserver.managers.TaskFileManager;
-import eu.sisob.uma.restserver.services.communications.OutputAuthorizationResult;
+import eu.sisob.uma.restserver.restservices.exceptions.InternalServerErrorException;
+import eu.sisob.uma.restserver.restservices.exceptions.UnAuthorizedException;
 import eu.sisob.uma.restserver.services.communications.OutputTaskStatus;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -42,12 +41,12 @@ import javax.ws.rs.Path;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.QueryParam;
+import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import org.codehaus.jettison.json.JSONArray;
 import org.codehaus.jettison.json.JSONException;
 import org.codehaus.jettison.json.JSONObject;
-
 
 @Path("/file")
 public class RESTSERVICEFile {
@@ -61,38 +60,37 @@ public class RESTSERVICEFile {
                             @QueryParam("task_code") String task_code, 
                             @QueryParam("file") String file, 
                             @QueryParam("type") String type)  
-    {           
-        //Security
-        if(file.contains("\\") || file.contains("/")){
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
-        }
+    {   
         
-        AuthorizationResult autResult = AuthorizationManager.validateAccess(user, pass);
-        if(!autResult.getSuccess()){
-            return Response.status(Response.Status.UNAUTHORIZED).build();
-        }   
-        
-        String fpath = TaskFileManager.getTaskFolder(user, task_code) + File.separator + 
-                       (!type.equals("") ? type + File.separator : "") + 
-                        file;
-        File f = new File(fpath);
-
-        byte[] docStream;
-
         Response response;
         try {
-            docStream = org.apache.commons.io.FileUtils.readFileToByteArray(f);
+            RESTSERVICEUtils.validateAccess(user, pass);
+            
+            //Security
+            if(file.contains("\\") || file.contains("/")){
+                throw new Exception();
+            }
+
+            if (type == null) {
+                type = "";
+            }
+            
+            File f = TaskFileManager.getFile(user, task_code, file, type);
+            
+            byte[] docStream = org.apache.commons.io.FileUtils.readFileToByteArray(f);
             response = Response
                     .ok(docStream, MediaType.APPLICATION_OCTET_STREAM)
                     .header("Content-Type","text/html; charset=utf-8")
                     .build();
 
+        } catch (UnAuthorizedException | InternalServerErrorException ex) {
+            throw ex;
         } catch (FileNotFoundException ex) {
-            LOG.log(Level.SEVERE, "FIXME", ex);   
-            response = Response.status(Response.Status.NOT_FOUND).build();            
+            LOG.log(Level.SEVERE, "FIXME", ex);  
+            throw new WebApplicationException(Response.Status.NOT_FOUND);           
         } catch (Exception ex) {
-            LOG.log(Level.SEVERE, "FIXME", ex);   
-            response = Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+            LOG.log(Level.SEVERE, "FIXME", ex);
+            throw new InternalServerErrorException();
         }        
         
         return response;
@@ -107,35 +105,29 @@ public class RESTSERVICEFile {
                             @QueryParam("type") String type)  
     {        
         Response response;
-                
-        //Security
-        if(file.contains("\\") || file.contains("/"))
-        {
-            response = Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
-            return response;
-        }
-        
-        if (type == null) {
-            type = "";
-        }
-        
-        AuthorizationResult autResult = AuthorizationManager.validateAccess(user, pass);
-        if(!autResult.getSuccess()){
-            return Response.status(Response.Status.UNAUTHORIZED).build();
-        }
-            
-        String fpath = TaskFileManager.getTaskFolder(user, task_code) + File.separator + 
-                       (!type.equals("") ? type + File.separator : "") + 
-                        file;        
-        File f = new File(fpath);
         
         try {
-            response =  Response.ok((Object) f)
+            RESTSERVICEUtils.validateAccess(user, pass);
+            
+            //Security
+            if(file.contains("\\") || file.contains("/")){
+                throw new Exception();
+            }
+            
+            if (type == null) {
+                type = "";
+            }
+            
+            File f = TaskFileManager.getFile(user, task_code, file, type);
+        
+            response =  Response.ok(f)
                         .header("Content-Disposition", "attachment; filename=\"" + f.getName() + "\"")
                         .build();           
+        } catch (UnAuthorizedException | InternalServerErrorException ex) {
+            throw ex;
         } catch (Exception ex) {
-            LOG.log(Level.SEVERE, "FIXME", ex);   
-            response = Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
+            LOG.log(Level.SEVERE, "FIXME", ex);
+            throw new InternalServerErrorException();
         }        
 
         // Alternative http://www.mkyong.com/webservices/jax-rs/download-pdf-file-from-jax-rs/
@@ -146,44 +138,37 @@ public class RESTSERVICEFile {
     
     @GET
     @Path("/delete")    
-    public OutputAuthorizationResult deleteFile(@QueryParam("user") String user, 
-                                                @QueryParam("pass") String pass, 
-                                                @QueryParam("task_code") String task_code, 
-                                                @QueryParam("file") String file)  
-    {        
-        OutputAuthorizationResult r = new OutputAuthorizationResult();
-        
-        //Security
-        if(file.contains("\\") || file.contains("/")){
-            r.success = false;
-            r.message = "Unautorized access";
-        }
-        
-        AuthorizationResult autResult = AuthorizationManager.validateAccess(user, pass);
-        if(!autResult.getSuccess()){
-            r.success = false;
-            r.message = autResult.getMessage();
-            return r;
-        }
-        
-        String taskFolder = TaskFileManager.getTaskFolder(user, task_code);       
-        File f = new File(taskFolder, file);
-        if(f.exists()){
-            try{
-                f.delete();
-                r.success = true;
+    public String deleteFile(@QueryParam("user") String user, 
+                                @QueryParam("pass") String pass, 
+                                @QueryParam("task_code") String task_code, 
+                                @QueryParam("file") String file)  
+    {
+        try {
+            synchronized(user){
+
+                RESTSERVICEUtils.validateAccess(user, pass);
+
+                //Security
+                if(file.contains("\\") || file.contains("/")){
+                    throw new UnAuthorizedException("Unautorized access");
+                }
+                
+                File f = TaskFileManager.getFile(user, task_code, file, "");
+                
+                if(f.exists()){
+                    f.delete();
+                }
+                else{
+                    throw new Exception("File not found.");
+                }
+                
+                return "File deleted successfully";
             }
-            catch(Exception ex){
-                LOG.log(Level.SEVERE, "Error deleting file ({0}): {1}", 
-                        new Object[]{f.getAbsolutePath(), ex.getMessage()});
-                r.success = false;
-            }
+        } catch (UnAuthorizedException | InternalServerErrorException e) {
+            throw e;
+        } catch (Exception e) {
+            throw new InternalServerErrorException(e.getMessage());
         }
-        else{
-            r.success = false;
-        }
-        
-        return r;
     }            
     
     
@@ -197,33 +182,38 @@ public class RESTSERVICEFile {
                                 @FormDataParam("files[]") FormDataContentDisposition fileDetail ) 
     {
         Response response = null;
-
-        JSONArray json = new JSONArray();
         
-        if( user==null || pass==null || task_code==null || 
-            uploadedInputStream==null || fileDetail==null){
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
-                    .entity(TheResourceBundle.getString("Upload Fail")).build();
-        }
-        
-        //Security
-        if(fileDetail.getFileName().contains("\\") || fileDetail.getFileName().contains("/")){
-            return Response.status(Response.Status.INTERNAL_SERVER_ERROR).build();
-        }
-        
-        OutputTaskStatus task = TaskManager.getTask(user, pass, task_code, false);
-
-        if(!task.getStatus().equals(OutputTaskStatus.TASK_STATUS_TO_EXECUTE)){
-            return Response.status(Response.Status.PRECONDITION_FAILED)
-                    .entity(task.getMessage()).build();
-        }
-        
-        String taskFolder = TaskFileManager.getTaskFolder(user, task_code);
-        File file = new File(taskFolder, fileDetail.getFileName());                
-
         OutputStream out = null;
+        String pathFile = "";
         
-        try{   
+        try{ 
+            
+            if( user==null || pass==null || task_code==null || 
+                uploadedInputStream==null || fileDetail==null){
+                return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                                .entity(TheResourceBundle.getString("Upload Fail"))
+                                .build();
+            }
+            
+            RESTSERVICEUtils.validateAccess(user, pass);
+
+            //Security
+            if(fileDetail.getFileName().contains("\\") || fileDetail.getFileName().contains("/")){
+                return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                                .build();
+            }
+            
+            OutputTaskStatus task = TaskManager.getTask(user, pass, task_code, false);
+        
+            if(!OutputTaskStatus.TASK_STATUS_TO_EXECUTE.equals(task.getStatus())){
+                return Response.status(Response.Status.PRECONDITION_FAILED)
+                                .entity(task.getMessage())
+                                .build();
+            }
+
+            File file = TaskFileManager.getFile(user, task_code, fileDetail.getFileName(), "");
+            pathFile = file.getAbsolutePath();
+            
             int read;
             long size = 0;
             byte[] bytes = new byte[1024];
@@ -231,8 +221,8 @@ public class RESTSERVICEFile {
             while ((read = uploadedInputStream.read(bytes)) != -1) {
                 size += read;
                 out.write(bytes, 0, read);
-            }            
-
+            }
+            
             JSONObject jsono = new JSONObject();
             jsono.put("name", fileDetail.getFileName());
             jsono.put("size", size);
@@ -240,36 +230,37 @@ public class RESTSERVICEFile {
             jsono.put("thumbnail_url", "");
             jsono.put("delete_url", RestUriManager.getUriFileToDelete(user, pass, task_code, fileDetail.getFileName(), ""));
             jsono.put("delete_type", "GET");
+            
+            JSONArray json = new JSONArray();
             json.put(jsono);
 
-            response = Response.ok(json.toString())
-                                .build();
+            response = Response.ok(json.toString()).build();
+        } 
+        catch (UnAuthorizedException | InternalServerErrorException ex) {
+            throw ex;
         }                 
         catch (IOException e){
-            LOG.log(Level.SEVERE, "Error uploading file ({0}): {1}", 
-                    new Object[]{file.getAbsolutePath(), e.getMessage()});
-            response = Response.status(Response.Status.INTERNAL_SERVER_ERROR)
-                                .entity(TheResourceBundle.getString("Upload Fail")).build();
+            LOG.log(Level.SEVERE, "Error uploading file ({0}): {1}", new Object[]{pathFile, e.getMessage()});
+            throw new InternalServerErrorException(TheResourceBundle.getString("Upload Fail"));
         }     
         catch (JSONException ex){
-            LOG.log(Level.SEVERE, "Error generatin json ({0}): {1}", 
-                    new Object[]{file.getAbsolutePath(), ex.getMessage()});
-            response = Response.status(Response.Status.INTERNAL_SERVER_ERROR)
-                                .entity(TheResourceBundle.getString("Upload Fail")).build();
+            LOG.log(Level.SEVERE, "Error generatin json ({0}): {1}", new Object[]{pathFile, ex.getMessage()});
+            throw new InternalServerErrorException(TheResourceBundle.getString("Upload Fail"));
         } 
+        catch (Exception ex){
+            LOG.log(Level.SEVERE, "Error generatin json ({0}): {1}",  ex);
+            throw new InternalServerErrorException(TheResourceBundle.getString("Upload Fail"));
+        }
         finally{
             try{
                 if (out != null) {
                     out.flush();
                     out.close();
                 }
-                System.gc();
             }
             catch (IOException e){
-                LOG.log(Level.SEVERE, "Error closing file ({0}): {1}", 
-                        new Object[]{file.getAbsolutePath(), e.getMessage()});
-                response = Response.status(Response.Status.INTERNAL_SERVER_ERROR)
-                            .entity(TheResourceBundle.getString("Upload Fail")).build();
+                LOG.log(Level.SEVERE, "Error closing file ({0}): {1}", new Object[]{pathFile, e.getMessage()});
+                throw new InternalServerErrorException(TheResourceBundle.getString("Upload Fail"));
             }
         }          
         return response;

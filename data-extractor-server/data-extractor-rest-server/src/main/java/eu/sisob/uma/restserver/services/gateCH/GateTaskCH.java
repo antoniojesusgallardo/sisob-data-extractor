@@ -25,12 +25,12 @@ import eu.sisob.uma.api.prototypetextmining.MiddleData;
 import eu.sisob.uma.api.prototypetextmining.RepositoryPreprocessDataMiddleData;
 import eu.sisob.uma.api.prototypetextmining.globals.DataExchangeLiterals;
 import eu.sisob.uma.euParliament.FileFormat;
+import eu.sisob.uma.npl.culturalHeritage.GateDataExtractorServiceCH;
 import eu.sisob.uma.restserver.managers.AuthorizationManager;
 import eu.sisob.uma.restserver.managers.FileSystemManager;
 import eu.sisob.uma.restserver.TheResourceBundle;
-import eu.sisob.uma.npl.culturalHeritage.GateDataExtractorServiceCH;
 import eu.sisob.uma.restserver.managers.TaskFileManager;
-import eu.sisob.uma.restserver.services.communications.OutputTaskOperationResult;
+import eu.sisob.uma.restserver.beans.TaskOperationResult;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -60,9 +60,9 @@ public class GateTaskCH  {
     
     
      
-    public static OutputTaskOperationResult launch(String user, String pass, String taskCode){   
+    public static TaskOperationResult launch(String user, String pass, String taskCode){   
         
-        OutputTaskOperationResult rResult = new OutputTaskOperationResult();
+        TaskOperationResult rResult = new TaskOperationResult();
         
         try {
             String taskDirectory = TaskFileManager.getTaskFolder(user, taskCode);
@@ -77,7 +77,7 @@ public class GateTaskCH  {
             }
             
             // Init directories
-            List<Path> paths = new ArrayList<Path>();
+            List<Path> paths = new ArrayList();
             paths.add(Paths.get(taskDirectory, AuthorizationManager.middle_data_dirname));
             paths.add(Paths.get(taskDirectory, AuthorizationManager.results_dirname));
             paths.add(Paths.get(taskDirectory, AuthorizationManager.detailed_results_dirname));
@@ -119,7 +119,7 @@ public class GateTaskCH  {
                                         escape);
         
         // 2. Read the CSV Header and get columns index
-        Map<String, Integer> indexesByColumnName = new HashMap<String, Integer>();
+        Map<String, Integer> indexesByColumnName = new HashMap();
         for (String columns_CsvEp : FileFormat.InputCSV.getColumns_CsvEp()) {
             indexesByColumnName.put(columns_CsvEp, -1);
         } 
@@ -191,7 +191,7 @@ public class GateTaskCH  {
             // 4.4. Create MiddleData
             String id = date + "_" + agendaitemnr + "_" + speechnr.trim();
             
-            HashMap<String, String> extraData = new HashMap<String, String>();
+            HashMap<String, String> extraData = new HashMap();
             extraData.put(DataExchangeLiterals.MiddleData_ExtraDataCH.DATE, date);
             extraData.put(DataExchangeLiterals.MiddleData_ExtraDataCH.AGENDA_ITEM_NR, agendaitemnr);
             extraData.put(DataExchangeLiterals.MiddleData_ExtraDataCH.AGENDA_ITEM_TITLE, agendaitemtitle);

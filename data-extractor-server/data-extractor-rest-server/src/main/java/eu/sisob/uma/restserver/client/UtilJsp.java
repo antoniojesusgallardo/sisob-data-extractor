@@ -17,24 +17,32 @@
     You should have received a copy of the GNU General Public License
     along with SISOB Data Extractor. If not, see <http://www.gnu.org/licenses/>.
 */
-package eu.sisob.uma.restserver.services.communications;
 
-import javax.xml.bind.annotation.XmlRootElement;
+package eu.sisob.uma.restserver.client;
 
+import javax.servlet.http.HttpSession;
 
-@XmlRootElement
-public class OutputTaskOperationResult 
-{
-    /**
-     *
-     */
-    public boolean success;    
-    /**
-     *
-     */
-    public String message;
-    /**
-     *
-     */
-    public String data;
+/**
+ *
+ * @author Antonio Jesus Gallardo Albarran - antonio.jesus.gallardo@gmail.com
+ */
+public class UtilJsp{
+    
+    public static boolean validateSession(HttpSession session){
+    
+        boolean resValidation = true;
+        
+        if( session == null || 
+            session.getAttribute("user")==null ||
+            session.getAttribute("pass")==null ){
+            
+            if(session != null){
+                session.invalidate();
+            }
+            
+            resValidation = false;
+        }
+        
+        return resValidation;
+    }
 }

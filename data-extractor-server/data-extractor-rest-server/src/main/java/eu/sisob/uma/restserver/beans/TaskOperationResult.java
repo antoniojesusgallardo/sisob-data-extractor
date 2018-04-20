@@ -17,27 +17,16 @@
     You should have received a copy of the GNU General Public License
     along with SISOB Data Extractor. If not, see <http://www.gnu.org/licenses/>.
 */
-package eu.sisob.uma.restserver.services.communications;
+package eu.sisob.uma.restserver.beans;
 
-import javax.xml.bind.annotation.XmlRootElement;
-
-
-@XmlRootElement
-public class OutputAuthorizationResult
+public class TaskOperationResult 
 {
     /**
      *
      */
-    public static String ACCOUNT_TYPE_USER = "user";
+    public boolean success;    
     /**
      *
      */
-    public static String ACCOUNT_TYPE_APP = "app";
-    
-    /**
-     *
-     */
-    public String account_type = "";
+    public String message;
 }
-
-    

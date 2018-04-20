@@ -20,6 +20,7 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 
+<%@page import="eu.sisob.uma.restserver.client.UtilJsp"%>
 <%@page import="eu.sisob.uma.restserver.managers.RestUriManager"%>
 <%@page import="eu.sisob.uma.restserver.services.communications.OutputTaskStatus"%>
 <%@page import="eu.sisob.uma.restserver.services.gateCH.GateTaskCH"%>
@@ -27,12 +28,7 @@
 <%@page session="true"%>
 <%
     // Validate data
-    if( session == null || 
-        session.getAttribute("user")==null ||
-        session.getAttribute("pass")==null ){
-        if(session != null){
-            session.invalidate();
-        }
+    if (!UtilJsp.validateSession(session)){
         response.sendRedirect(request.getContextPath()+"/index.jsp?message=notAllowed");
         return;
     }
@@ -221,24 +217,16 @@ $(document).ready(function(){
         $.ajax({ 
             type: "POST",
             url: "${pageContext.request.contextPath}/resources/task/relaunch",
-            data: JSON.stringify(data),
-            dataType: "json",         
-            contentType: 'application/json',                            
-            success: function(result) {                        
-                if(result.success == "true"){
-                    showModal("success", "("+task_kind+")  "+result.message);
-                    setTimeout(function() {
-                        window.location = 'task/details.jsp?task_code=' + task_code;
-                    }, 2000);                                        
-                }
-                else{
-                    showModal("warning", "("+task_kind+")  "+result.message);
-                }
+            data: JSON.stringify(data), 
+            contentType: 'application/json',
+            success: function(result) { 
+                showModal("success", "("+task_kind+")  "+result);
+                setTimeout(function() {
+                    window.location = 'task/list.jsp';
+                }, 2000);
             },
-            error: function(xml,result){
-                var messageError =  '<fmt:message key="Jsp Was Error" bundle="${msg}"/> '+
-                                    '<fmt:message key="Jsp Contact To Admin" bundle="${msg}"/>';
-                showModal("error", messageError);
+            error: function(xml){
+                showModal("error", xml.responseText);
             }
         });  
     }); 
@@ -255,23 +243,15 @@ $(document).ready(function(){
             type: "POST",
             url: "${pageContext.request.contextPath}/resources/task/delete",
             data: JSON.stringify(data),
-            dataType: "json",         
             contentType: 'application/json',                            
             success: function(result){
-                if(result.success == "true"){
-                    showModal("success", "("+task_kind+")  "+result.message);
-                    setTimeout(function() {
-                        window.location = 'task/list.jsp';
-                    }, 2000);                                        
-                }
-                else{
-                    showModal("warning", "("+task_kind+")  "+result.message);
-                }
+                showModal("success", "("+task_kind+")  "+result);
+                setTimeout(function() {
+                    window.location = 'task/list.jsp';
+                }, 2000);
             },
-            error: function(xml,result){
-                var messageError =  '<fmt:message key="Jsp Was Error" bundle="${msg}"/> '+
-                                    '<fmt:message key="Jsp Contact To Admin" bundle="${msg}"/>';
-                showModal("error", messageError);
+            error: function(xml){
+                showModal("error", xml.responseText);
             }
         });
     });

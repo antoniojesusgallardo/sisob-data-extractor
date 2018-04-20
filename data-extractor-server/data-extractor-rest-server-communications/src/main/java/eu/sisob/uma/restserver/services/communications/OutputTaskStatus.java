@@ -41,16 +41,6 @@ public class OutputTaskStatus
     public static final String TASK_STATUS_EXECUTED = "EXECUTED";
     
     /**
-     * 
-     */
-    public static final String TASK_STATUS_NO_ACCESS = "NO ACCESS";    
-    
-    /**
-     * 
-     */
-    public static final String TASK_STATUS_NO_AUTH = "NO AUTH"; 
-    
-    /**
      *
      */
     public OutputTaskStatus()
@@ -245,7 +235,4 @@ public class OutputTaskStatus
     public void setFeedback(String feedback) {
         this.feedback = feedback;
     }
-    
 }
-
-    

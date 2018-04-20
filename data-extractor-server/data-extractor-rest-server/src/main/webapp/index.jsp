@@ -39,6 +39,9 @@
         modalMessage = TheResourceBundle.getString("Jsp Logout");
         typeMessage = "success";
     }
+    else if("error".equals(paramMessage)){
+        modalMessage = TheResourceBundle.getString("Jsp Was Error");
+    }
     
     request.setAttribute("modalMessage", modalMessage);
     request.setAttribute("typeMessage", typeMessage);
