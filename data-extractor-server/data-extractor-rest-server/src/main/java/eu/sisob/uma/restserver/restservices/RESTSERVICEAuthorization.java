@@ -22,12 +22,12 @@ package eu.sisob.uma.restserver.restservices;
 import eu.sisob.uma.restserver.beans.AuthorizationResult;
 import eu.sisob.uma.restserver.managers.AuthorizationManager;
 import eu.sisob.uma.restserver.restservices.exceptions.InternalServerErrorException;
-import eu.sisob.uma.restserver.restservices.exceptions.UnAuthorizedException;
 import eu.sisob.uma.restserver.services.communications.OutputAuthorizationResult;
 import javax.ws.rs.Path;
 import javax.ws.rs.GET;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
+import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 
 @Path("/authorization")
@@ -56,7 +56,7 @@ public class RESTSERVICEAuthorization {
                 
                 return rAutResult;
             }
-        } catch (UnAuthorizedException | InternalServerErrorException ex) {
+        } catch (WebApplicationException ex) {
             throw ex;
         } catch (Exception e) {
             throw new InternalServerErrorException(e.getMessage());

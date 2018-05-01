@@ -19,6 +19,8 @@
 */
 package eu.sisob.uma.restserver.restservices;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import eu.sisob.uma.restserver.managers.RestUriManager;
 import eu.sisob.uma.restserver.managers.TaskManager;
 import com.sun.jersey.core.header.FormDataContentDisposition;
@@ -28,25 +30,22 @@ import eu.sisob.uma.restserver.managers.TaskFileManager;
 import eu.sisob.uma.restserver.restservices.exceptions.InternalServerErrorException;
 import eu.sisob.uma.restserver.restservices.exceptions.UnAuthorizedException;
 import eu.sisob.uma.restserver.services.communications.OutputTaskStatus;
+import eu.sisob.uma.restserver.services.communications.OutputUploadFile;
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.Path;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
+import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import org.codehaus.jettison.json.JSONArray;
-import org.codehaus.jettison.json.JSONException;
-import org.codehaus.jettison.json.JSONObject;
+import javax.ws.rs.core.Response.Status;
+import org.apache.commons.io.FileUtils;
 
 @Path("/file")
 public class RESTSERVICEFile {
@@ -61,7 +60,6 @@ public class RESTSERVICEFile {
                             @QueryParam("file") String file, 
                             @QueryParam("type") String type)  
     {   
-        
         Response response;
         try {
             RESTSERVICEUtils.validateAccess(user, pass);
@@ -77,17 +75,14 @@ public class RESTSERVICEFile {
             
             File f = TaskFileManager.getFile(user, task_code, file, type);
             
-            byte[] docStream = org.apache.commons.io.FileUtils.readFileToByteArray(f);
+            byte[] docStream = FileUtils.readFileToByteArray(f);
             response = Response
                     .ok(docStream, MediaType.APPLICATION_OCTET_STREAM)
                     .header("Content-Type","text/html; charset=utf-8")
                     .build();
 
-        } catch (UnAuthorizedException | InternalServerErrorException ex) {
+        } catch (WebApplicationException ex) {
             throw ex;
-        } catch (FileNotFoundException ex) {
-            LOG.log(Level.SEVERE, "FIXME", ex);  
-            throw new WebApplicationException(Response.Status.NOT_FOUND);           
         } catch (Exception ex) {
             LOG.log(Level.SEVERE, "FIXME", ex);
             throw new InternalServerErrorException();
@@ -123,13 +118,12 @@ public class RESTSERVICEFile {
             response =  Response.ok(f)
                         .header("Content-Disposition", "attachment; filename=\"" + f.getName() + "\"")
                         .build();           
-        } catch (UnAuthorizedException | InternalServerErrorException ex) {
+        } catch (WebApplicationException ex) {
             throw ex;
         } catch (Exception ex) {
             LOG.log(Level.SEVERE, "FIXME", ex);
             throw new InternalServerErrorException();
-        }        
-
+        }
         // Alternative http://www.mkyong.com/webservices/jax-rs/download-pdf-file-from-jax-rs/
         // http://stackoverflow.com/questions/7106775/how-to-download-large-files-without-memory-issues-in-java
         
@@ -164,105 +158,80 @@ public class RESTSERVICEFile {
                 
                 return "File deleted successfully";
             }
-        } catch (UnAuthorizedException | InternalServerErrorException e) {
+        } catch (WebApplicationException e) {
             throw e;
         } catch (Exception e) {
             throw new InternalServerErrorException(e.getMessage());
         }
     }            
     
-    
     @POST
     @Path("/upload")
     @Consumes(MediaType.MULTIPART_FORM_DATA)
-    public Response uploadFile( @FormDataParam("user") String user,
-                                @FormDataParam("pass") String pass,
-                                @FormDataParam("task_code") String task_code,            
-                                @FormDataParam("files[]") InputStream uploadedInputStream,
-                                @FormDataParam("files[]") FormDataContentDisposition fileDetail ) 
+    @Produces(MediaType.TEXT_PLAIN)
+    public String uploadFile(@FormDataParam("user") String user,
+                            @FormDataParam("pass") String pass,
+                            @FormDataParam("task_code") String task_code,            
+                            @FormDataParam("files[]") InputStream uploadedInputStream,
+                            @FormDataParam("files[]") FormDataContentDisposition fileDetail ) 
     {
-        Response response = null;
-        
-        OutputStream out = null;
-        String pathFile = "";
-        
         try{ 
             
             if( user==null || pass==null || task_code==null || 
                 uploadedInputStream==null || fileDetail==null){
-                return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
-                                .entity(TheResourceBundle.getString("Upload Fail"))
-                                .build();
+                
+                Response response = Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                                            .entity(TheResourceBundle.getString("Upload Fail"))
+                                            .build();
+                throw new WebApplicationException(response);
             }
             
             RESTSERVICEUtils.validateAccess(user, pass);
 
             //Security
             if(fileDetail.getFileName().contains("\\") || fileDetail.getFileName().contains("/")){
-                return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
-                                .build();
+                throw new WebApplicationException(Status.INTERNAL_SERVER_ERROR);
             }
             
             OutputTaskStatus task = TaskManager.getTask(user, pass, task_code, false);
         
             if(!OutputTaskStatus.TASK_STATUS_TO_EXECUTE.equals(task.getStatus())){
-                return Response.status(Response.Status.PRECONDITION_FAILED)
-                                .entity(task.getMessage())
-                                .build();
+                Response response = Response.status(Response.Status.PRECONDITION_FAILED)
+                                            .entity(task.getMessage())
+                                            .build();
+                throw new WebApplicationException(response);
             }
 
             File file = TaskFileManager.getFile(user, task_code, fileDetail.getFileName(), "");
-            pathFile = file.getAbsolutePath();
             
-            int read;
-            long size = 0;
-            byte[] bytes = new byte[1024];
-            out = new FileOutputStream(file);            
-            while ((read = uploadedInputStream.read(bytes)) != -1) {
-                size += read;
-                out.write(bytes, 0, read);
-            }
+            FileUtils.copyInputStreamToFile(uploadedInputStream, file);
             
-            JSONObject jsono = new JSONObject();
-            jsono.put("name", fileDetail.getFileName());
-            jsono.put("size", size);
-            jsono.put("url", RestUriManager.getUriFileToDownload(user, pass, task_code, fileDetail.getFileName(), ""));
-            jsono.put("thumbnail_url", "");
-            jsono.put("delete_url", RestUriManager.getUriFileToDelete(user, pass, task_code, fileDetail.getFileName(), ""));
-            jsono.put("delete_type", "GET");
+            String url = RestUriManager.getUriFileToDownload(user, pass, task_code, fileDetail.getFileName(), "");
+            String deleteUrl = RestUriManager.getUriFileToDelete(user, pass, task_code, fileDetail.getFileName(), "");
             
-            JSONArray json = new JSONArray();
-            json.put(jsono);
-
-            response = Response.ok(json.toString()).build();
+            OutputUploadFile outputUploadFile = new OutputUploadFile();
+            outputUploadFile.setName(fileDetail.getFileName());
+            outputUploadFile.setSize(String.valueOf(file.length()));
+            outputUploadFile.setUrl(url);
+            outputUploadFile.setThumbnail_url("");
+            outputUploadFile.setDelete_url(deleteUrl);
+            outputUploadFile.setDelete_type("GET");
+            
+            OutputUploadFile[] arrayOutputUploadFile = {outputUploadFile};
+            
+            GsonBuilder gsonBuilder = new GsonBuilder();
+            Gson gson = gsonBuilder.create();
+            
+            String jsonTextPlain = gson.toJson(arrayOutputUploadFile);
+            
+            return jsonTextPlain;
         } 
-        catch (UnAuthorizedException | InternalServerErrorException ex) {
+        catch (WebApplicationException ex) {
             throw ex;
-        }                 
-        catch (IOException e){
-            LOG.log(Level.SEVERE, "Error uploading file ({0}): {1}", new Object[]{pathFile, e.getMessage()});
-            throw new InternalServerErrorException(TheResourceBundle.getString("Upload Fail"));
-        }     
-        catch (JSONException ex){
-            LOG.log(Level.SEVERE, "Error generatin json ({0}): {1}", new Object[]{pathFile, ex.getMessage()});
-            throw new InternalServerErrorException(TheResourceBundle.getString("Upload Fail"));
-        } 
+        }
         catch (Exception ex){
-            LOG.log(Level.SEVERE, "Error generatin json ({0}): {1}",  ex);
+            LOG.log(Level.SEVERE, "Error uploading file", ex);
             throw new InternalServerErrorException(TheResourceBundle.getString("Upload Fail"));
         }
-        finally{
-            try{
-                if (out != null) {
-                    out.flush();
-                    out.close();
-                }
-            }
-            catch (IOException e){
-                LOG.log(Level.SEVERE, "Error closing file ({0}): {1}", new Object[]{pathFile, e.getMessage()});
-                throw new InternalServerErrorException(TheResourceBundle.getString("Upload Fail"));
-            }
-        }          
-        return response;
     }
 }

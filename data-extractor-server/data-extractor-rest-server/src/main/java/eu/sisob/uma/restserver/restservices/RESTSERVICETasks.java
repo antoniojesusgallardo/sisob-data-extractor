@@ -21,13 +21,13 @@ package eu.sisob.uma.restserver.restservices;
 
 import eu.sisob.uma.restserver.managers.TaskManager;
 import eu.sisob.uma.restserver.restservices.exceptions.InternalServerErrorException;
-import eu.sisob.uma.restserver.restservices.exceptions.UnAuthorizedException;
 import eu.sisob.uma.restserver.services.communications.OutputTaskStatus;
 import java.util.List;
 import javax.ws.rs.Path;
 import javax.ws.rs.GET;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
+import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 
 @Path("/tasks")
@@ -58,7 +58,7 @@ public class RESTSERVICETasks {
                 
                 return rListTask;
             }
-        } catch (UnAuthorizedException | InternalServerErrorException e) {
+        } catch (WebApplicationException e) {
             throw e;
         } catch (Exception e) {
             throw new InternalServerErrorException(e.getMessage());

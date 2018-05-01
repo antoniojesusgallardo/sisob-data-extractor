@@ -298,7 +298,7 @@ $(document).ready(function()
             task_code: "${task.task_code}",
             task_kind: taskKind,
             parameters: []
-        }
+        };
         
         $('#params-block :checked').each(function(){   
             var id = $(this).attr("id");
@@ -312,7 +312,7 @@ $(document).ready(function()
             data.parameters.push({ key: id, value: value});    
         });
 
-        if(taskKind != "none"){
+        if(taskKind !== "none"){
             $.ajax({ 
                 type: "POST",
                 url: "resources/task/launch",
@@ -324,9 +324,9 @@ $(document).ready(function()
                         window.location.reload();
                     }, 2000);
                 },
-                error: function(xml){
+                error: function(response){
                     $("button#task-launcher").removeAttr("disabled");
-                    showModal("error", xml.responseText);
+                    showModal("error", response.responseText);
                 }
             });                                                           
         }

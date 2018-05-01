@@ -164,28 +164,21 @@
                 data: JSON.stringify(data),
                 dataType: "json",         
                 contentType: 'application/json',                                                      
-                success: function(result){                        
-                    if(result.status === "${TASK_STATUS_TO_EXECUTE}"){
-                        showModal("success", result.message);
-                        setTimeout(function() {
-                            window.location = 'task/details.jsp?task_code='+result.task_code;
-                        }, 2000);
-                    }
-                    else{
-                        showModal("warning", result.message);
-                    }                        
+                success: function(result){
+                    showModal("success", result.message);
+                    setTimeout(function() {
+                        window.location = 'task/details.jsp?task_code='+result.task_code;
+                    }, 2000);
                 },
-                error: function(xml,result){
-                    var messageError =  '<fmt:message key="Jsp Was Error" bundle="${msg}"/> '+
-                                    '<fmt:message key="Jsp Contact To Admin" bundle="${msg}"/>';
-                    showModal("error", messageError);
+                error: function(response){
+                    showModal("error", response.responseText);
                 }
             });
         });
         
         function showModal(pType, pMessage){
             var htmlMessage = "<h4 class='text-"+pType+"'>" + pMessage + "</h4>";
-            $("div#task-result").html(htmlMessage);
+            $("div#operation-result").html(htmlMessage);
             $('#test_modal').modal('show');
         }
     });

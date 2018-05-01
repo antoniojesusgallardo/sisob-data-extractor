@@ -134,7 +134,7 @@
 
     <c:if test="${GateTaskCH != task.kind}">
         <c:if test="${task.errors != null && task.errors!=''}">
-            <h4 class="text-error">Errors obtained in the task (please, report to the administrator):</h5>
+            <h4 class="text-error">Errors obtained in the task (please, report to the administrator):</h4>
             <blockquote>
                 ${task.errors}
             </blockquote>
@@ -150,7 +150,7 @@
     </blockquote>
     
     <c:if test="${task.verbose != null && not empty task.verbose }">
-        <h4>The verbose files generated in the task:</h5>
+        <h4>The verbose files generated in the task:</h4>
         <blockquote>
             <c:forEach items="${task.verbose}" var="iVerbose">
                 <a href='${urlDownload}${iVerbose}&type=verbose'
@@ -170,7 +170,7 @@
     </blockquote>   
     
     <c:if test="${task.source != null && not empty task.source }">
-        <h4>The sources used in the task:</h5>
+        <h4>The sources used in the task:</h4>
         <blockquote>
             <c:forEach items="${task.source}" var="iSource">
                 <a href='${urlDownload}${iSource}' target='_blank' >
@@ -192,7 +192,6 @@
     </div>
     <div class="modal-footer">
         <a href="#" class="btn" data-dismiss="modal">Close</a>
-        <!--<a href="#" class="btn btn-primary">Save Changes</a>-->
     </div>
 </div> 
     
@@ -212,7 +211,7 @@ $(document).ready(function(){
             task_code: task_code,
             task_kind: task_kind,
             parameters: []
-        }
+        };
         
         $.ajax({ 
             type: "POST",
@@ -237,7 +236,7 @@ $(document).ready(function(){
             user: user, 
             pass: pass, 
             task_code: task_code
-        }
+        };
 
         $.ajax({ 
             type: "POST",
@@ -250,8 +249,8 @@ $(document).ready(function(){
                     window.location = 'task/list.jsp';
                 }, 2000);
             },
-            error: function(xml){
-                showModal("error", xml.responseText);
+            error: function(response){
+                showModal("error", response.responseText);
             }
         });
     });

@@ -24,7 +24,6 @@ import eu.sisob.uma.restserver.beans.TaskOperationResult;
 import eu.sisob.uma.restserver.managers.AuthorizationManager;
 import eu.sisob.uma.restserver.managers.TaskManager;
 import eu.sisob.uma.restserver.restservices.exceptions.InternalServerErrorException;
-import eu.sisob.uma.restserver.restservices.exceptions.UnAuthorizedException;
 import eu.sisob.uma.restserver.services.communications.InputAddTask;
 import eu.sisob.uma.restserver.services.communications.InputLaunchTask;
 import eu.sisob.uma.restserver.services.communications.OutputTaskStatus;
@@ -33,6 +32,7 @@ import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
+import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 
 @Path("/task")
@@ -62,7 +62,7 @@ public class RESTSERVICETask {
                 OutputTaskStatus taskStatus = TaskManager.getTask(user, pass, task_code, true); 
                 return taskStatus;
             }
-        } catch (UnAuthorizedException | InternalServerErrorException ex) {
+        } catch (WebApplicationException ex) {
             throw ex;
         } catch (Exception e) {
             throw new InternalServerErrorException(e.getMessage());
@@ -88,7 +88,7 @@ public class RESTSERVICETask {
 
                 return taskStatus;
             }
-        } catch (UnAuthorizedException | InternalServerErrorException ex) {
+        } catch (WebApplicationException ex) {
             throw ex;
         } catch (Exception e) {
             throw new InternalServerErrorException(e.getMessage());
@@ -113,7 +113,7 @@ public class RESTSERVICETask {
                 
                 return result.message;
             }
-        } catch (UnAuthorizedException | InternalServerErrorException ex) {
+        } catch (WebApplicationException ex) {
             throw ex;
         } catch (Exception e) {
             throw new InternalServerErrorException(e.getMessage());
@@ -143,7 +143,7 @@ public class RESTSERVICETask {
                 
                 return result.message;
             }
-        } catch (UnAuthorizedException | InternalServerErrorException ex) {
+        } catch (WebApplicationException ex) {
             throw ex;
         } catch (Exception e) {
             throw new InternalServerErrorException(e.getMessage());
@@ -173,7 +173,7 @@ public class RESTSERVICETask {
                 
                 return result.message;
             }
-        } catch (UnAuthorizedException | InternalServerErrorException ex) {
+        } catch (WebApplicationException ex) {
             throw ex;
         } catch (Exception e) {
             throw new InternalServerErrorException(e.getMessage());
