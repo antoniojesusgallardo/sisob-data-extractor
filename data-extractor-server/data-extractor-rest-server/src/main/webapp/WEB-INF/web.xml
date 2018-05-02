@@ -3,7 +3,22 @@
     
     <listener>
         <listener-class>eu.sisob.uma.restserver.servlets.ServletContextClass</listener-class>
-    </listener>  
+    </listener> 
+    
+    <!-- Jersey Configuration -->
+    <servlet>
+        <servlet-name>jersey-serlvet</servlet-name>
+        <servlet-class>org.glassfish.jersey.servlet.ServletContainer</servlet-class>
+        <init-param>
+            <param-name>javax.ws.rs.Application</param-name>
+            <param-value>eu.sisob.uma.restserver.restservices.RESTSERVICEApp</param-value>
+        </init-param>
+        <load-on-startup>1</load-on-startup>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>jersey-serlvet</servlet-name>
+        <url-pattern>/resources/*</url-pattern>
+    </servlet-mapping>
              
     <session-config>
         <session-timeout>30</session-timeout>

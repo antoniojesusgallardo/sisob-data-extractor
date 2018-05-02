@@ -23,8 +23,6 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import eu.sisob.uma.restserver.managers.RestUriManager;
 import eu.sisob.uma.restserver.managers.TaskManager;
-import com.sun.jersey.core.header.FormDataContentDisposition;
-import com.sun.jersey.multipart.FormDataParam;
 import eu.sisob.uma.restserver.TheResourceBundle;
 import eu.sisob.uma.restserver.managers.TaskFileManager;
 import eu.sisob.uma.restserver.restservices.exceptions.InternalServerErrorException;
@@ -32,6 +30,7 @@ import eu.sisob.uma.restserver.restservices.exceptions.UnAuthorizedException;
 import eu.sisob.uma.restserver.services.communications.OutputTaskStatus;
 import eu.sisob.uma.restserver.services.communications.OutputUploadFile;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.InputStream;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -46,6 +45,8 @@ import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
 import org.apache.commons.io.FileUtils;
+import org.glassfish.jersey.media.multipart.FormDataContentDisposition;
+import org.glassfish.jersey.media.multipart.FormDataParam;
 
 @Path("/file")
 public class RESTSERVICEFile {
@@ -75,12 +76,10 @@ public class RESTSERVICEFile {
             
             File f = TaskFileManager.getFile(user, task_code, file, type);
             
-            byte[] docStream = FileUtils.readFileToByteArray(f);
-            response = Response
-                    .ok(docStream, MediaType.APPLICATION_OCTET_STREAM)
-                    .header("Content-Type","text/html; charset=utf-8")
-                    .build();
-
+            response =  Response.ok(new FileInputStream(f))
+                                .header("Content-Type","text/html; charset=utf-8")
+                                .build();
+            
         } catch (WebApplicationException ex) {
             throw ex;
         } catch (Exception ex) {

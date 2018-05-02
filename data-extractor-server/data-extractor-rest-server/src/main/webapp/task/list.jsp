@@ -1,5 +1,5 @@
 <%-- 
-    Copyright (c) 2014 "(IA)2 Research Group. Universidad de Málaga"
+    Copyright (c) 2014 "(IA)2 Research Group. Universidad de Mï¿½laga"
                         http://iaia.lcc.uma.es | http://www.uma.es
 
     This file is part of SISOB Data Extractor.
@@ -18,13 +18,13 @@
     along with SISOB Data Extractor. If not, see <http://www.gnu.org/licenses/>.
 --%>
 <!DOCTYPE HTML>
-<%@page import="com.sun.jersey.api.client.GenericType"%>
 <%@page import="eu.sisob.uma.restserver.client.RESTClient"%>
 <%@page import="eu.sisob.uma.restserver.client.UtilJsp"%>
 <%@page import="eu.sisob.uma.restserver.services.communications.OutputTaskStatus"%>
 <%@page import="java.util.HashMap"%>
 <%@page import="java.util.List"%>
 <%@page import="java.util.Map"%>
+<%@page import="javax.ws.rs.core.GenericType"%>
 
 <%@page session="true"%>
 <%

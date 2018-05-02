@@ -20,17 +20,18 @@
 
 package eu.sisob.uma.restserver.client;
 
-import com.sun.jersey.api.client.Client;
-import com.sun.jersey.api.client.ClientResponse;
-import com.sun.jersey.api.client.GenericType;
-import com.sun.jersey.api.client.WebResource;
-import com.sun.jersey.core.util.MultivaluedMapImpl;
 import eu.sisob.uma.restserver.TheConfig;
 import java.util.Map;
 import java.util.logging.Logger;
+import javax.ws.rs.client.Client;
+import javax.ws.rs.client.ClientBuilder;
+import javax.ws.rs.client.Invocation;
+import javax.ws.rs.client.WebTarget;
+import javax.ws.rs.core.GenericType;
 import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.MultivaluedMap;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status;
+import org.glassfish.jersey.client.ClientConfig;
 
 /**
  * REST Client used in JSP pages, this client use Jersey resources.
@@ -48,9 +49,9 @@ public class RESTClient {
     
     private String path;
     
-    private MultivaluedMap params;
-    
     private Object outputType;
+    
+    private Map<String, String> params;
     
     static {
         String serverUrl = TheConfig.getInstance().getString(TheConfig.SERVER_URL);
@@ -88,44 +89,49 @@ public class RESTClient {
         
         this.path = path;
         
-        this.params = new MultivaluedMapImpl();
-        if (params != null) {
-            for (Map.Entry<String, String> entry : params.entrySet()) {
-                this.params.add(entry.getKey(), entry.getValue());
-            }
-        }
+        this.params = params;
     }
     
     /**
      * Method that executes the request and return the results.
      * @return 
-     * @throws eu.sisob.uma.restserver.ApiErrorException 
+     * @throws eu.sisob.uma.restserver.client.ApiErrorException
      */
     public Object get() throws ApiErrorException{
         
         String fullPath = rootPath + path;
         
-        Client client = Client.create();
-        WebResource webResource = client.resource(fullPath); 
+        ClientConfig clientConfig = new ClientConfig();
+        Client client =  ClientBuilder.newClient(clientConfig);
+        WebTarget  webTarget = client.target(fullPath);
         
-        ClientResponse response = webResource.queryParams(this.params)
-                                    .accept(MediaType.APPLICATION_JSON)
-                                    .get(ClientResponse.class);
+        if (this.params != null) {
+            for (Map.Entry<String, String> entry : this.params.entrySet()) {
+                webTarget = webTarget.queryParam(entry.getKey(), entry.getValue());
+            }
+        }
         
-        if (response.getStatus() != Response.Status.OK.getStatusCode()) {
-            String errorMessage = response.getEntity(String.class);
+        // invoke service
+        Invocation.Builder invocationBuilder;
+        invocationBuilder = webTarget
+                                .request(MediaType.APPLICATION_FORM_URLENCODED)
+                                .accept(MediaType.APPLICATION_JSON);
+        Response response = invocationBuilder.get();
+        
+        if (response.getStatus() != Status.OK.getStatusCode()) {
+            String errorMessage = response.readEntity(String.class);
             log.warning(errorMessage);
             throw new ApiErrorException(response.getStatus(), errorMessage);
         }
-        
-        Object rObject = null;
+
+        Object responseObject = null;
         if (outputType instanceof GenericType) {
-            rObject = response.getEntity((GenericType)outputType);
+            responseObject = response.readEntity((GenericType)outputType);
         }
         else if (outputType instanceof Class){
-            rObject = response.getEntity((Class)outputType);
+            responseObject = response.readEntity((Class)outputType);
         }
         
-        return rObject;
+        return responseObject;
     }
 }

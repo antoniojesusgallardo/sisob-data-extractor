@@ -20,28 +20,20 @@
 
 package eu.sisob.uma.restserver.restservices;
 
-import java.util.HashSet;
-import java.util.Set;
-import javax.ws.rs.ApplicationPath;
-import javax.ws.rs.core.Application;
+import org.glassfish.jersey.media.multipart.MultiPartFeature;
+import org.glassfish.jersey.server.ResourceConfig;
 
 /**
  *
  * @author Antonio Jesus Gallardo Albarran - antonio.jesus.gallardo@gmail.com
  */
-@ApplicationPath("/resources")
-public class RESTSERVICEApp extends Application{
-
-    @Override
-    public Set<Class<?>> getClasses() {
+public class RESTSERVICEApp extends ResourceConfig
+{
+    public RESTSERVICEApp()
+    {
+        packages("eu.sisob.uma.restserver.restservices");
         
-        Set<Class<?>> classes = new HashSet<>();
-        
-        classes.add(RESTSERVICEAuthorization.class);
-        classes.add(RESTSERVICEFile.class);
-        classes.add(RESTSERVICETask.class);
-        classes.add(RESTSERVICETasks.class);
-        
-        return classes;
-    }  
+        // Required to upload files
+        register(MultiPartFeature.class);
+    }
 }
