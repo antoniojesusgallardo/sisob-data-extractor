@@ -21,14 +21,18 @@ package eu.sisob.uma.restserver.restservices;
 
 import eu.sisob.uma.restserver.beans.AuthorizationResult;
 import eu.sisob.uma.restserver.managers.AuthorizationManager;
+import eu.sisob.uma.restserver.restservices.security.AuthenticationUtils;
 import eu.sisob.uma.restserver.restservices.exceptions.InternalServerErrorException;
+import eu.sisob.uma.restserver.restservices.exceptions.UnAuthorizedException;
 import eu.sisob.uma.restserver.services.communications.OutputAuthorizationResult;
+import javax.annotation.security.PermitAll;
 import javax.ws.rs.Path;
 import javax.ws.rs.GET;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 
 @Path("/authorization")
 public class RESTSERVICEAuthorization {
@@ -42,19 +46,25 @@ public class RESTSERVICEAuthorization {
      * @param pass      
      * @return If the authorization is correct
      */
+    @PermitAll
     @GET
     @Produces(MediaType.APPLICATION_JSON)
-    public OutputAuthorizationResult authorization(@QueryParam("user") String user, 
-                                                    @QueryParam("pass") String pass) {        
+    public Response authorization(@QueryParam("user") String user, 
+                                  @QueryParam("pass") String pass) {        
         try {
             synchronized(AuthorizationManager.getLocker(user)){
 
-                AuthorizationResult autResult = RESTSERVICEUtils.validateAccess(user, pass);
+                AuthorizationResult autResult = AuthorizationManager.validateAccess(user, pass);
+                if(!autResult.getSuccess()){
+                    throw new UnAuthorizedException(autResult.getMessage());
+                }
                 
                 OutputAuthorizationResult rAutResult = new OutputAuthorizationResult();
                 rAutResult.account_type  = autResult.getAccountType();
                 
-                return rAutResult;
+                Response response = AuthenticationUtils.createResponseWithToken(user, pass, rAutResult);
+                
+                return response;
             }
         } catch (WebApplicationException ex) {
             throw ex;

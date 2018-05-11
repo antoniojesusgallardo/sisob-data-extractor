@@ -59,7 +59,7 @@ public class EmailTask
     public final static String PARAM_VERBOSE_TRUE = "true";
     public final static String PARAM_VERBOSE_FALSE = "false";
     
-    public static boolean launch(String user, String pass, String task_code, String code_task_folder, String email, List<String> filters, StringWriter message)
+    public static boolean launch(String user, String task_code, String code_task_folder, String email, List<String> filters, StringWriter message)
     {   
         if(message == null)
         {

@@ -25,9 +25,11 @@
 <!DOCTYPE HTML>
 <%@page import="eu.sisob.uma.restserver.client.ApiErrorException"%>
 <%@page import="eu.sisob.uma.restserver.client.RESTClient"%>
+<%@page import="eu.sisob.uma.restserver.restservices.security.AuthenticationUtils"%>
 <%@page import="eu.sisob.uma.restserver.services.communications.OutputAuthorizationResult"%>
 <%@page import="eu.sisob.uma.restserver.TheConfig"%>
 <%@page import="java.security.MessageDigest"%>
+<%@page import="java.util.List"%>
 <%@page import="java.util.Map"%>
 <%@page import="java.util.HashMap"%>
 <%@page import="javax.ws.rs.core.Response;"%>
@@ -54,16 +56,28 @@
     Map params = new HashMap();
     params.put("user", user);
     params.put("pass", pass);
-    RESTClient restClient = new RESTClient("/authorization", params, OutputAuthorizationResult.class);
+    RESTClient restClient = new RESTClient(null);
     
     String urlRedirect = "";
     
     try{
-        OutputAuthorizationResult authResult = (OutputAuthorizationResult)restClient.get();
+        Response authResponse = restClient.getResponse("/authorization", OutputAuthorizationResult.class, params);
+        
+        OutputAuthorizationResult authResult = authResponse.readEntity(OutputAuthorizationResult.class);
         
         if(OutputAuthorizationResult.ACCOUNT_TYPE_USER.equals(authResult.account_type)){
-            session.setAttribute("user",user);
-            session.setAttribute("pass",pass);
+            
+            List authorization = authResponse
+                                    .getHeaders()
+                                    .get(AuthenticationUtils.AUTHORIZATION_PROPERTY);
+            
+            if(authorization==null || authorization.isEmpty()){
+                throw new Exception();
+            }
+            String token = (String)authorization.get(0);
+            
+            session.setAttribute("user", user);
+            session.setAttribute("token", token);
 
             urlRedirect += "/task/list.jsp";
         }
@@ -81,6 +95,9 @@
         else{
             urlRedirect += "/index.jsp?message=error";
         }
+    }
+    catch(Exception ex){
+        urlRedirect += "/index.jsp?message=error";
     }
     
     response.sendRedirect(request.getContextPath() + urlRedirect);

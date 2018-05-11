@@ -27,14 +27,6 @@ public class InputLaunchTask
     /**
      *
      */
-    public String user;   
-    /**
-     *
-     */
-    public String pass;    
-    /**
-     *
-     */
     public String task_code;   
     /**
      *

@@ -75,4 +75,9 @@ $(function () {
         });
     }
 
+    $('#fileupload').fileupload({
+        beforeSend: function(xhr, data) {
+            xhr.setRequestHeader(security.AUTHORIZATION_PROPERTY, token);
+        }
+    });
 });

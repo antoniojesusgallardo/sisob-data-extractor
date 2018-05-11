@@ -34,7 +34,7 @@ public class UtilJsp{
         
         if( session == null || 
             session.getAttribute("user")==null ||
-            session.getAttribute("pass")==null ){
+            session.getAttribute("token")==null ){
             
             if(session != null){
                 session.invalidate();

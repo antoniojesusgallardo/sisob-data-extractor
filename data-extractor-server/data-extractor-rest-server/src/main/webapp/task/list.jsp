@@ -1,5 +1,5 @@
 <%-- 
-    Copyright (c) 2014 "(IA)2 Research Group. Universidad de Mï¿½laga"
+    Copyright (c) 2014 "(IA)2 Research Group. Universidad de Málaga"
                         http://iaia.lcc.uma.es | http://www.uma.es
 
     This file is part of SISOB Data Extractor.
@@ -33,15 +33,11 @@
         return;
     }
     
-    String user = (String)session.getAttribute("user");
-    String pass = (String)session.getAttribute("pass");
+    String token = (String)session.getAttribute("token");
     
     // API REST - get tasks
-    Map params = new HashMap();
-    params.put("user", user);
-    params.put("pass", pass);
-    RESTClient restClient = new RESTClient("/tasks", params, new GenericType<List<OutputTaskStatus>>(){});
-    List<OutputTaskStatus> listTasks = (List<OutputTaskStatus>)restClient.get();
+    RESTClient restClient = new RESTClient(token);
+    List<OutputTaskStatus> listTasks = (List<OutputTaskStatus>)restClient.get("/tasks", new GenericType<List<OutputTaskStatus>>(){}, null);
     
     // Save the result in the request
     request.setAttribute("listTasks", listTasks);
@@ -153,16 +149,14 @@
     $(document).ready(function()
     {   
         $("button#task-creator").click(function(){
-            var data = {
-                user: "${sessionScope.user}", 
-                pass: "${sessionScope.pass}"
-            };
-
+            
+            var securityHeader = {};
+            securityHeader[security.AUTHORIZATION_PROPERTY] = '${sessionScope.token}';
+            
             $.ajax({ 
                 type: "POST",
                 url: "${pageContext.request.contextPath}/resources/task/add",
-                data: JSON.stringify(data),
-                dataType: "json",         
+                headers: securityHeader,   
                 contentType: 'application/json',                                                      
                 success: function(result){
                     showModal("success", result.message);

@@ -21,12 +21,12 @@ package eu.sisob.uma.restserver.restservices;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import eu.sisob.uma.restserver.managers.RestUriManager;
 import eu.sisob.uma.restserver.managers.TaskManager;
 import eu.sisob.uma.restserver.TheResourceBundle;
 import eu.sisob.uma.restserver.managers.TaskFileManager;
 import eu.sisob.uma.restserver.restservices.exceptions.InternalServerErrorException;
 import eu.sisob.uma.restserver.restservices.exceptions.UnAuthorizedException;
+import eu.sisob.uma.restserver.restservices.security.AuthenticationUtils;
 import eu.sisob.uma.restserver.services.communications.OutputTaskStatus;
 import eu.sisob.uma.restserver.services.communications.OutputUploadFile;
 import java.io.File;
@@ -34,6 +34,7 @@ import java.io.FileInputStream;
 import java.io.InputStream;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.annotation.security.RolesAllowed;
 import javax.ws.rs.Consumes;
 import javax.ws.rs.Path;
 import javax.ws.rs.GET;
@@ -41,6 +42,8 @@ import javax.ws.rs.POST;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
@@ -53,28 +56,32 @@ public class RESTSERVICEFile {
     
     private static final Logger LOG = Logger.getLogger(RESTSERVICEFile.class.getName());
     
+    @Context 
+    HttpHeaders headers;
+    
     @GET
+    @RolesAllowed("user")
     @Path("/show")
-    public Response showFile(@QueryParam("user") String user, 
-                            @QueryParam("pass") String pass, 
-                            @QueryParam("task_code") String task_code, 
+    public Response showFile(@QueryParam("task_code") String task_code, 
                             @QueryParam("file") String file, 
                             @QueryParam("type") String type)  
     {   
         Response response;
+        
+        String user = AuthenticationUtils.getCurrentUser(headers);
+        
         try {
-            RESTSERVICEUtils.validateAccess(user, pass);
             
             //Security
             if(file.contains("\\") || file.contains("/")){
                 throw new Exception();
             }
 
-            if (type == null) {
-                type = "";
-            }
-            
             File f = TaskFileManager.getFile(user, task_code, file, type);
+            
+            if (!f.exists()) {
+                throw new InternalServerErrorException("File not found");
+            }
             
             response =  Response.ok(new FileInputStream(f))
                                 .header("Content-Type","text/html; charset=utf-8")
@@ -91,28 +98,27 @@ public class RESTSERVICEFile {
     }
         
     @GET
+    @RolesAllowed("user")
     @Path("/download")
-    public Response getFile(@QueryParam("user") String user, 
-                            @QueryParam("pass") String pass, 
-                            @QueryParam("task_code") String task_code, 
+    public Response getFile(@QueryParam("task_code") String task_code, 
                             @QueryParam("file") String file, 
                             @QueryParam("type") String type)  
     {        
         Response response;
         
+        String user = AuthenticationUtils.getCurrentUser(headers);
+        
         try {
-            RESTSERVICEUtils.validateAccess(user, pass);
-            
             //Security
             if(file.contains("\\") || file.contains("/")){
                 throw new Exception();
             }
             
-            if (type == null) {
-                type = "";
-            }
-            
             File f = TaskFileManager.getFile(user, task_code, file, type);
+            
+            if (!f.exists()) {
+                throw new InternalServerErrorException("File not found");
+            }
         
             response =  Response.ok(f)
                         .header("Content-Disposition", "attachment; filename=\"" + f.getName() + "\"")
@@ -130,16 +136,17 @@ public class RESTSERVICEFile {
     }
     
     @GET
+    @RolesAllowed("user")
     @Path("/delete")    
-    public String deleteFile(@QueryParam("user") String user, 
-                                @QueryParam("pass") String pass, 
-                                @QueryParam("task_code") String task_code, 
-                                @QueryParam("file") String file)  
+    public String deleteFile(@QueryParam("token") String token,
+                            @QueryParam("task_code") String task_code, 
+                            @QueryParam("file") String file)  
     {
+        String user = AuthenticationUtils.getCurrentUser(headers);
+        
         try {
+            
             synchronized(user){
-
-                RESTSERVICEUtils.validateAccess(user, pass);
 
                 //Security
                 if(file.contains("\\") || file.contains("/")){
@@ -165,19 +172,19 @@ public class RESTSERVICEFile {
     }            
     
     @POST
+    @RolesAllowed("user")
     @Path("/upload")
     @Consumes(MediaType.MULTIPART_FORM_DATA)
     @Produces(MediaType.TEXT_PLAIN)
-    public String uploadFile(@FormDataParam("user") String user,
-                            @FormDataParam("pass") String pass,
-                            @FormDataParam("task_code") String task_code,            
+    public String uploadFile(@FormDataParam("task_code") String task_code,            
                             @FormDataParam("files[]") InputStream uploadedInputStream,
                             @FormDataParam("files[]") FormDataContentDisposition fileDetail ) 
     {
+        String user = AuthenticationUtils.getCurrentUser(headers);
+        
         try{ 
             
-            if( user==null || pass==null || task_code==null || 
-                uploadedInputStream==null || fileDetail==null){
+            if(task_code==null || uploadedInputStream==null || fileDetail==null){
                 
                 Response response = Response.status(Response.Status.INTERNAL_SERVER_ERROR)
                                             .entity(TheResourceBundle.getString("Upload Fail"))
@@ -185,14 +192,13 @@ public class RESTSERVICEFile {
                 throw new WebApplicationException(response);
             }
             
-            RESTSERVICEUtils.validateAccess(user, pass);
-
             //Security
-            if(fileDetail.getFileName().contains("\\") || fileDetail.getFileName().contains("/")){
+            String fileName = fileDetail.getFileName();
+            if(fileName.contains("\\") || fileName.contains("/")){
                 throw new WebApplicationException(Status.INTERNAL_SERVER_ERROR);
             }
             
-            OutputTaskStatus task = TaskManager.getTask(user, pass, task_code, false);
+            OutputTaskStatus task = TaskManager.getTask(user, task_code, false);
         
             if(!OutputTaskStatus.TASK_STATUS_TO_EXECUTE.equals(task.getStatus())){
                 Response response = Response.status(Response.Status.PRECONDITION_FAILED)
@@ -201,20 +207,13 @@ public class RESTSERVICEFile {
                 throw new WebApplicationException(response);
             }
 
-            File file = TaskFileManager.getFile(user, task_code, fileDetail.getFileName(), "");
+            File file = TaskFileManager.getFile(user, task_code, fileName, "");
             
             FileUtils.copyInputStreamToFile(uploadedInputStream, file);
             
-            String url = RestUriManager.getUriFileToDownload(user, pass, task_code, fileDetail.getFileName(), "");
-            String deleteUrl = RestUriManager.getUriFileToDelete(user, pass, task_code, fileDetail.getFileName(), "");
-            
             OutputUploadFile outputUploadFile = new OutputUploadFile();
-            outputUploadFile.setName(fileDetail.getFileName());
+            outputUploadFile.setName(fileName);
             outputUploadFile.setSize(String.valueOf(file.length()));
-            outputUploadFile.setUrl(url);
-            outputUploadFile.setThumbnail_url("");
-            outputUploadFile.setDelete_url(deleteUrl);
-            outputUploadFile.setDelete_type("GET");
             
             OutputUploadFile[] arrayOutputUploadFile = {outputUploadFile};
             

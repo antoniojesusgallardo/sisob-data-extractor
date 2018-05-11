@@ -24,8 +24,10 @@
 
 <!DOCTYPE HTML>
 <%@page import="eu.sisob.uma.restserver.client.ApiErrorException"%>
-<%@page import="eu.sisob.uma.restserver.client.RESTClient"%>
+<%@page import="eu.sisob.uma.restserver.client.RESTUri"%>
 <%@page import="eu.sisob.uma.restserver.client.UtilJsp"%>
+<%@page import="eu.sisob.uma.restserver.managers.AuthorizationManager"%>
+<%@page import="eu.sisob.uma.restserver.managers.TaskFileManager"%>
 <%@page import="java.io.File"%>
 <%@page import="java.io.FileInputStream"%>
 <%@page import="java.nio.file.Files"%>
@@ -40,9 +42,6 @@
         return;
     }
     
-    String user = (String)session.getAttribute("user");
-    String token = (String)session.getAttribute("token");
-
     //Validate task and file
     String taskCode = request.getParameter("task-code");
     String fileName = request.getParameter("file-name");
@@ -61,29 +60,10 @@
         fileType = "";
     }
     
-    try{
-        Map params = new HashMap();
-        params.put("task_code", taskCode);
-        params.put("file", fileName);
-        params.put("type", fileType);
-        RESTClient restClient = new RESTClient(token);
-        File file = (File)restClient.get("/file/download", File.class, params);
-        
-        response.setContentType("text/csv");
-        response.setHeader("Content-disposition", "attachment; filename=\""+fileName+"\"");
-        response.setHeader("Cache-Control", "no-cache");
-        response.setHeader("Expires", "-1");
-        
-        byte[] bytes = Files.readAllBytes(file.toPath());
-        
-        response.getOutputStream().write(bytes);
-        response.getOutputStream().flush();
-        response.getOutputStream().close();
-    }
-    catch(ApiErrorException ex){
-        // File not found
-        request.setAttribute("fileFound", false);
-    }  
+    String urlJson = RESTUri.getFileToShow(taskCode, fileName, fileType);
+    request.setAttribute("urlJson", urlJson);
+    request.setAttribute("taskCode", taskCode);
+    request.setAttribute("fileName", fileName);
 %>
 
 
@@ -106,20 +86,41 @@
         <jsp:include page="layout/footer.jsp" /> 
     </jsp:attribute> 
     <jsp:body> 
-         
-        <c:if test="${fileFound != null && fileFound==false }"> 
-            <div class="well" style="text-align: center"> 
-                <h4> 
-                    <fmt:message key="dowload_file_not_found" bundle="${msg}"/> 
-                </h4> 
-                <br/> 
-                <h4> 
-                    <a href="index.jsp"> 
-                        <fmt:message key="Jsp Error Go Index" bundle="${msg}"/> 
-                    </a> 
-                </h4> 
-            </div> 
-        </c:if>
-         
+        
+        <div class="well">
+            <h4 style="text-align: center">
+                File: ${fileName}
+                | 
+                <a href='download-file.jsp?task-code=${taskCode}&file-name=${fileName}'
+                   target='_blank'>
+                    Download
+                </a>  
+            </h4>
+            <div id="contentFile"></div>
+        </div>
+        
+        <script>
+            var urlJson = '${urlJson}';
+            
+            var securityHeader = {};
+            securityHeader[security.AUTHORIZATION_PROPERTY] = '${sessionScope.token}';
+            
+            $.ajax({ 
+                type: "GET",
+                url: urlJson,
+                headers: securityHeader,                           
+                success: function(result){
+                    document.getElementById("contentFile").innerHTML = result;
+                },
+                error: function(response){
+                    console.log(response);
+                    var text = "Error - File not found";
+                    document.getElementById("contentFile").innerHTML = text;
+                }
+            });
+
+        </script>
+        
     </jsp:body> 
 </t:generic-template>
+

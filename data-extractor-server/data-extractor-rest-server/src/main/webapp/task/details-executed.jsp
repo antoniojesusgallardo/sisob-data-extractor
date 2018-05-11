@@ -21,7 +21,6 @@
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 
 <%@page import="eu.sisob.uma.restserver.client.UtilJsp"%>
-<%@page import="eu.sisob.uma.restserver.managers.RestUriManager"%>
 <%@page import="eu.sisob.uma.restserver.services.communications.OutputTaskStatus"%>
 <%@page import="eu.sisob.uma.restserver.services.gateCH.GateTaskCH"%>
 
@@ -36,17 +35,8 @@
         response.sendRedirect(request.getContextPath()+"/error.jsp");
         return;
     }
-    
-    String user = (String)session.getAttribute("user");
-    String pass = (String)session.getAttribute("pass");
-    OutputTaskStatus task = (OutputTaskStatus)request.getAttribute("task");
-    
-    String urlShow = RestUriManager.getUriRoot(user, pass, task.getTask_code(), "show");
-    String urlDownload = RestUriManager.getUriRoot(user, pass, task.getTask_code(), "download");
      
     request.setAttribute("GateTaskCH", GateTaskCH.NAME);
-    request.setAttribute("urlShow", urlShow);
-    request.setAttribute("urlDownload", urlDownload);
 %>
 
 <fmt:setBundle basename="Bundle" var="msg"/>
@@ -75,12 +65,12 @@
                     ${iResult}
                     <b>  
                         | 
-                        <a href='${urlDownload}${iResult}&type=results'
+                        <a href='download-file.jsp?task-code=${task.task_code}&file-name=${iResult}'
                            target='_blank'>
                             Download
-                        </a>
+                        </a>   
                         | 
-                        <a href='${urlShow}${iResult}&type=results' 
+                        <a href='view-file.jsp?task-code=${task.task_code}&file-name=${iResult}'
                            target='_blank'>
                             Show
                         </a>
@@ -153,7 +143,7 @@
         <h4>The verbose files generated in the task:</h4>
         <blockquote>
             <c:forEach items="${task.verbose}" var="iVerbose">
-                <a href='${urlDownload}${iVerbose}&type=verbose'
+                <a href='download-file.jsp?task-code=${task.task_code}&file-name=${iVerbose}&file-type=verbose'
                     target='_blank'>
                     ${iVerbose}
                 </a><br><br>
@@ -173,7 +163,8 @@
         <h4>The sources used in the task:</h4>
         <blockquote>
             <c:forEach items="${task.source}" var="iSource">
-                <a href='${urlDownload}${iSource}' target='_blank' >
+                <a href='download-file.jsp?task-code=${task.task_code}&file-name=${iSource}&file-type=source'
+                    target='_blank' >
                     ${iSource}
                 </a><br><br>
             </c:forEach>
@@ -198,24 +189,24 @@
 <script type="text/javascript">    
 $(document).ready(function(){
     
-    var user        = "${sessionScope.user}";
-    var pass        = "${sessionScope.pass}";
     var task_code   = "${task.task_code}";
     var task_kind   = "${task.kind}";
     
     $("button#task-launcher").click(function()
     {   
         var data = {
-            user: user, 
-            pass: pass, 
             task_code: task_code,
             task_kind: task_kind,
             parameters: []
         };
         
+        var securityHeader = {};
+        securityHeader[security.AUTHORIZATION_PROPERTY] = '${sessionScope.token}';
+        
         $.ajax({ 
             type: "POST",
             url: "${pageContext.request.contextPath}/resources/task/relaunch",
+            headers: securityHeader,
             data: JSON.stringify(data), 
             contentType: 'application/json',
             success: function(result) { 
@@ -233,14 +224,16 @@ $(document).ready(function(){
     $("button#task-deleter").click(function(){
 
         var data = {
-            user: user, 
-            pass: pass, 
             task_code: task_code
         };
+        
+        var securityHeader = {};
+        securityHeader[security.AUTHORIZATION_PROPERTY] = '${sessionScope.token}';
 
         $.ajax({ 
             type: "POST",
             url: "${pageContext.request.contextPath}/resources/task/delete",
+            headers: securityHeader,
             data: JSON.stringify(data),
             contentType: 'application/json',                            
             success: function(result){

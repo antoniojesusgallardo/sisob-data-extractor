@@ -44,7 +44,7 @@ public class WebSearcherTask
     public final static String output_data_source_nofound_filename_prefix_csv = "notfound.data-researchers-urls";         
     public final static String output_data_source_nofound_filename_ext_csv = ".csv";    
     
-    public static boolean launch(String user, String pass, String task_code, String code_task_folder, String email, WebSearchersExtractor.SearchPatterns search_pattern, StringWriter message)
+    public static boolean launch(String user, String task_code, String code_task_folder, String email, WebSearchersExtractor.SearchPatterns search_pattern, StringWriter message)
     {   
         if(message == null)
         {

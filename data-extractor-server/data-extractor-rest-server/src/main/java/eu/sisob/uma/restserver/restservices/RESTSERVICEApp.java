@@ -20,6 +20,7 @@
 
 package eu.sisob.uma.restserver.restservices;
 
+import eu.sisob.uma.restserver.restservices.security.AuthenticationFilter;
 import org.glassfish.jersey.media.multipart.MultiPartFeature;
 import org.glassfish.jersey.server.ResourceConfig;
 
@@ -35,5 +36,8 @@ public class RESTSERVICEApp extends ResourceConfig
         
         // Required to upload files
         register(MultiPartFeature.class);
+        
+        // Register Auth Filter
+        register(AuthenticationFilter.class);
     }
 }

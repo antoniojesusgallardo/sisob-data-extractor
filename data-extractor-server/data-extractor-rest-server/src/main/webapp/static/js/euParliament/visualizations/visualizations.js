@@ -24,19 +24,25 @@
 var Visualizations = (function(){
 
     return {
-        init: function () {
+        init: function (token) {
             
             var urlIndByCategory= urlBaseJson.replace("&file=", "&file=" + "IndicatorsByCategory.json");
             var urlIndBySpeech  = urlBaseJson.replace("&file=", "&file=" + "IndicatorsBySpeech.json");
 
-            d3.json(urlIndByCategory , function(json) {
-                jsonData_ontologies = json;  
-
+            d3.json(urlIndByCategory)
+                .header(security.AUTHORIZATION_PROPERTY, token)
+                .get(function(error, data) {
+                    
+                jsonData_ontologies = data; 
                 drawLineChart(jsonData_ontologies);
             });
-
-            d3.json(urlIndBySpeech, function(json) {
-                jsonData_speeches = json;  
+            
+            d3.json(urlIndBySpeech)
+                .header(security.AUTHORIZATION_PROPERTY, token)
+                .get(function(error, data) {
+                
+                jsonData_speeches = data; 
+                drawLineChart(jsonData_ontologies);
             });
         },
         

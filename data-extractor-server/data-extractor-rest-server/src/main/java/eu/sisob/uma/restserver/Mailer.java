@@ -71,16 +71,15 @@ public class Mailer
     /**
      *
      * @param user
-     * @param pass
      * @param task_code
      * @param email
      * @param task_kind
      * @param extra_msg
      * @return
      */
-    public static boolean notifyResultsOfTask(String user, String pass, 
-                                                String task_code, String email, 
-                                                String task_kind, String extra_msg)
+    public static boolean notifyResultsOfTask(String user, String task_code, 
+                                                String email, String task_kind, 
+                                                String extra_msg)
     {
         LOG.log(Level.INFO, "Notyfing task is finish ({0}, {1}, {2})", 
                 new Object[]{user, task_code, task_kind});

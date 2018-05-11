@@ -56,6 +56,8 @@
 <link rel="stylesheet" href="static/css/jquery.fileupload-ui.css">
 <!-- CSS adjustments for browsers with JavaScript disabled -->
 
+<script src="static/js/security.js"></script>
+
 <script src="static/js/jquery-1.8.2.min.js"></script>
 <!-- The jQuery UI widget factory, can be omitted if jQuery UI is already included -->
 <script src="static/js/vendor/jquery.ui.widget.js"></script>
@@ -69,5 +71,27 @@
 
 <%-- Module - word cloud --%>
 <script src="static/nvd3/d3.layout.cloud.js" ></script>
+
+<%-- Plugin - uploadFile --%>
+<!-- The Templates plugin is included to render the upload/download listings http://blueimp.github.com/JavaScript-Templates/tmpl.min.js -->
+<script src="static/js/tmpl.min.js"></script>
+<!-- The Load Image plugin is included for the preview images and image resizing functionality http://blueimp.github.com/JavaScript-Load-Image/load-image.min.js -->
+<script src="static/js/load-image.min.js"></script>
+<!-- The Canvas to Blob plugin is included for image resizing functionality http://blueimp.github.com/JavaScript-Canvas-to-Blob/canvas-to-blob.min.js -->
+<script src="static/js/canvas-to-blob.min.js"></script>
+<!-- The Iframe Transport is required for browsers without support for XHR file uploads -->
+<script src="static/js/jquery.iframe-transport.js"></script>
+<!-- The basic File Upload plugin -->
+<script src="static/js/jquery.fileupload.js"></script>
+<!-- The File Upload file processing plugin -->
+<script src="static/js/jquery.fileupload-fp.js"></script>
+<!-- The File Upload user interface plugin -->
+<script src="static/js/jquery.fileupload-ui.js"></script>
+<!-- The localization script -->
+<script src="static/js/locale.js"></script>
+<!-- The main application script -->
+<script src="static/js/main.js"></script>
+<!-- The XDomainRequest Transport is included for cross-domain file deletion for IE8+ -->
+<!--[if gte IE 8]><script src="static/js/cors/jquery.xdr-transport.js"></script><![endif]-->
 
 <link rel="icon" type="image/png" href="static/img/favicon.png">

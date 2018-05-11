@@ -53,7 +53,7 @@ public class InternalCVFilesTask
     public final static String zip_output_filename = "downloads.zip";
     public final static String results_dirname = "downloads";
     
-    public static boolean launch(String user, String pass, String task_code, String code_task_folder, String email, StringWriter message)
+    public static boolean launch(String user, String task_code, String code_task_folder, String email, StringWriter message)
     {   
         if(message == null)
         {

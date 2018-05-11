@@ -34,21 +34,18 @@
     }
 
     // Input Data
-    String user = (String)session.getAttribute("user");
-    String pass = (String)session.getAttribute("pass");
+    String token = (String)session.getAttribute("token");
     String task_code = request.getParameter("task_code");
     
     // Get Task data from the API REST
     Map params = new HashMap();
-    params.put("user", user);
-    params.put("pass", pass);
     params.put("task_code", task_code);
-    RESTClient restClient = new RESTClient("/task", params, OutputTaskStatus.class);
+    RESTClient restClient = new RESTClient(token);
     
     OutputTaskStatus task = null;
     String errorMessage = null;
     try{
-        task = (OutputTaskStatus)restClient.get();
+        task = (OutputTaskStatus)restClient.get("/task", OutputTaskStatus.class, params);
     }
     catch(ApiErrorException ex){
         errorMessage = ex.getMessage();

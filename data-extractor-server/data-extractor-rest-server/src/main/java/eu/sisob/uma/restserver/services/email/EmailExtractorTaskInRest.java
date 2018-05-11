@@ -32,8 +32,7 @@ public class EmailExtractorTaskInRest extends EmailExtractorTask
 {       
     private static final Logger LOG = Logger.getLogger(EmailExtractorTaskInRest.class.getName());
     
-    String user;    
-    String pass;    
+    String user;   
     String email;    
     String task_code;
     String task_code_folder;     
@@ -48,7 +47,6 @@ public class EmailExtractorTaskInRest extends EmailExtractorTask
         super(input_file, data_dir, output_file, norepeat_output_file, notfound_output_file, output_norepeat_file_wor_notfound, filters);
         
         this.user = user;
-        this.pass = pass;
         this.email = email;
         this.task_code = task_code;
         this.task_code_folder = task_code_folder;  
@@ -60,7 +58,7 @@ public class EmailExtractorTaskInRest extends EmailExtractorTask
      */
     public void executeCallBackOfTask() 
     {            
-        Mailer.notifyResultsOfTask(user, pass, task_code, email, "email", "This kind of task has not feedback document associated, please report any problem using this email.");  
+        Mailer.notifyResultsOfTask(user, task_code, email, "email", "This kind of task has not feedback document associated, please report any problem using this email.");  
         
         synchronized(AuthorizationManager.getLocker(user)){
             TaskFileManager.registerTaskFinished(this.task_code_folder);

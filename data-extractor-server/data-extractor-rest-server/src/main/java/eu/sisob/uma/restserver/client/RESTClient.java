@@ -21,6 +21,7 @@
 package eu.sisob.uma.restserver.client;
 
 import eu.sisob.uma.restserver.TheConfig;
+import eu.sisob.uma.restserver.restservices.security.AuthenticationUtils;
 import java.util.Map;
 import java.util.logging.Logger;
 import javax.ws.rs.client.Client;
@@ -45,13 +46,9 @@ public class RESTClient {
 
     public static final String REST_PATH = "/resources";
     
+    private String token;
+    
     private static String rootPath;
-    
-    private String path;
-    
-    private Object outputType;
-    
-    private Map<String, String> params;
     
     static {
         String serverUrl = TheConfig.getInstance().getString(TheConfig.SERVER_URL);
@@ -60,44 +57,43 @@ public class RESTClient {
     
     private RESTClient() {
     }
-    
+
     /**
      * Constructor that initializes the REST client.
-     * @param path
-     * @param outputClass
-     * @param params 
+     * @param token 
      */
-    public RESTClient(String path, Map<String,String> params, Class outputClass) {
-        
-        initialize(path, params, outputClass);
+    public RESTClient(String token) {
+        this.token = token;
     }
     
-    /**
-     * Constructor that initializes the REST client.
-     * @param path
-     * @param params 
-     * @param genericType
-     */
-    public RESTClient(String path, Map<String,String> params, GenericType genericType) {
-        
-        initialize(path, params, genericType);
-    }
-    
-    private void initialize(String path, Map<String,String> params, Object outputType){
-    
-        this.outputType = outputType;
-        
-        this.path = path;
-        
-        this.params = params;
-    }
     
     /**
      * Method that executes the request and return the results.
+     * @param path
+     * @param outputType
+     * @param params
      * @return 
      * @throws eu.sisob.uma.restserver.client.ApiErrorException
      */
-    public Object get() throws ApiErrorException{
+    public Object get(String path, Object outputType, Map<String,String> params) 
+                                                        throws ApiErrorException{
+        
+        Response response = getResponse(path, outputType, params);
+        
+        Object rObject = null;
+        if (outputType instanceof Class) {
+            rObject = response.readEntity((Class)outputType);
+        }
+        else if (outputType instanceof GenericType) {
+            rObject = response.readEntity((GenericType)outputType);
+        }
+        
+        return rObject;
+    }
+    
+    
+    public Response getResponse(String path, Object outputType, Map<String,String> params) 
+                                                        throws ApiErrorException{
         
         String fullPath = rootPath + path;
         
@@ -105,8 +101,8 @@ public class RESTClient {
         Client client =  ClientBuilder.newClient(clientConfig);
         WebTarget  webTarget = client.target(fullPath);
         
-        if (this.params != null) {
-            for (Map.Entry<String, String> entry : this.params.entrySet()) {
+        if (params != null) {
+            for (Map.Entry<String, String> entry : params.entrySet()) {
                 webTarget = webTarget.queryParam(entry.getKey(), entry.getValue());
             }
         }
@@ -116,22 +112,17 @@ public class RESTClient {
         invocationBuilder = webTarget
                                 .request(MediaType.APPLICATION_FORM_URLENCODED)
                                 .accept(MediaType.APPLICATION_JSON);
-        Response response = invocationBuilder.get();
+        Response response = invocationBuilder
+                                .header(AuthenticationUtils.AUTHORIZATION_PROPERTY, token)
+                                .get();
         
         if (response.getStatus() != Status.OK.getStatusCode()) {
             String errorMessage = response.readEntity(String.class);
             log.warning(errorMessage);
             throw new ApiErrorException(response.getStatus(), errorMessage);
         }
-
-        Object responseObject = null;
-        if (outputType instanceof GenericType) {
-            responseObject = response.readEntity((GenericType)outputType);
-        }
-        else if (outputType instanceof Class){
-            responseObject = response.readEntity((Class)outputType);
-        }
         
-        return responseObject;
+        return response;
     }
+    
 }

@@ -45,7 +45,6 @@ public class GateDataExtractorTaskInRest extends GateDataExtractorTask
     private static final Logger LOG = Logger.getLogger(GateDataExtractorTaskInRest.class.getName());
     
     String user;
-    String pass;
     String email;
     String task_code;
     String task_code_folder;
@@ -53,11 +52,10 @@ public class GateDataExtractorTaskInRest extends GateDataExtractorTask
     /*
      * @param document - xml document with the information     
      */    
-    public GateDataExtractorTaskInRest(RepositoryPreprocessDataMiddleData taskRepPrePro, boolean user_trad_tables, H2DBCredentials cred_trad, boolean use_resolver, H2DBCredentials cred_resolver, String user, String pass, String task_code, String task_code_folder, String email)
+    public GateDataExtractorTaskInRest(RepositoryPreprocessDataMiddleData taskRepPrePro, boolean user_trad_tables, H2DBCredentials cred_trad, boolean use_resolver, H2DBCredentials cred_resolver, String user, String task_code, String task_code_folder, String email)
     {        
         super(taskRepPrePro, user_trad_tables, cred_trad, use_resolver, cred_resolver);        
         this.user = user;
-        this.pass = pass;
         this.email = email;
         this.task_code = task_code;
         this.task_code_folder = task_code_folder;       
@@ -173,7 +171,7 @@ public class GateDataExtractorTaskInRest extends GateDataExtractorTask
             TaskFileManager.notifyResultError(this.user, this.task_code, "Error creating feedback using google docs.");
         }        
         
-        Mailer.notifyResultsOfTask(user, pass, task_code, email, "gate", feedback_message);        
+        Mailer.notifyResultsOfTask(user, task_code, email, "gate", feedback_message);        
         
         synchronized(AuthorizationManager.getLocker(email)){
             TaskFileManager.registerTaskFinished(this.task_code_folder);

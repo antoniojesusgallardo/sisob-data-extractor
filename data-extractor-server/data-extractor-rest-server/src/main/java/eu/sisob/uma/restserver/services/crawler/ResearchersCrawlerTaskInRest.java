@@ -33,7 +33,6 @@ public class ResearchersCrawlerTaskInRest  extends ResearchersCrawlerTask
     private static final Logger LOG = Logger.getLogger(ResearchersCrawlerTaskInRest.class.getName());
     
     String user;    
-    String pass;    
     String email;    
     String task_code;
     String task_code_folder;
@@ -41,7 +40,7 @@ public class ResearchersCrawlerTaskInRest  extends ResearchersCrawlerTask
     /*
      * @param document - xml document with the information     
      */    
-    public ResearchersCrawlerTaskInRest(org.dom4j.Document document, File crawler_data_dir, File middledata_dir, File resultsdata_dir, File output_file_csv, String user, String pass, String task_code, String task_code_folder, String email)
+    public ResearchersCrawlerTaskInRest(org.dom4j.Document document, File crawler_data_dir, File middledata_dir, File resultsdata_dir, File output_file_csv, String user, String task_code, String task_code_folder, String email)
     {        
         //(org.dom4j.Document document, String keywords_dir, String middle_data_dir, String results_dir, String output_filename_xml, String output_filename_csv, boolean split)
         super(document, 
@@ -51,7 +50,6 @@ public class ResearchersCrawlerTaskInRest  extends ResearchersCrawlerTask
               output_file_csv,              
               true);
         this.user = user;
-        this.pass = pass;
         this.email = email;
         this.task_code = task_code;
         this.task_code_folder = task_code_folder;  
@@ -83,7 +81,7 @@ public class ResearchersCrawlerTaskInRest  extends ResearchersCrawlerTask
             TaskFileManager.notifyResultError(this.user, this.task_code, "Error creating feedback using google docs.");
         }        
         
-        Mailer.notifyResultsOfTask(user, pass, task_code, email, "crawler", feedback_message);  
+        Mailer.notifyResultsOfTask(user, task_code, email, "crawler", feedback_message);  
         
         synchronized(AuthorizationManager.getLocker(user)){
             TaskFileManager.registerTaskFinished(this.task_code_folder);

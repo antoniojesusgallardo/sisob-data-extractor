@@ -293,6 +293,11 @@
             },
             // Callback for file deletion:
             destroy: function (e, data) {
+                
+                data.beforeSend = function(xhr) {
+                    xhr.setRequestHeader(security.AUTHORIZATION_PROPERTY, token);
+                };
+                
                 var that = $(this).data('fileupload');
                 if (data.url) {
                     $.ajax(data);

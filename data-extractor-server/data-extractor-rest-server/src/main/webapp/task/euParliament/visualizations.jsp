@@ -22,9 +22,9 @@
     Author: Antonio Jesus Gallardo Albarran - antonio.jesus.gallardo@gmail.com
 --%>
 
+<%@page import="eu.sisob.uma.restserver.client.RESTUri"%>
 <%@page import="eu.sisob.uma.restserver.client.UtilJsp"%>
 <%@page import="eu.sisob.uma.restserver.managers.AuthorizationManager"%>
-<%@page import="eu.sisob.uma.restserver.managers.RestUriManager"%>
 <%@page import="eu.sisob.uma.restserver.managers.SystemManager"%>
 <%@page import="eu.sisob.uma.restserver.TheResourceBundle"%>
 <%@page import="java.util.ArrayList"%>
@@ -37,25 +37,19 @@
         return;
     }
     
-    String user = (String)session.getAttribute("user");
-    String pass = (String)session.getAttribute("pass");
-    
     String task_code    = request.getParameter("task_code");
     
     String version      = SystemManager.getInstance().getVersion();
-    String urlBaseJson  = RestUriManager.getUriFileToShow(user, 
-                                                        pass, 
-                                                        task_code, 
-                                                        "", 
-                                                        AuthorizationManager.results_dirname);
+    String urlBaseJson  = RESTUri.getFileToShow(task_code, "", 
+                                                AuthorizationManager.results_dirname);
     
-    List<String> visualizationNames = new ArrayList<String>();
+    List<String> visualizationNames = new ArrayList();
     visualizationNames.add("temporalEvolution");
     visualizationNames.add("wordCloud");
     visualizationNames.add("generalIndicators");
     visualizationNames.add("speechesByCountries");
     
-    List<String[]> visualizationTypes = new ArrayList<String[]>();
+    List<String[]> visualizationTypes = new ArrayList();
     for (String strType : visualizationNames) {
         String[] iArray = {strType, 
                             TheResourceBundle.getString("Jsp_euParliament_visualizations_"+strType)};
@@ -128,5 +122,5 @@
     var taskCode    = ${param.task_code};
     var urlBaseJson = '${urlBaseJson}';
     
-    Visualizations.init();    
+    Visualizations.init("${sessionScope.token}");    
 </script>

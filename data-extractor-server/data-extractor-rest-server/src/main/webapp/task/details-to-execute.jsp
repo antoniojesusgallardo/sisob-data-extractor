@@ -18,7 +18,9 @@
     along with SISOB Data Extractor. If not, see <http://www.gnu.org/licenses/>.
 --%>
 
+<%@page import="eu.sisob.uma.restserver.client.RESTUri"%>
 <%@page import="eu.sisob.uma.restserver.client.UtilJsp"%>
+<%@page import="eu.sisob.uma.restserver.services.communications.OutputTaskStatus"%>
 <%@page import="eu.sisob.uma.restserver.TheConfig"%>
 <%@page import="eu.sisob.uma.restserver.TheResourceBundle"%>   
 <%@page import="eu.sisob.uma.restserver.services.gateCH.GateTaskCH"%>
@@ -67,8 +69,17 @@
         taskTypes.add(email);              
     }
     
+    OutputTaskStatus task = (OutputTaskStatus)request.getAttribute("task");
+    String urlBaseToDelete = RESTUri.getDeleteFile(task.getTask_code(), "", "");
+    
     request.setAttribute("taskTypes", taskTypes);
+    request.setAttribute("urlBaseToDelete", urlBaseToDelete);
+    request.setAttribute("task_code", task.getTask_code());
 %>
+
+<script type="text/javascript">    
+    var token = "${sessionScope.token}";
+</script>     
 
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
@@ -96,9 +107,7 @@
     <!-- The file upload form used as target for the file upload widget -->
     <form id="fileupload" action="resources/file/upload" method="POST" enctype="multipart/form-data">
         <!-- The fileupload-buttonbar contains buttons to add/delete files and start/cancel the upload -->            
-        <input type="hidden" value="${sessionScope.user}" name="user" />
-        <input type="hidden" value="${sessionScope.pass}" name="pass" />
-        <input type="hidden" value="${task.task_code}" name="task_code" />
+                <input type="hidden" value="${task.task_code}" name="task_code" />
         <div class="row fileupload-buttonbar">
             <div class="span7">
                     (need to update)
@@ -186,14 +195,27 @@
 <script id="template-upload" type="text/x-tmpl">
 {% for (var i=0, file; file=o.files[i]; i++) { %}
     <tr class="template-upload fade">
-        <td class="preview"><span class="fade"></span></td>
-        <td class="name"><span>{%=file.name%}</span></td>
-        <td class="size"><span>{%=o.formatFileSize(file.size)%}</span></td>
+        <td class="name">
+            <span>{%=file.name%}</span>
+        </td>
+        <td class="size">
+            <span>{%=o.formatFileSize(file.size)%}</span>
+        </td>
         {% if (file.error) { %}
-            <td class="error" colspan="2"><span class="label label-important">{%=locale.fileupload.error%}</span> {%=locale.fileupload.errors[file.error] || file.error%}</td>
+            <td class="error" colspan="2">
+                <span class="label label-important">
+                    {%=locale.fileupload.error%}
+                </span>
+                {%=locale.fileupload.errors[file.error] || file.error%}
+            </td>
         {% } else if (o.files.valid && !i) { %}
             <td>
-                <div class="progress progress-success progress-striped active" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><div class="bar" style="width:0%;"></div></div>
+                <div class="progress progress-success progress-striped active" 
+                        role="progressbar" aria-valuemin="0" aria-valuemax="100" 
+                        aria-valuenow="0">
+                    <div class="bar" style="width:0%;">
+                    </div>
+                </div>
             </td>
             <td class="start">{% if (!o.options.autoUpload) { %}
                 <button class="btn btn-primary">
@@ -214,61 +236,50 @@
 {% } %}
 </script>
 <!-- The template to display files available for download -->
-<script id="template-download" type="text/x-tmpl">
+<script id="template-download" type="text/x-tmpl">   
 {% for (var i=0, file; file=o.files[i]; i++) { %}
     <tr class="template-download fade">
         {% if (file.error) { %}
             <td></td>
-            <td class="name"><span>{%=file.name%}</span></td>
-            <td class="size"><span>{%=o.formatFileSize(file.size)%}</span></td>
-            <td class="error" colspan="2"><span class="label label-important">{%=locale.fileupload.error%}</span> {%=locale.fileupload.errors[file.error] || file.error%}</td>
-        {% } else { %}
-            <td class="preview">{% if (file.thumbnail_url) { %}
-                <a href="{%=file.url%}" title="{%=file.name%}" rel="gallery" download="{%=file.name%}"><img src="{%=file.thumbnail_url%}"></a>
-            {% } %}</td>
             <td class="name">
-                <a href="{%=file.url%}" title="{%=file.name%}" rel="{%=file.thumbnail_url&&'gallery'%}" download="{%=file.name%}">{%=file.name%}</a>
+                <span>{%=file.name%}</span>
             </td>
-            <td class="size"><span>{%=o.formatFileSize(file.size)%}</span></td>
+            <td class="size">
+                <span>{%=o.formatFileSize(file.size)%}</span>
+            </td>
+            <td class="error" colspan="2">
+                <span class="label label-important">{%=locale.fileupload.error%}</span>
+                {%=locale.fileupload.errors[file.error] || file.error%}
+            </td>
+        {% } else { %}
+            <td class="name">
+                <a href="download-file.jsp?task-code=${task_code}&file-name={%=file.name%}&file-type=source" 
+                    title="{%=file.name%}" 
+                    rel="" 
+                    download="{%=file.name%}">
+                    {%=file.name%}
+                </a>
+            </td>
+            <td class="size">
+                <span>{%=o.formatFileSize(file.size)%}</span>
+            </td>
             <td colspan="2"></td>
         {% } %}
         <td class="delete">
-            <button class="btn btn-danger" data-type="{%=file.delete_type%}" data-url="{%=file.delete_url%}">
+            <button class="btn btn-danger" data-type="GET" 
+                data-url="${urlBaseToDelete}{%=file.name%}">
                 <i class="icon-trash icon-white"></i>
                 <span>{%=locale.fileupload.destroy%}</span>
             </button>
-            <input type="checkbox" name="delete" value="1">
         </td>
     </tr>
 {% } %}
 </script>
-<!-- The Templates plugin is included to render the upload/download listings http://blueimp.github.com/JavaScript-Templates/tmpl.min.js -->
-<script src="static/js/tmpl.min.js"></script>
-<!-- The Load Image plugin is included for the preview images and image resizing functionality http://blueimp.github.com/JavaScript-Load-Image/load-image.min.js -->
-<script src="static/js/load-image.min.js"></script>
-<!-- The Canvas to Blob plugin is included for image resizing functionality http://blueimp.github.com/JavaScript-Canvas-to-Blob/canvas-to-blob.min.js -->
-<script src="static/js/canvas-to-blob.min.js"></script>
-<!-- The Iframe Transport is required for browsers without support for XHR file uploads -->
-<script src="static/js/jquery.iframe-transport.js"></script>
-<!-- The basic File Upload plugin -->
-<script src="static/js/jquery.fileupload.js"></script>
-<!-- The File Upload file processing plugin -->
-<script src="static/js/jquery.fileupload-fp.js"></script>
-<!-- The File Upload user interface plugin -->
-<script src="static/js/jquery.fileupload-ui.js"></script>
-<!-- The localization script -->
-<script src="static/js/locale.js"></script>
-<!-- The main application script -->
-<script src="static/js/main.js"></script>
-<!-- The XDomainRequest Transport is included for cross-domain file deletion for IE8+ -->
-<!--[if gte IE 8]><script src="static/js/cors/jquery.xdr-transport.js"></script><![endif]-->
+
 <script type="text/javascript"> 
     
 $(document).ready(function()
-{
-    var user = "${sessionScope.user}";
-    var pass = "${sessionScope.pass}";
-    
+{   
     $("select#task-selector").change(function(){
 
         var taskKind = $("select#task-selector").val();
@@ -293,8 +304,6 @@ $(document).ready(function()
         var taskKind = $("select#task-selector").val();
         
         var data = {
-            user: user, 
-            pass: pass, 
             task_code: "${task.task_code}",
             task_kind: taskKind,
             parameters: []
@@ -313,9 +322,14 @@ $(document).ready(function()
         });
 
         if(taskKind !== "none"){
+            
+            var securityHeader = {};
+            securityHeader[security.AUTHORIZATION_PROPERTY] = '${sessionScope.token}';
+            
             $.ajax({ 
                 type: "POST",
                 url: "resources/task/launch",
+                headers: securityHeader,
                 data: JSON.stringify(data),
                 contentType: 'application/json',
                 success: function(result){

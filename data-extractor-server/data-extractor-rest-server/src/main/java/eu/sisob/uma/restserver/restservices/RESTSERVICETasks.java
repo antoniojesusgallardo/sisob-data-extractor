@@ -21,40 +21,42 @@ package eu.sisob.uma.restserver.restservices;
 
 import eu.sisob.uma.restserver.managers.TaskManager;
 import eu.sisob.uma.restserver.restservices.exceptions.InternalServerErrorException;
+import eu.sisob.uma.restserver.restservices.security.AuthenticationUtils;
 import eu.sisob.uma.restserver.services.communications.OutputTaskStatus;
 import java.util.List;
+import javax.annotation.security.RolesAllowed;
 import javax.ws.rs.Path;
 import javax.ws.rs.GET;
 import javax.ws.rs.Produces;
-import javax.ws.rs.QueryParam;
 import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 
 @Path("/tasks")
 public class RESTSERVICETasks {
 
+    @Context 
+    HttpHeaders headers;
+    
     public RESTSERVICETasks() {
-
     }       
     
     /**
-     * FIXME (OutputTaskStatus cannot report about the authentication, think about this).
      * Retrieves the state of the task
-     * @param user 
-     * @param pass      
      * @return  If the authorization is correct and a new code task
      */
     @GET
+    @RolesAllowed("user")
     @Produces(MediaType.APPLICATION_JSON)
-    public List<OutputTaskStatus> getTasksList(@QueryParam("user") String user, 
-                                                @QueryParam("pass") String pass) 
-    {    
+    public List<OutputTaskStatus> getTasksList() 
+    {   
+        String user = AuthenticationUtils.getCurrentUser(headers);
+        
         try {
             synchronized(user){
-
-                RESTSERVICEUtils.validateAccess(user, pass);
-
-                List<OutputTaskStatus> rListTask = TaskManager.getTasks(user, pass);
+                
+                List<OutputTaskStatus> rListTask = TaskManager.getTasks(user);
                 
                 return rListTask;
             }

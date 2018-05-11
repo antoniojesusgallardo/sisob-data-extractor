@@ -23,9 +23,9 @@
 --%>
 
 <!DOCTYPE HTML>
+<%@page import="eu.sisob.uma.restserver.client.RESTUri"%>
 <%@page import="eu.sisob.uma.restserver.client.UtilJsp"%>
 <%@page import="eu.sisob.uma.restserver.managers.AuthorizationManager"%>
-<%@page import="eu.sisob.uma.restserver.managers.RestUriManager"%>
 <%@page import="eu.sisob.uma.restserver.managers.SystemManager"%>
 
 <%@page session="true"%>
@@ -37,17 +37,11 @@
     
     String version = SystemManager.getInstance().getVersion();
     
-    String user = (String)session.getAttribute("user");
-    String pass = (String)session.getAttribute("pass");
-    
     String task_code    = request.getParameter("task_code");
     String speech_id    = request.getParameter("speech_id");
 
-    String urlJson = RestUriManager.getUriFileToShow(user, 
-                                                    pass, 
-                                                    task_code, 
-                                                    speech_id+".json", 
-                                                    AuthorizationManager.detailed_results_dirname);
+    String urlJson = RESTUri.getFileToShow(task_code, speech_id+".json", 
+                                            AuthorizationManager.detailed_results_dirname);
     
     request.setAttribute("urlJson", urlJson);
     request.setAttribute("version", version);
@@ -108,6 +102,6 @@
 <script>
     var urlJson = '${urlJson}';
     
-    loadData();  
+    loadData("${sessionScope.token}");  
 </script>
     

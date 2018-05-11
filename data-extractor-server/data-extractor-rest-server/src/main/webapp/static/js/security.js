@@ -17,20 +17,13 @@
     You should have received a copy of the GNU General Public License
     along with SISOB Data Extractor. If not, see <http://www.gnu.org/licenses/>.
 */
-package eu.sisob.uma.restserver.services.communications;
 
-import javax.xml.bind.annotation.XmlRootElement;
+/*
+ * Author: Antonio Jesus Gallardo Albarran - antonio.jesus.gallardo@gmail.com
+ */
+var security = (function(){
 
-@XmlRootElement
-public class InputAddTask 
-{
-    /**
-     *
-     */
-    public String user;   
-    /**
-     *
-     */
-    public String pass;        
-}
-
+    return {
+        AUTHORIZATION_PROPERTY : "Authorization"
+    };
+}());    

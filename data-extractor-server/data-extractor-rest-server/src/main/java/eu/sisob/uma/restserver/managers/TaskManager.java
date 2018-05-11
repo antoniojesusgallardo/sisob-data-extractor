@@ -65,13 +65,12 @@ public class TaskManager {
      * 
      *  Is possible that use thee locker of AuthorizationManager
      * @param user
-     * @param pass
      * @param task_code
      * @param retrieveDetails
      * @return
      * @throws java.lang.Exception
      */
-    public static OutputTaskStatus getTask(String user, String pass, String task_code, 
+    public static OutputTaskStatus getTask(String user, String task_code, 
                                             boolean retrieveDetails)
                                             throws Exception
     {
@@ -163,11 +162,10 @@ public class TaskManager {
      *  use MAX_TASKS_PER_USER and validateAccess()
      *  Is possible that use thee locker of AuthorizationManager
      * @param user
-     * @param pass
      * @return
      * @throws java.lang.Exception
      */
-    public static Task prepareNewTask(String user, String pass) throws Exception
+    public static Task prepareNewTask(String user) throws Exception
     {
         Task rTask = new Task();
         
@@ -175,7 +173,7 @@ public class TaskManager {
 
         int num_tasks_alive = 0;
         for(Integer taskCode : listTaskCode){
-            OutputTaskStatus task = TaskManager.getTask(user, pass, taskCode.toString(), false);
+            OutputTaskStatus task = TaskManager.getTask(user, taskCode.toString(), false);
             if(!task.getStatus().equals(OutputTaskStatus.TASK_STATUS_EXECUTED)){
                 //Think about it
                 num_tasks_alive++;
@@ -220,18 +218,17 @@ public class TaskManager {
      *  Is possible that use thee locker of AuthorizationManager
      * 
      * @param user
-     * @param pass
      * @return
      * @throws java.lang.Exception
      */
-    public static List<OutputTaskStatus> getTasks(String user, String pass) throws Exception{
+    public static List<OutputTaskStatus> getTasks(String user) throws Exception{
         
         List<OutputTaskStatus> rListTask = new ArrayList();
         
         List<Integer> listTaskCode = TaskManager.listTaskCode(user);
         
         for(Integer taskCode : listTaskCode){
-            OutputTaskStatus task_status = TaskManager.getTask(user, pass, taskCode.toString(), false);
+            OutputTaskStatus task_status = TaskManager.getTask(user, taskCode.toString(), false);
             rListTask.add(task_status);
         }
         
@@ -268,11 +265,11 @@ public class TaskManager {
     
     
     
-    public static TaskOperationResult launchTask(InputLaunchTask input, boolean isRelaunch) throws Exception{
+    public static TaskOperationResult launchTask(String user, InputLaunchTask input, boolean isRelaunch) throws Exception{
         
         TaskOperationResult result = new TaskOperationResult(); 
         
-        OutputTaskStatus task = TaskManager.getTask(input.user, input.pass, input.task_code, false);
+        OutputTaskStatus task = TaskManager.getTask(user, input.task_code, false);
          
         boolean isValidToExecute = false;
         if(isRelaunch && OutputTaskStatus.TASK_STATUS_EXECUTED.equals(task.getStatus())){
@@ -288,7 +285,7 @@ public class TaskManager {
             return result;
         }
         
-        String taskFolder = TaskFileManager.getTaskFolder(input.user, input.task_code);           
+        String taskFolder = TaskFileManager.getTaskFolder(user, input.task_code);           
 
         if (isRelaunch) {
             try {
@@ -319,7 +316,7 @@ public class TaskManager {
 
             StringWriter message = new StringWriter();
 
-            result.success = CrawlerTask.launch(input.user, input.pass, input.task_code, taskFolder, input.user, message);                    
+            result.success = CrawlerTask.launch(user, input.task_code, taskFolder, user, message);                    
             result.message = message.toString();
         } 
         else if("websearcher".equals(input.task_kind)) {                       
@@ -352,21 +349,21 @@ public class TaskManager {
             }
 
             StringWriter message = new StringWriter();
-            result.success = WebSearcherTask.launch(input.user, input.pass, input.task_code, taskFolder, input.user, pattern, message);  
+            result.success = WebSearcherTask.launch(user, input.task_code, taskFolder, user, pattern, message);  
             result.message = message.toString(); 
         }
         else if("websearcher_cv".equals(input.task_kind)) {                                   
 
             StringWriter message = new StringWriter();
 
-            result.success = WebSearcherCVTask.launch(input.user, input.pass, input.task_code, taskFolder, input.user, message);                    
+            result.success = WebSearcherCVTask.launch(user, input.task_code, taskFolder, user, message);                    
             result.message = message.toString();
         } 
         else if("internalcvfiles".equals(input.task_kind)) {                       
 
             StringWriter message = new StringWriter();
 
-            result.success = InternalCVFilesTask.launch(input.user, input.pass, input.task_code, taskFolder, input.user, message);                    
+            result.success = InternalCVFilesTask.launch(user, input.task_code, taskFolder, user, message);                    
             result.message = message.toString();
         }
         else if("email".equals(input.task_kind)) {                    
@@ -383,7 +380,7 @@ public class TaskManager {
             }
 
             StringWriter message = new StringWriter();
-            result.success = EmailTask.launch(input.user, input.pass, input.task_code, taskFolder, input.user, filters, message);                    
+            result.success = EmailTask.launch(user, input.task_code, taskFolder, user, filters, message);                    
             result.message = message.toString();    
         }
         else if("gate".equals(input.task_kind)) {   
@@ -407,13 +404,12 @@ public class TaskManager {
             }
 
             StringWriter message = new StringWriter();
-            result.success = GateTask.launch(input.user, input.pass, input.task_code, taskFolder, input.user, message, verbose, split);
+            result.success = GateTask.launch(user, input.task_code, taskFolder, user, message, verbose, split);
             result.message = message.toString();      
         }  
         else if(GateTaskCH.NAME.equals(input.task_kind)) {                       
 
-            TaskOperationResult resultCH = GateTaskCH.launch(input.user, 
-                                                            input.pass, 
+            TaskOperationResult resultCH = GateTaskCH.launch(user,
                                                             input.task_code);
             result.success = resultCH.success;
             result.message = resultCH.message;
@@ -451,11 +447,11 @@ public class TaskManager {
         return result;
     }
     
-    public static TaskOperationResult deleteTask(String user, String pass, String task_code) throws Exception {
+    public static TaskOperationResult deleteTask(String user, String task_code) throws Exception {
         
         TaskOperationResult result = new TaskOperationResult();
         
-        OutputTaskStatus task = TaskManager.getTask(user, pass, task_code, false);            
+        OutputTaskStatus task = TaskManager.getTask(user, task_code, false);            
 
         if( OutputTaskStatus.TASK_STATUS_EXECUTING.equals(task.getStatus()) ||
             OutputTaskStatus.TASK_STATUS_TO_EXECUTE.equals(task.getStatus()) )

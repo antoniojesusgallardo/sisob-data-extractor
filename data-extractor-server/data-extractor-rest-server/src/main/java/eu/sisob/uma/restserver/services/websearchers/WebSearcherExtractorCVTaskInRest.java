@@ -32,7 +32,6 @@ public class WebSearcherExtractorCVTaskInRest extends WebSearchersCVExtractorTas
     private static final Logger LOG = Logger.getLogger(WebSearcherExtractorCVTaskInRest.class.getName());
     
     String user;    
-    String pass;    
     String email;    
     String task_code;
     String task_code_folder;         
@@ -45,7 +44,6 @@ public class WebSearcherExtractorCVTaskInRest extends WebSearchersCVExtractorTas
         super(csv_reseacher_input_file, csv_reseacher_output_file, csv_researchers_output_file_unfounded, folder_results_path, zip_output_file, output_file_2);
         
         this.user = user;
-        this.pass = pass;
         this.email = email;
         this.task_code = task_code;
         this.task_code_folder = task_code_folder;  
@@ -63,7 +61,7 @@ public class WebSearcherExtractorCVTaskInRest extends WebSearchersCVExtractorTas
                 TaskFileManager.notifyResultError(this.user, this.task_code, error_sw.toString());
             }
         }
-        Mailer.notifyResultsOfTask(user, pass, task_code, email, "websearcher_cv", "This kind of task has not feedback document associated, please report any problem using this email.");  
+        Mailer.notifyResultsOfTask(user, task_code, email, "websearcher_cv", "This kind of task has not feedback document associated, please report any problem using this email.");  
         
         synchronized(AuthorizationManager.getLocker(user)){
             TaskFileManager.registerTaskFinished(this.task_code_folder);

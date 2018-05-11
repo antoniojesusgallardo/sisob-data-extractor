@@ -24,42 +24,45 @@ import eu.sisob.uma.restserver.beans.TaskOperationResult;
 import eu.sisob.uma.restserver.managers.AuthorizationManager;
 import eu.sisob.uma.restserver.managers.TaskManager;
 import eu.sisob.uma.restserver.restservices.exceptions.InternalServerErrorException;
-import eu.sisob.uma.restserver.services.communications.InputAddTask;
+import eu.sisob.uma.restserver.restservices.security.AuthenticationUtils;
 import eu.sisob.uma.restserver.services.communications.InputLaunchTask;
 import eu.sisob.uma.restserver.services.communications.OutputTaskStatus;
+import javax.annotation.security.RolesAllowed;
 import javax.ws.rs.Path;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 
 @Path("/task")
 public class RESTSERVICETask {
+    
+    @Context 
+    HttpHeaders headers;
     
     public RESTSERVICETask(){
     }
 
     /**
      * Retrieves the state of the task
-     * @param user 
-     * @param pass 
      * @param task_code 
      * @return an instance of CrawlerTaskStatus with code provided
      */
     @GET
+    @RolesAllowed("user")
     @Produces(MediaType.APPLICATION_JSON)
-    public OutputTaskStatus getTaskStatus(@QueryParam("user") String user, 
-                                    @QueryParam("pass") String pass, 
-                                    @QueryParam("task_code") String task_code) 
+    public OutputTaskStatus getTaskStatus(@QueryParam("task_code") String task_code) 
     {
+        String user = AuthenticationUtils.getCurrentUser(headers);
+        
         try {
             synchronized (AuthorizationManager.getLocker(user)) {
 
-                RESTSERVICEUtils.validateAccess(user, pass);
-
-                OutputTaskStatus taskStatus = TaskManager.getTask(user, pass, task_code, true); 
+                OutputTaskStatus taskStatus = TaskManager.getTask(user, task_code, true); 
                 return taskStatus;
             }
         } catch (WebApplicationException ex) {
@@ -70,16 +73,17 @@ public class RESTSERVICETask {
     }
     
     @POST
+    @RolesAllowed("user")
     @Produces(MediaType.APPLICATION_JSON)    
     @Path("/add")
-    public OutputTaskStatus addNewTask(InputAddTask input) 
+    public OutputTaskStatus addNewTask() 
     {
+        String user = AuthenticationUtils.getCurrentUser(headers);
+        
         try {
-            synchronized(AuthorizationManager.getLocker(input.user)){
+            synchronized(AuthorizationManager.getLocker(user)){
             
-                RESTSERVICEUtils.validateAccess(input.user, input.pass);
-                
-                Task newTask = TaskManager.prepareNewTask(input.user, input.pass);
+                Task newTask = TaskManager.prepareNewTask(user);
                 
                 OutputTaskStatus taskStatus = new OutputTaskStatus();
                 taskStatus.setTask_code(newTask.getCode());
@@ -96,16 +100,17 @@ public class RESTSERVICETask {
     }   
     
     @POST
+    @RolesAllowed("user")
     @Produces(MediaType.TEXT_PLAIN)    
     @Path("/delete")
     public String deleteTask(InputLaunchTask input) 
-    {   
+    {
+        String user = AuthenticationUtils.getCurrentUser(headers);
+        
         try {
-            synchronized (AuthorizationManager.getLocker(input.user)){
+            synchronized (AuthorizationManager.getLocker(user)){
 
-                RESTSERVICEUtils.validateAccess(input.user, input.pass);
-
-                TaskOperationResult result = TaskManager.deleteTask(input.user, input.pass, input.task_code);
+                TaskOperationResult result = TaskManager.deleteTask(user, input.task_code);
                 
                 if (!result.success) {
                     throw new InternalServerErrorException(result.message);
@@ -125,17 +130,18 @@ public class RESTSERVICETask {
      * @param input 
      * @return an instance of RESTResult
      */
-    @POST    
+    @POST
+    @RolesAllowed("user")
     @Produces(MediaType.TEXT_PLAIN)
     @Path("/relaunch")
     public String relaunchTask(InputLaunchTask input) 
-    {       
+    {    
+        String user = AuthenticationUtils.getCurrentUser(headers);
+        
         try {
-            synchronized (AuthorizationManager.getLocker(input.user)){
+            synchronized (AuthorizationManager.getLocker(user)){
 
-                RESTSERVICEUtils.validateAccess(input.user, input.pass);
-
-                TaskOperationResult result = TaskManager.launchTask(input, true);
+                TaskOperationResult result = TaskManager.launchTask(user, input, true);
                 
                 if (!result.success) {
                     throw new InternalServerErrorException(result.message);
@@ -155,17 +161,18 @@ public class RESTSERVICETask {
      * @param input 
      * @return an instance of RESTResult
      */
-    @POST    
+    @POST
+    @RolesAllowed("user")
     @Produces(MediaType.TEXT_PLAIN)
     @Path("/launch")
     public String launchTask(InputLaunchTask input) 
-    {   
+    {
+        String user = AuthenticationUtils.getCurrentUser(headers);
+        
         try {
-            synchronized (AuthorizationManager.getLocker(input.user)){
+            synchronized (AuthorizationManager.getLocker(user)){
 
-                RESTSERVICEUtils.validateAccess(input.user, input.pass);
-
-                TaskOperationResult result = TaskManager.launchTask(input, false);
+                TaskOperationResult result = TaskManager.launchTask(user, input, false);
                 
                 if (!result.success) {
                     throw new InternalServerErrorException(result.message);

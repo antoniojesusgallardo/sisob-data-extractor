@@ -46,7 +46,7 @@ public class CrawlerTask
     public final static String output_data_source_nofound_filename_prefix_csv = "data-researchers-unfounded";         
     public final static String output_data_source_nofound_filename_ext_csv = ".csv";                 
     
-    public static boolean relaunch(String user, String pass, String task_code, String code_task_folder, String email, StringWriter message)
+    public static boolean relaunch(String user, String task_code, String code_task_folder, String email, StringWriter message)
     {
         boolean success = false;
         
@@ -76,13 +76,13 @@ public class CrawlerTask
         }
         
         if(success) {
-            success = CrawlerTask.launch(user, pass, task_code, code_task_folder, email, message);        
+            success = CrawlerTask.launch(user, task_code, code_task_folder, email, message);        
         }
         
         return success;
     }
                     
-    public static boolean launch(String user, String pass, String task_code, String code_task_folder, String email, StringWriter message)
+    public static boolean launch(String user, String task_code, String code_task_folder, String email, StringWriter message)
     {   
         if(message == null)
         {
@@ -159,7 +159,7 @@ public class CrawlerTask
                                                                                        middle_data_dir,    
                                                                                        results_data_dir,                                                                                        
                                                                                        csv_data_output_file,
-                                                                                       user, pass, task_code, code_task_folder, email);
+                                                                                       user, task_code, code_task_folder, email);
         try {
 
             ResearchersCrawlerService.getInstance().addExecution(new CallbackableTaskExecution(task));                    

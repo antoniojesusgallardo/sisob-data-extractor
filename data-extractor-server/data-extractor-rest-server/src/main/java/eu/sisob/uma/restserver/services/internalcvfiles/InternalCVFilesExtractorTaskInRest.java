@@ -30,8 +30,7 @@ public class InternalCVFilesExtractorTaskInRest extends InternalCVFilesExtractor
 {       
     private static final Logger LOG = Logger.getLogger(InternalCVFilesExtractorTaskInRest.class.getName());
     
-    String user;    
-    String pass;    
+    String user;   
     String email;    
     String task_code;
     String task_code_folder;     
@@ -44,7 +43,6 @@ public class InternalCVFilesExtractorTaskInRest extends InternalCVFilesExtractor
         super(input_file, data_dir, output_file, results_dir, zip_output_file, output_file_2);
         
         this.user = user;
-        this.pass = pass;
         this.email = email;
         this.task_code = task_code;
         this.task_code_folder = task_code_folder;  
@@ -54,7 +52,7 @@ public class InternalCVFilesExtractorTaskInRest extends InternalCVFilesExtractor
     @Override
     public void executeCallBackOfTask() 
     {            
-        Mailer.notifyResultsOfTask(user, pass, task_code, email, "", "This kind of task has not feedback document associated, please report any problem using this email.");  
+        Mailer.notifyResultsOfTask(user, task_code, email, "", "This kind of task has not feedback document associated, please report any problem using this email.");  
         
         synchronized(AuthorizationManager.getLocker(user)){
             TaskFileManager.registerTaskFinished(this.task_code_folder);

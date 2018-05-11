@@ -60,7 +60,7 @@ public class GateTaskCH  {
     
     
      
-    public static TaskOperationResult launch(String user, String pass, String taskCode){   
+    public static TaskOperationResult launch(String user, String taskCode){   
         
         TaskOperationResult rResult = new TaskOperationResult();
         
@@ -92,7 +92,7 @@ public class GateTaskCH  {
             }
 
             // Execute GateService
-            GateDataExtractorTaskCH task = new GateDataExtractorTaskCH(preprocessedRep, user, pass, taskCode); 
+            GateDataExtractorTaskCH task = new GateDataExtractorTaskCH(preprocessedRep, user, taskCode); 
             GateDataExtractorServiceCH.getInstance().addExecution((new CallbackableTaskExecutionWithResource(task)));
             
             rResult.message = TheResourceBundle.getString("Jsp Task Executed Msg");

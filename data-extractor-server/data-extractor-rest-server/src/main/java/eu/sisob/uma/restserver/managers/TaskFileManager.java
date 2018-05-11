@@ -225,6 +225,10 @@ public class TaskFileManager {
      */
     public static File getFile(String user, String task_code, String file_name, String type)
     {
+        if (type == null) {
+            type = "";
+        }
+        
         String file_task_folder = TaskFileManager.getTaskFolder(user, task_code) + 
                                     (!type.equals("") ? File.separator + type : "") + 
                                     File.separator + file_name;

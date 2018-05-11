@@ -45,16 +45,13 @@ class GateDataExtractorTaskCH extends GateDataExtractorCH{
     private static final Logger log = Logger.getLogger(GateDataExtractorTaskCH.class.getName());
     
     protected String user;
-    protected String pass;
     protected String taskCode;
     
     public GateDataExtractorTaskCH(RepositoryPreprocessDataMiddleData taskRepPrePro,                                             
-                                            String user, 
-                                            String pass, 
+                                            String user,
                                             String task_code) {              
         super(taskRepPrePro);        
         this.user = user;
-        this.pass = pass;
         this.taskCode = task_code;
     }    
     
@@ -82,7 +79,7 @@ class GateDataExtractorTaskCH extends GateDataExtractorCH{
         }
         
         // Send mail
-        Mailer.notifyResultsOfTask( user, pass, taskCode, email, GateTaskCH.NAME, "");        
+        Mailer.notifyResultsOfTask(user, taskCode, email, GateTaskCH.NAME, "");        
         
         synchronized(AuthorizationManager.getLocker(email)){
             TaskFileManager.registerTaskFinished(taskCodeFolder);

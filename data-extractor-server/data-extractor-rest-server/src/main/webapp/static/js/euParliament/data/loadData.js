@@ -21,10 +21,13 @@
 /*
  * Author: Antonio Jesus Gallardo Albarran - antonio.jesus.gallardo@gmail.com
  */
-function loadData(){
-       
-    d3.json(urlJson, function(json) {
-        processJson(json);
+function loadData(token){
+    
+    d3.json(urlJson)
+        .header(security.AUTHORIZATION_PROPERTY, token)
+        .get(function(error, data) {
+            
+        processJson(data);
     });
 
     /*

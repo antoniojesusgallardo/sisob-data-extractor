@@ -51,7 +51,7 @@ public class WebSearcherCVTask
     public final static String folder_results_pathname = "downloads";
     
     
-    public static boolean launch(String user, String pass, String task_code, String code_task_folder, String email, StringWriter message)
+    public static boolean launch(String user, String task_code, String code_task_folder, String email, StringWriter message)
     {   
         if(message == null)
         {

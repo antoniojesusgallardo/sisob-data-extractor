@@ -47,7 +47,7 @@ public class GateTask
     public final static String output_data_extracted_filename_xml = "data-extracted-researchers.xml";         
     
     
-    public static boolean launch(String user, String pass, String task_code, String code_task_folder, String email, StringWriter message, boolean verbose, boolean split_by_keyword)
+    public static boolean launch(String user, String task_code, String code_task_folder, String email, StringWriter message, boolean verbose, boolean split_by_keyword)
     {   
         if(message == null)
         {
@@ -142,7 +142,7 @@ public class GateTask
             {
                 H2DBCredentials cred_resolver = GateDataExtractorService.getH2DBCredentials_Resolver();
                 H2DBCredentials cred_trad = GateDataExtractorService.getH2DBCredentials_Trad_Tables_Academic();
-                GateDataExtractorTaskInRest task = new GateDataExtractorTaskInRest(preprocessedRep, true, cred_trad, true, cred_resolver, user, pass, task_code, code_task_folder, email);                                                         
+                GateDataExtractorTaskInRest task = new GateDataExtractorTaskInRest(preprocessedRep, true, cred_trad, true, cred_resolver, user, task_code, code_task_folder, email);                                                         
 
                 try 
                 {
