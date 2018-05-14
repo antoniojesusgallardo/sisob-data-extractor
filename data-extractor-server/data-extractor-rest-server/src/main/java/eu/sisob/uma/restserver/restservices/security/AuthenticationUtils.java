@@ -19,10 +19,8 @@
 */
 package eu.sisob.uma.restserver.restservices.security;
 
-import eu.sisob.uma.restserver.services.communications.OutputAuthorizationResult;
-import java.util.List;
+import eu.sisob.uma.restserver.services.communications.User;
 import java.util.StringTokenizer;
-import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Response;
 import org.glassfish.jersey.internal.util.Base64;
 
@@ -36,7 +34,7 @@ public class AuthenticationUtils {
     public static final String AUTHENTICATION_SCHEME = "Basic";
     
     
-    public static Response createResponseWithToken(String user, String pass, OutputAuthorizationResult data){
+    public static Response createResponseWithToken(String user, String pass, User data){
         
         String code = user+":"+pass;
         String token = Base64.encodeAsString(code);
@@ -78,24 +76,5 @@ public class AuthenticationUtils {
         final String password = tokenizer.nextToken();
         
         return password;
-    }
-    
-    public static String getCurrentUser(HttpHeaders headers){
-        
-        if (headers == null) {
-            return null;
-        }
-        
-        List<String> auth = headers.getRequestHeader(AUTHORIZATION_PROPERTY);
-
-        if (auth==null || auth.isEmpty()) {
-            return null;
-        }
-        
-        String token = auth.get(0);
-        
-        String user = AuthenticationUtils.getUser(token);
-        
-        return user;
     }
 }

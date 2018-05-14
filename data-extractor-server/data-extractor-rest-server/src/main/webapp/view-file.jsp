@@ -23,17 +23,9 @@
 --%>
 
 <!DOCTYPE HTML>
-<%@page import="eu.sisob.uma.restserver.client.ApiErrorException"%>
+<%@page import="eu.sisob.uma.restserver.client.Constant"%>
 <%@page import="eu.sisob.uma.restserver.client.RESTUri"%>
 <%@page import="eu.sisob.uma.restserver.client.UtilJsp"%>
-<%@page import="eu.sisob.uma.restserver.managers.AuthorizationManager"%>
-<%@page import="eu.sisob.uma.restserver.managers.TaskFileManager"%>
-<%@page import="java.io.File"%>
-<%@page import="java.io.FileInputStream"%>
-<%@page import="java.nio.file.Files"%>
-<%@page import="java.util.HashMap"%>
-<%@page import="java.util.Map"%>
-<%@page import="org.apache.commons.io.FileUtils"%>
 
 <%@page session="true"%>
 <%
@@ -53,14 +45,10 @@
     }
     
     if(fileType==null){
-        fileType = "results";
+        fileType = Constant.FILE_TYPE_RESULT;
     }
     
-    if("source".equals(fileType)){
-        fileType = "";
-    }
-    
-    String urlJson = RESTUri.getFileToShow(taskCode, fileName, fileType);
+    String urlJson = RESTUri.getUriFile(taskCode, fileName, fileType);
     request.setAttribute("urlJson", urlJson);
     request.setAttribute("taskCode", taskCode);
     request.setAttribute("fileName", fileName);
@@ -96,7 +84,7 @@
                     Download
                 </a>  
             </h4>
-            <div id="contentFile"></div>
+            <div id="contentFile" style="word-wrap: break-word;"></div>
         </div>
         
         <script>

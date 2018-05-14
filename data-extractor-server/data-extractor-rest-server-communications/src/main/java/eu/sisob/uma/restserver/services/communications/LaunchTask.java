@@ -17,31 +17,20 @@
     You should have received a copy of the GNU General Public License
     along with SISOB Data Extractor. If not, see <http://www.gnu.org/licenses/>.
 */
+package eu.sisob.uma.restserver.services.communications;
 
-package eu.sisob.uma.restserver.restservices;
+import javax.xml.bind.annotation.XmlRootElement;
 
-import eu.sisob.uma.restserver.restservices.exceptions.JAXBExceptionMapper;
-import eu.sisob.uma.restserver.restservices.security.AuthenticationFilter;
-import org.glassfish.jersey.media.multipart.MultiPartFeature;
-import org.glassfish.jersey.server.ResourceConfig;
-
-/**
- *
- * @author Antonio Jesus Gallardo Albarran - antonio.jesus.gallardo@gmail.com
- */
-public class RESTSERVICEApp extends ResourceConfig
+@XmlRootElement
+public class LaunchTask 
 {
-    public RESTSERVICEApp()
-    {
-        packages("eu.sisob.uma.restserver.restservices");
-        
-        // Required to upload files
-        register(MultiPartFeature.class);
-        
-        // Register Auth Filter
-        register(AuthenticationFilter.class);
-        
-        // Register exception mapper
-        register(JAXBExceptionMapper.class);
-    }
+    /**
+     *
+     */
+    public String task_kind;
+    /**
+     *
+     */
+    public TaskParameter[] parameters;
 }
+

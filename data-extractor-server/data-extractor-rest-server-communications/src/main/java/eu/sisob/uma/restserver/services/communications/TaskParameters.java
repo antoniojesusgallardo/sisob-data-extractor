@@ -19,7 +19,7 @@
 */
 package eu.sisob.uma.restserver.services.communications;
 
-public class TasksParams {
+public class TaskParameters {
     /**
      *
      */

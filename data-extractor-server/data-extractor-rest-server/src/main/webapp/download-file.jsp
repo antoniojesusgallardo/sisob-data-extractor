@@ -24,14 +24,13 @@
 
 <!DOCTYPE HTML>
 <%@page import="eu.sisob.uma.restserver.client.ApiErrorException"%>
+<%@page import="eu.sisob.uma.restserver.client.Constant"%>
 <%@page import="eu.sisob.uma.restserver.client.RESTClient"%>
 <%@page import="eu.sisob.uma.restserver.client.UtilJsp"%>
-<%@page import="java.io.File"%>
-<%@page import="java.io.FileInputStream"%>
-<%@page import="java.nio.file.Files"%>
+<%@page import="java.io.InputStream"%>
 <%@page import="java.util.HashMap"%>
 <%@page import="java.util.Map"%>
-<%@page import="org.apache.commons.io.FileUtils"%>
+<%@page import="org.apache.commons.io.IOUtils"%>
 
 <%@page session="true"%>
 <%
@@ -40,7 +39,6 @@
         return;
     }
     
-    String user = (String)session.getAttribute("user");
     String token = (String)session.getAttribute("token");
 
     //Validate task and file
@@ -54,11 +52,7 @@
     }
     
     if(fileType==null){
-        fileType = "results";
-    }
-    
-    if("source".equals(fileType)){
-        fileType = "";
+        fileType = Constant.FILE_TYPE_RESULT;
     }
     
     try{
@@ -67,14 +61,13 @@
         params.put("file", fileName);
         params.put("type", fileType);
         RESTClient restClient = new RESTClient(token);
-        File file = (File)restClient.get("/file/download", File.class, params);
+        InputStream inputStream = (InputStream)restClient.get("/file", InputStream.class, params);
+        byte[] bytes = IOUtils.toByteArray(inputStream);
         
         response.setContentType("text/csv");
         response.setHeader("Content-disposition", "attachment; filename=\""+fileName+"\"");
         response.setHeader("Cache-Control", "no-cache");
         response.setHeader("Expires", "-1");
-        
-        byte[] bytes = Files.readAllBytes(file.toPath());
         
         response.getOutputStream().write(bytes);
         response.getOutputStream().flush();

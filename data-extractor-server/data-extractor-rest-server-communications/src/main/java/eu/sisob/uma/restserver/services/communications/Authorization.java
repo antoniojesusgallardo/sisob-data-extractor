@@ -19,31 +19,28 @@
 */
 package eu.sisob.uma.restserver.services.communications;
 
-import javax.xml.bind.annotation.XmlRootElement;
-
 /**
  *
  * @author Antonio Jesus Gallardo Albarran - antonio.jesus.gallardo@gmail.com
  */
-@XmlRootElement
-public class OutputUploadFile {
+public class Authorization {
     
-    private String name;
-    private String size;
+    private String user;
+    private String pass;
 
-    public String getName() {
-        return name;
+    public String getUser() {
+        return user;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setUser(String user) {
+        this.user = user;
     }
 
-    public String getSize() {
-        return size;
+    public String getPass() {
+        return pass;
     }
 
-    public void setSize(String size) {
-        this.size = size;
+    public void setPass(String pass) {
+        this.pass = pass;
     }
 }

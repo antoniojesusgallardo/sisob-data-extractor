@@ -18,12 +18,12 @@
     along with SISOB Data Extractor. If not, see <http://www.gnu.org/licenses/>.
 --%>
 
+<%@page import="eu.sisob.uma.restserver.client.Constant"%>
 <%@page import="eu.sisob.uma.restserver.client.RESTUri"%>
 <%@page import="eu.sisob.uma.restserver.client.UtilJsp"%>
-<%@page import="eu.sisob.uma.restserver.services.communications.OutputTaskStatus"%>
+<%@page import="eu.sisob.uma.restserver.services.communications.Task"%>
 <%@page import="eu.sisob.uma.restserver.TheConfig"%>
-<%@page import="eu.sisob.uma.restserver.TheResourceBundle"%>   
-<%@page import="eu.sisob.uma.restserver.services.gateCH.GateTaskCH"%>
+<%@page import="eu.sisob.uma.restserver.TheResourceBundle"%>
 <%@page import="java.util.List"%>
 <%@page import="java.util.ArrayList"%>
 
@@ -51,7 +51,7 @@
         String[] crawler = {"gate", TheResourceBundle.getString("Task Gate Title")};  
         taskTypes.add(crawler);              
         
-        String[] gateTaskCH = {GateTaskCH.NAME, GateTaskCH.NAME};  
+        String[] gateTaskCH = {Constant.TASK_NAME_CH, Constant.TASK_NAME_CH};  
         taskTypes.add(gateTaskCH);
     }
     if(TheConfig.getInstance().getString(TheConfig.SERVICES_INTERNAL_CV_FILES).equals("enabled")) {   
@@ -69,8 +69,8 @@
         taskTypes.add(email);              
     }
     
-    OutputTaskStatus task = (OutputTaskStatus)request.getAttribute("task");
-    String urlBaseToDelete = RESTUri.getDeleteFile(task.getTask_code(), "", "");
+    Task task = (Task)request.getAttribute("task");
+    String urlBaseToDelete = RESTUri.getUriFile(task.getTask_code(), "", "");
     
     request.setAttribute("taskTypes", taskTypes);
     request.setAttribute("urlBaseToDelete", urlBaseToDelete);
@@ -105,7 +105,7 @@
             <fmt:message key="Jsp File Uploads Inst" bundle="${msg}"/>
     </blockquote>    
     <!-- The file upload form used as target for the file upload widget -->
-    <form id="fileupload" action="resources/file/upload" method="POST" enctype="multipart/form-data">
+    <form id="fileupload" action="resources/file" method="POST" enctype="multipart/form-data">
         <!-- The fileupload-buttonbar contains buttons to add/delete files and start/cancel the upload -->            
                 <input type="hidden" value="${task.task_code}" name="task_code" />
         <div class="row fileupload-buttonbar">
@@ -266,7 +266,7 @@
             <td colspan="2"></td>
         {% } %}
         <td class="delete">
-            <button class="btn btn-danger" data-type="GET" 
+            <button class="btn btn-danger" data-type="DELETE" 
                 data-url="${urlBaseToDelete}{%=file.name%}">
                 <i class="icon-trash icon-white"></i>
                 <span>{%=locale.fileupload.destroy%}</span>
@@ -304,7 +304,6 @@ $(document).ready(function()
         var taskKind = $("select#task-selector").val();
         
         var data = {
-            task_code: "${task.task_code}",
             task_kind: taskKind,
             parameters: []
         };
@@ -323,12 +322,14 @@ $(document).ready(function()
 
         if(taskKind !== "none"){
             
+            var urlBase = "${pageContext.request.contextPath}/resources/";
+            
             var securityHeader = {};
             securityHeader[security.AUTHORIZATION_PROPERTY] = '${sessionScope.token}';
             
             $.ajax({ 
                 type: "POST",
-                url: "resources/task/launch",
+                url: urlBase + "tasks/${task.task_code}/launch",
                 headers: securityHeader,
                 data: JSON.stringify(data),
                 contentType: 'application/json',

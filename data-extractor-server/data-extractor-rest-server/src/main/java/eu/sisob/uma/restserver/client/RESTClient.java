@@ -26,6 +26,7 @@ import java.util.Map;
 import java.util.logging.Logger;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
+import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.Invocation;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.GenericType;
@@ -115,6 +116,31 @@ public class RESTClient {
         Response response = invocationBuilder
                                 .header(AuthenticationUtils.AUTHORIZATION_PROPERTY, token)
                                 .get();
+        
+        if (response.getStatus() != Status.OK.getStatusCode()) {
+            String errorMessage = response.readEntity(String.class);
+            log.warning(errorMessage);
+            throw new ApiErrorException(response.getStatus(), errorMessage);
+        }
+        
+        return response;
+    }
+    
+    public Response postResponse(String path, Object data) throws ApiErrorException{
+        
+        String fullPath = rootPath + path;
+        
+        ClientConfig clientConfig = new ClientConfig();
+        Client client =  ClientBuilder.newClient(clientConfig);
+        WebTarget  webTarget = client.target(fullPath);
+        
+        // invoke service
+        Invocation.Builder invocationBuilder;
+        invocationBuilder = webTarget
+                                .request(MediaType.APPLICATION_JSON);
+        Response response = invocationBuilder
+                                .header(AuthenticationUtils.AUTHORIZATION_PROPERTY, token)
+                                .post(Entity.entity(data, MediaType.APPLICATION_JSON));
         
         if (response.getStatus() != Status.OK.getStatusCode()) {
             String errorMessage = response.readEntity(String.class);

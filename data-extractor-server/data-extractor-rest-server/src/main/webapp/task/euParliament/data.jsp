@@ -23,6 +23,7 @@
 --%>
 
 <!DOCTYPE HTML>
+<%@page import="eu.sisob.uma.restserver.client.Constant"%>
 <%@page import="eu.sisob.uma.restserver.client.RESTUri"%>
 <%@page import="eu.sisob.uma.restserver.client.UtilJsp"%>
 <%@page import="eu.sisob.uma.restserver.managers.AuthorizationManager"%>
@@ -40,8 +41,7 @@
     String task_code    = request.getParameter("task_code");
     String speech_id    = request.getParameter("speech_id");
 
-    String urlJson = RESTUri.getFileToShow(task_code, speech_id+".json", 
-                                            AuthorizationManager.detailed_results_dirname);
+    String urlJson = RESTUri.getUriFile(task_code, speech_id+".json", Constant.FILE_TYPE_DETAILED_RESULT);
     
     request.setAttribute("urlJson", urlJson);
     request.setAttribute("version", version);

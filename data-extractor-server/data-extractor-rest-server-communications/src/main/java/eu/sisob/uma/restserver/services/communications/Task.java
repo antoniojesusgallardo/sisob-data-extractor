@@ -25,25 +25,17 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 
 @XmlRootElement
-public class OutputTaskStatus 
+public class Task 
 {
-    /**
-     * 
-     */
-    public static final String TASK_STATUS_TO_EXECUTE = "TO EXECUTE";
-    /**
-     * 
-     */
-    public static final String TASK_STATUS_EXECUTING = "EXECUTING";
-    /**
-     * 
-     */
-    public static final String TASK_STATUS_EXECUTED = "EXECUTED";
     
-    /**
-     *
-     */
-    public OutputTaskStatus()
+    public static final String STATUS_TO_EXECUTE = "TO EXECUTE";
+    
+    public static final String STATUS_EXECUTING = "EXECUTING";
+    
+    public static final String STATUS_EXECUTED = "EXECUTED";
+    
+    
+    public Task()
     {
         status = "";      
         message = "";
@@ -55,75 +47,48 @@ public class OutputTaskStatus
         date_started = "";
         date_finished = "";
 
-        results = new ArrayList<String>();      
-        source = new ArrayList<String>();
-        verbose = new ArrayList<String>();
-        params = new ArrayList<String[]>(); 
+        results = new ArrayList();      
+        source = new ArrayList();
+        verbose = new ArrayList();
+        params = new ArrayList(); 
         errors = "";
 
         feedback = "";   
     }
     
-    /**
-     *
-     */
+    
     private String status;      
-    /**
-     *
-     */
+    
     private String message;
-    /**
-     *
-     */
+    
     private String task_code;   
-    /**
-     *
-     */
+    
     private String name;   
-    /**
-     *
-     */
+    
     private String kind;
-    /**
-     *
-     */
-    private List<String[]> params;
+    
+    private List<TaskParameter> params;
 
-    /**
-     *
-     */
+    
     private String date_created;
-    /**
-     *
-     */
+    
     private String date_started;
-    /**
-     *
-     */
+    
     private String date_finished;
 
-    /**
-     *
-     */ 
+    
     private List<String> results;
-    /**
-     *
-     */
+    
     private List<String> source;  
-    /**
-     *
-     */
+    
     private List<String> verbose;  
-    /**
-     *
-     */
+    
     private String errors;
-
-    /**
-     *
-     */
+    
     private String feedback;   
 
+    
+    
     public String getStatus() {
         return status;
     }
@@ -164,11 +129,11 @@ public class OutputTaskStatus
         this.kind = kind;
     }
 
-    public List<String[]> getParams() {
+    public List<TaskParameter> getParams() {
         return params;
     }
 
-    public void setParams(List<String[]> params) {
+    public void setParams(List<TaskParameter> params) {
         this.params = params;
     }
 

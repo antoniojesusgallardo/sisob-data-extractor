@@ -20,9 +20,9 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 
+<%@page import="eu.sisob.uma.restserver.client.Constant"%>
 <%@page import="eu.sisob.uma.restserver.client.UtilJsp"%>
-<%@page import="eu.sisob.uma.restserver.services.communications.OutputTaskStatus"%>
-<%@page import="eu.sisob.uma.restserver.services.gateCH.GateTaskCH"%>
+
 
 <%@page session="true"%>
 <%
@@ -36,7 +36,9 @@
         return;
     }
      
-    request.setAttribute("GateTaskCH", GateTaskCH.NAME);
+    request.setAttribute("GateTaskCH", Constant.TASK_NAME_CH);
+    request.setAttribute("FileType_Source", Constant.FILE_TYPE_SOURCE);
+    request.setAttribute("FileType_Verbose", Constant.FILE_TYPE_VERBOSE);
 %>
 
 <fmt:setBundle basename="Bundle" var="msg"/>
@@ -84,7 +86,7 @@
         <h5>Parameters of the task</h5>
         <blockquote>
             <c:forEach items="${task.params}" var="iParam">
-                <strong>${iParam[0]}</strong> => ${iParam[1]}<br>
+                <strong>${iParam.key}</strong> => ${iParam.value}<br>
             </c:forEach>
         </blockquote>
     </c:if>
@@ -143,7 +145,7 @@
         <h4>The verbose files generated in the task:</h4>
         <blockquote>
             <c:forEach items="${task.verbose}" var="iVerbose">
-                <a href='download-file.jsp?task-code=${task.task_code}&file-name=${iVerbose}&file-type=verbose'
+                <a href='download-file.jsp?task-code=${task.task_code}&file-name=${iVerbose}&file-type=${FileType_Verbose}'
                     target='_blank'>
                     ${iVerbose}
                 </a><br><br>
@@ -163,7 +165,7 @@
         <h4>The sources used in the task:</h4>
         <blockquote>
             <c:forEach items="${task.source}" var="iSource">
-                <a href='download-file.jsp?task-code=${task.task_code}&file-name=${iSource}&file-type=source'
+                <a href='download-file.jsp?task-code=${task.task_code}&file-name=${iSource}&file-type=${FileType_Source}'
                     target='_blank' >
                     ${iSource}
                 </a><br><br>
@@ -189,25 +191,20 @@
 <script type="text/javascript">    
 $(document).ready(function(){
     
-    var task_code   = "${task.task_code}";
-    var task_kind   = "${task.kind}";
+    var urlBase = "${pageContext.request.contextPath}/resources/";
+    
+    var task_code = "${task.task_code}";
+    var task_kind = "${task.kind}";
     
     $("button#task-launcher").click(function()
     {   
-        var data = {
-            task_code: task_code,
-            task_kind: task_kind,
-            parameters: []
-        };
-        
         var securityHeader = {};
         securityHeader[security.AUTHORIZATION_PROPERTY] = '${sessionScope.token}';
         
         $.ajax({ 
             type: "POST",
-            url: "${pageContext.request.contextPath}/resources/task/relaunch",
+            url: urlBase + "tasks/" + task_code + "/relaunch",
             headers: securityHeader,
-            data: JSON.stringify(data), 
             contentType: 'application/json',
             success: function(result) { 
                 showModal("success", "("+task_kind+")  "+result);
@@ -222,20 +219,15 @@ $(document).ready(function(){
     }); 
         
     $("button#task-deleter").click(function(){
-
-        var data = {
-            task_code: task_code
-        };
         
         var securityHeader = {};
         securityHeader[security.AUTHORIZATION_PROPERTY] = '${sessionScope.token}';
 
         $.ajax({ 
-            type: "POST",
-            url: "${pageContext.request.contextPath}/resources/task/delete",
+            type: "DELETE",
+            url: urlBase + "tasks/"+task_code,
             headers: securityHeader,
-            data: JSON.stringify(data),
-            contentType: 'application/json',                            
+            contentType: 'application/json',
             success: function(result){
                 showModal("success", "("+task_kind+")  "+result);
                 setTimeout(function() {
@@ -243,6 +235,7 @@ $(document).ready(function(){
                 }, 2000);
             },
             error: function(response){
+                console.log(response);
                 showModal("error", response.responseText);
             }
         });

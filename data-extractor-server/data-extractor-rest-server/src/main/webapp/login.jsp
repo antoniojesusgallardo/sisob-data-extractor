@@ -26,7 +26,8 @@
 <%@page import="eu.sisob.uma.restserver.client.ApiErrorException"%>
 <%@page import="eu.sisob.uma.restserver.client.RESTClient"%>
 <%@page import="eu.sisob.uma.restserver.restservices.security.AuthenticationUtils"%>
-<%@page import="eu.sisob.uma.restserver.services.communications.OutputAuthorizationResult"%>
+<%@page import="eu.sisob.uma.restserver.services.communications.Authorization"%>
+<%@page import="eu.sisob.uma.restserver.services.communications.User"%>
 <%@page import="eu.sisob.uma.restserver.TheConfig"%>
 <%@page import="java.security.MessageDigest"%>
 <%@page import="java.util.List"%>
@@ -39,33 +40,19 @@
     String user = request.getParameter("user");  
     String pass = request.getParameter("pass");  
   
-    // Convert password to SHA-256
-    MessageDigest md = MessageDigest.getInstance("SHA-256");
-    md.update(pass.getBytes());
-
-    byte byteData[] = md.digest();
-    //convert the byte to hex format method 1
-    StringBuffer sb = new StringBuffer();
-    for (int i = 0; i < byteData.length; i++) {
-      sb.append(Integer.toString((byteData[i] & 0xff) + 0x100, 16).substring(1));
-    }
-    pass = sb.toString();
-    // END - Convert password to SHA-256
-
-    // API REST - Authorization
-    Map params = new HashMap();
-    params.put("user", user);
-    params.put("pass", pass);
     RESTClient restClient = new RESTClient(null);
     
     String urlRedirect = "";
     
     try{
-        Response authResponse = restClient.getResponse("/authorization", OutputAuthorizationResult.class, params);
+        Authorization auth = new Authorization();
+        auth.setUser(user);
+        auth.setPass(pass);
+        Response authResponse = restClient.postResponse("/authorization", auth);
         
-        OutputAuthorizationResult authResult = authResponse.readEntity(OutputAuthorizationResult.class);
+        User userAuth = authResponse.readEntity(User.class);
         
-        if(OutputAuthorizationResult.ACCOUNT_TYPE_USER.equals(authResult.account_type)){
+        if(User.ACCOUNT_TYPE_USER.equals(userAuth.getAccount_type())){
             
             List authorization = authResponse
                                     .getHeaders()
@@ -76,12 +63,12 @@
             }
             String token = (String)authorization.get(0);
             
-            session.setAttribute("user", user);
+            session.setAttribute("user", userAuth.getUsername());
             session.setAttribute("token", token);
 
             urlRedirect += "/task/list.jsp";
         }
-        else if(OutputAuthorizationResult.ACCOUNT_TYPE_APP.equals(authResult.account_type)){
+        else if(User.ACCOUNT_TYPE_APP.equals(userAuth.getAccount_type())){
             urlRedirect += "/index.jsp?message=unauth_type";
         }
         else{

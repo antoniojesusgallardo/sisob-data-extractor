@@ -24,7 +24,7 @@ package eu.sisob.uma.restserver.beans;
  *
  * @author Antonio Jesus Gallardo Albarran - antonio.jesus.gallardo@gmail.com
  */
-public class Task {
+public class NewTask {
     
     private String status;      
     

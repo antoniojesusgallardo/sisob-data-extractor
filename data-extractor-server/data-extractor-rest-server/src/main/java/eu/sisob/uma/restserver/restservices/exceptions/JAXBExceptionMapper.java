@@ -17,25 +17,32 @@
     You should have received a copy of the GNU General Public License
     along with SISOB Data Extractor. If not, see <http://www.gnu.org/licenses/>.
 */
-
 package eu.sisob.uma.restserver.restservices.exceptions;
 
 import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status;
+import javax.ws.rs.ext.ExceptionMapper;
+import javax.ws.rs.ext.Provider;
 
 /**
  *
- * @author Antonio Jesus Gallardo Albarran - antonio.jesus.gallardo@gmail.com
+ * @author @author Antonio Jesus Gallardo Albarran - antonio.jesus.gallardo@gmail.com
  */
-public class InternalServerErrorException extends WebApplicationException{
-    
-    public InternalServerErrorException() {
-        super("Internal Server Error", Response.Status.INTERNAL_SERVER_ERROR);
+@Provider
+public class JAXBExceptionMapper implements ExceptionMapper<WebApplicationException> {
+   
+    @Override
+    public Response toResponse(WebApplicationException exception) {
+        
+        int statusCode = Status.BAD_REQUEST.getStatusCode();
+        if (exception.getResponse() != null && exception.getResponse().getStatus()>0) {
+           statusCode = exception.getResponse().getStatus();
+        }
+        return Response.status(statusCode)
+                        .entity(exception.getMessage())
+                        .type(MediaType.TEXT_PLAIN)
+                        .build();
     }
-
-    public InternalServerErrorException(String message) {
-        super(message, Response.Status.INTERNAL_SERVER_ERROR);
-    }
-    
-    
 }

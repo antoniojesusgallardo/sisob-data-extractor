@@ -28,54 +28,21 @@ import eu.sisob.uma.restserver.TheConfig;
  */
 public class RESTUri {
     
-    
     /**
-     * Return the url to show the file in browser
+     * Return the URI to access to the file in the task folder
      * @param task_code
+     * @param file_name
      * @param type 
-     * @param file_name 
      * @return
      */
-    public static String getFileToShow(String task_code, String file_name, String type){
-        
-        String url = getUri(task_code, file_name, type, "show");
-        return url;
-    } 
-    
-    /**
-     * Return the url to donwload the file in browser
-     * @param task_code
-     * @param type 
-     * @param file_name 
-     * @return
-     */
-    public static String getFileToDownload(String task_code, String file_name, String type){
-        
-        String url = getUri(task_code, file_name, type, "download");
-        return url;
-    }  
-    
-    /**
-     * Return the url to delete the file in the task folder
-     * @param task_code
-     * @param type 
-     * @param file_name 
-     * @return
-     */
-    public static String getDeleteFile(String task_code, String file_name, String type){
-        
-        String url = getUri(task_code, file_name, type, "delete");
-        return url;
-    }
-    
-    private static String getUri(String task_code, String file_name, 
-                                 String type, String operation){
+    public static String getUriFile(String task_code, String file_name, String type){
         
         String url = TheConfig.getInstance().getString(TheConfig.SERVER_URL) + 
-                        "/resources/file/" + operation + 
-                        "?task_code=" + task_code + 
-                        "&type=" + type +
-                        "&file=" + file_name;
+                        "/resources/file";
+        
+        url+=   "?task_code=" + task_code + 
+                "&type=" + type +
+                "&file=" + file_name;
         return url;
     }
 }

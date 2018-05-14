@@ -20,10 +20,8 @@
 <!DOCTYPE HTML>
 <%@page import="eu.sisob.uma.restserver.client.RESTClient"%>
 <%@page import="eu.sisob.uma.restserver.client.UtilJsp"%>
-<%@page import="eu.sisob.uma.restserver.services.communications.OutputTaskStatus"%>
-<%@page import="java.util.HashMap"%>
+<%@page import="eu.sisob.uma.restserver.services.communications.Task"%>
 <%@page import="java.util.List"%>
-<%@page import="java.util.Map"%>
 <%@page import="javax.ws.rs.core.GenericType"%>
 
 <%@page session="true"%>
@@ -37,15 +35,15 @@
     
     // API REST - get tasks
     RESTClient restClient = new RESTClient(token);
-    List<OutputTaskStatus> listTasks = (List<OutputTaskStatus>)restClient.get("/tasks", new GenericType<List<OutputTaskStatus>>(){}, null);
+    List<Task> listTasks = (List<Task>)restClient.get("/tasks", new GenericType<List<Task>>(){}, null);
     
     // Save the result in the request
     request.setAttribute("listTasks", listTasks);
     
     // Save constant in the request
-    request.setAttribute("TASK_STATUS_EXECUTED", OutputTaskStatus.TASK_STATUS_EXECUTED);
-    request.setAttribute("TASK_STATUS_EXECUTING", OutputTaskStatus.TASK_STATUS_EXECUTING);
-    request.setAttribute("TASK_STATUS_TO_EXECUTE", OutputTaskStatus.TASK_STATUS_TO_EXECUTE);
+    request.setAttribute("TASK_STATUS_EXECUTED", Task.STATUS_EXECUTED);
+    request.setAttribute("TASK_STATUS_EXECUTING", Task.STATUS_EXECUTING);
+    request.setAttribute("TASK_STATUS_TO_EXECUTE", Task.STATUS_TO_EXECUTE);
 %>
 
 <%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
@@ -142,38 +140,39 @@
                 </div>
             </div>        
         </div>
-    </jsp:body>
-</t:generic-template>
+                                
+        <script type="text/javascript">    
+            $(document).ready(function()
+            {   
+                $("button#task-creator").click(function(){
 
-<script type="text/javascript">    
-    $(document).ready(function()
-    {   
-        $("button#task-creator").click(function(){
-            
-            var securityHeader = {};
-            securityHeader[security.AUTHORIZATION_PROPERTY] = '${sessionScope.token}';
-            
-            $.ajax({ 
-                type: "POST",
-                url: "${pageContext.request.contextPath}/resources/task/add",
-                headers: securityHeader,   
-                contentType: 'application/json',                                                      
-                success: function(result){
-                    showModal("success", result.message);
-                    setTimeout(function() {
-                        window.location = 'task/details.jsp?task_code='+result.task_code;
-                    }, 2000);
-                },
-                error: function(response){
-                    showModal("error", response.responseText);
+                    var securityHeader = {};
+                    securityHeader[security.AUTHORIZATION_PROPERTY] = '${sessionScope.token}';
+
+                    $.ajax({ 
+                        type: "POST",
+                        url: "${pageContext.request.contextPath}/resources/tasks",
+                        headers: securityHeader,   
+                        contentType: 'application/json',                                                      
+                        success: function(result){
+                            showModal("success", result.message);
+                            setTimeout(function() {
+                                window.location = 'task/details.jsp?task_code='+result.task_code;
+                            }, 2000);
+                        },
+                        error: function(response){
+                            showModal("error", response.responseText);
+                        }
+                    });
+                });
+
+                function showModal(pType, pMessage){
+                    var htmlMessage = "<h4 class='text-"+pType+"'>" + pMessage + "</h4>";
+                    $("div#operation-result").html(htmlMessage);
+                    $('#test_modal').modal('show');
                 }
             });
-        });
+        </script>  
         
-        function showModal(pType, pMessage){
-            var htmlMessage = "<h4 class='text-"+pType+"'>" + pMessage + "</h4>";
-            $("div#operation-result").html(htmlMessage);
-            $('#test_modal').modal('show');
-        }
-    });
-</script>  
+    </jsp:body>
+</t:generic-template>

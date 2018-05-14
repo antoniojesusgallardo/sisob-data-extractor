@@ -20,11 +20,11 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 
-<%@page import="eu.sisob.uma.restserver.services.gateCH.GateTaskCH"%>
-<%@page import="eu.sisob.uma.restserver.services.communications.TasksParams"%>
+<%@page import="eu.sisob.uma.restserver.client.Constant"%>
+<%@page import="eu.sisob.uma.restserver.services.communications.TaskParameters"%>
 
 <%
-    request.setAttribute("GateTaskCH", GateTaskCH.NAME);
+    request.setAttribute("GateTaskCH", Constant.TASK_NAME_CH);
 %>
 
 <fmt:setBundle basename="Bundle" var="msg"/>
@@ -128,11 +128,11 @@
               <li>
                   <label>Search patterns: Choose the search patterns.</label>
 
-                      <input type="radio" name="pattern" id="<%=TasksParams.PARAM_CRAWLER_P1%>" value="true"> PATTERN 1: "John J Smith"<br>
-                      <input type="radio" name="pattern" id="<%=TasksParams.PARAM_CRAWLER_P2%>" value="true" checked> PATTERN 1: "John J Smith AND Chemistry"<br>
-                      <input type="radio" name="pattern" id="<%=TasksParams.PARAM_CRAWLER_P3%>" value="true"> PATTERN 3: "John J Smith site:url"<br>
-                      <input type="radio" name="pattern" id="<%=TasksParams.PARAM_CRAWLER_P4%>" value="true"> PATTERN 4: "John J Smith AND Stanford"<br>
-                      <input type="radio" name="pattern" id="<%=TasksParams.PARAM_CRAWLER_P5%>" value="true"> PATTERN 5: "John J Smith AND Chemistry AND Stanford"<br>
+                      <input type="radio" name="pattern" id="<%=TaskParameters.PARAM_CRAWLER_P1%>" value="true"> PATTERN 1: "John J Smith"<br>
+                      <input type="radio" name="pattern" id="<%=TaskParameters.PARAM_CRAWLER_P2%>" value="true" checked> PATTERN 1: "John J Smith AND Chemistry"<br>
+                      <input type="radio" name="pattern" id="<%=TaskParameters.PARAM_CRAWLER_P3%>" value="true"> PATTERN 3: "John J Smith site:url"<br>
+                      <input type="radio" name="pattern" id="<%=TaskParameters.PARAM_CRAWLER_P4%>" value="true"> PATTERN 4: "John J Smith AND Stanford"<br>
+                      <input type="radio" name="pattern" id="<%=TaskParameters.PARAM_CRAWLER_P5%>" value="true"> PATTERN 5: "John J Smith AND Chemistry AND Stanford"<br>
 
               </li>
           </ol>      

@@ -23,204 +23,185 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import eu.sisob.uma.restserver.managers.TaskManager;
 import eu.sisob.uma.restserver.TheResourceBundle;
+import eu.sisob.uma.restserver.managers.AuthorizationManager;
 import eu.sisob.uma.restserver.managers.TaskFileManager;
 import eu.sisob.uma.restserver.restservices.exceptions.InternalServerErrorException;
-import eu.sisob.uma.restserver.restservices.exceptions.UnAuthorizedException;
 import eu.sisob.uma.restserver.restservices.security.AuthenticationUtils;
-import eu.sisob.uma.restserver.services.communications.OutputTaskStatus;
-import eu.sisob.uma.restserver.services.communications.OutputUploadFile;
+import eu.sisob.uma.restserver.services.communications.Task;
+import eu.sisob.uma.restserver.services.communications.FileDetail;
 import java.io.File;
-import java.io.FileInputStream;
+import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.annotation.security.RolesAllowed;
 import javax.ws.rs.Consumes;
+import javax.ws.rs.DELETE;
 import javax.ws.rs.Path;
 import javax.ws.rs.GET;
 import javax.ws.rs.POST;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.WebApplicationException;
-import javax.ws.rs.core.Context;
-import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import javax.ws.rs.core.Response.Status;
+import javax.ws.rs.core.StreamingOutput;
 import org.apache.commons.io.FileUtils;
 import org.glassfish.jersey.media.multipart.FormDataContentDisposition;
 import org.glassfish.jersey.media.multipart.FormDataParam;
 
 @Path("/file")
-public class RESTSERVICEFile {
+public class RESTSERVICEFile extends RESTSERVICEBase{
     
-    private static final Logger LOG = Logger.getLogger(RESTSERVICEFile.class.getName());
-    
-    @Context 
-    HttpHeaders headers;
+    public static final String FILE_TYPE_SOURCE             = "source";
+    public static final String FILE_TYPE_VERBOSE            = "verbose";
+    public static final String FILE_TYPE_RESULT             = "result";
+    public static final String FILE_TYPE_DETAILED_RESULT    = "detailed-result";
     
     @GET
     @RolesAllowed("user")
-    @Path("/show")
-    public Response showFile(@QueryParam("task_code") String task_code, 
-                            @QueryParam("file") String file, 
-                            @QueryParam("type") String type)  
-    {   
-        Response response;
-        
-        String user = AuthenticationUtils.getCurrentUser(headers);
-        
-        try {
-            
-            //Security
-            if(file.contains("\\") || file.contains("/")){
-                throw new Exception();
-            }
-
-            File f = TaskFileManager.getFile(user, task_code, file, type);
-            
-            if (!f.exists()) {
-                throw new InternalServerErrorException("File not found");
-            }
-            
-            response =  Response.ok(new FileInputStream(f))
-                                .header("Content-Type","text/html; charset=utf-8")
-                                .build();
-            
-        } catch (WebApplicationException ex) {
-            throw ex;
-        } catch (Exception ex) {
-            LOG.log(Level.SEVERE, "FIXME", ex);
-            throw new InternalServerErrorException();
-        }        
-        
-        return response;
-    }
-        
-    @GET
-    @RolesAllowed("user")
-    @Path("/download")
     public Response getFile(@QueryParam("task_code") String task_code, 
                             @QueryParam("file") String file, 
                             @QueryParam("type") String type)  
     {        
         Response response;
         
-        String user = AuthenticationUtils.getCurrentUser(headers);
+        String user = AuthenticationUtils.getUser(token);
         
         try {
+            validateRequired(task_code, "Task Code");
+            validateRequired(file, "File");
+            validateRequired(type, "File Type");
+            
+            validateFileType(type);
+            
+            String fileType = getFileType(type);
+            
             //Security
             if(file.contains("\\") || file.contains("/")){
-                throw new Exception();
+                throw new WebApplicationException("Incorrect file name.", Response.Status.BAD_REQUEST);
             }
             
-            File f = TaskFileManager.getFile(user, task_code, file, type);
+            final File f = TaskFileManager.getFile(user, task_code, file, fileType);
             
             if (!f.exists()) {
-                throw new InternalServerErrorException("File not found");
+                throw new WebApplicationException("File not found", Response.Status.NOT_FOUND);
             }
+            
+            StreamingOutput fileStream =  new StreamingOutput() 
+            {
+                @Override
+                public void write(java.io.OutputStream output) throws IOException, WebApplicationException 
+                {
+                    try {
+                        java.nio.file.Path path = Paths.get(f.getAbsolutePath());
+                        byte[] data = Files.readAllBytes(path);
+                        output.write(data);
+                        output.flush();
+                    } 
+                    catch (Exception e){
+                        throw new WebApplicationException("File not found", Response.Status.NOT_FOUND);
+                    }
+                }
+            };
         
-            response =  Response.ok(f)
-                        .header("Content-Disposition", "attachment; filename=\"" + f.getName() + "\"")
-                        .build();           
+            response =  Response.ok(fileStream, MediaType.APPLICATION_OCTET_STREAM)
+                        .header("Content-Disposition", "attachment; filename='"+f.getName()+"'")
+                        .build();
         } catch (WebApplicationException ex) {
             throw ex;
         } catch (Exception ex) {
-            LOG.log(Level.SEVERE, "FIXME", ex);
+            LOG.log(Level.SEVERE, ex.getMessage(), ex);
             throw new InternalServerErrorException();
         }
-        // Alternative http://www.mkyong.com/webservices/jax-rs/download-pdf-file-from-jax-rs/
-        // http://stackoverflow.com/questions/7106775/how-to-download-large-files-without-memory-issues-in-java
         
         return response;
     }
     
-    @GET
+    @DELETE
     @RolesAllowed("user")
-    @Path("/delete")    
-    public String deleteFile(@QueryParam("token") String token,
-                            @QueryParam("task_code") String task_code, 
+    public String deleteFile(@QueryParam("task_code") String task_code, 
                             @QueryParam("file") String file)  
     {
-        String user = AuthenticationUtils.getCurrentUser(headers);
+        String user = AuthenticationUtils.getUser(token);
         
         try {
+            
+            validateRequired(task_code, "Task Code");
+            validateRequired(file, "File");
             
             synchronized(user){
 
                 //Security
                 if(file.contains("\\") || file.contains("/")){
-                    throw new UnAuthorizedException("Unautorized access");
+                    throw new WebApplicationException("Incorrect file name.", Response.Status.BAD_REQUEST);
                 }
                 
+                // Only delete the input data.
                 File f = TaskFileManager.getFile(user, task_code, file, "");
                 
-                if(f.exists()){
-                    f.delete();
+                if (!f.exists()) {
+                    throw new WebApplicationException("File not found.", Response.Status.NOT_FOUND);
                 }
-                else{
-                    throw new Exception("File not found.");
-                }
+                
+                f.delete();
                 
                 return "File deleted successfully";
             }
         } catch (WebApplicationException e) {
             throw e;
-        } catch (Exception e) {
-            throw new InternalServerErrorException(e.getMessage());
+        } catch (Exception ex) {
+            LOG.log(Level.SEVERE, ex.getMessage(), ex);
+            throw new InternalServerErrorException(ex.getMessage());
         }
     }            
     
     @POST
     @RolesAllowed("user")
-    @Path("/upload")
     @Consumes(MediaType.MULTIPART_FORM_DATA)
     @Produces(MediaType.TEXT_PLAIN)
     public String uploadFile(@FormDataParam("task_code") String task_code,            
                             @FormDataParam("files[]") InputStream uploadedInputStream,
-                            @FormDataParam("files[]") FormDataContentDisposition fileDetail ) 
+                            @FormDataParam("files[]") FormDataContentDisposition fileDetails ) 
     {
-        String user = AuthenticationUtils.getCurrentUser(headers);
+        String user = AuthenticationUtils.getUser(token);
         
         try{ 
+            validateRequired(task_code, "Task Code");
             
-            if(task_code==null || uploadedInputStream==null || fileDetail==null){
-                
-                Response response = Response.status(Response.Status.INTERNAL_SERVER_ERROR)
-                                            .entity(TheResourceBundle.getString("Upload Fail"))
-                                            .build();
-                throw new WebApplicationException(response);
+            if(uploadedInputStream==null || fileDetails==null){
+                throw new WebApplicationException(TheResourceBundle.getString("Upload Fail"), Response.Status.INTERNAL_SERVER_ERROR);
             }
             
             //Security
-            String fileName = fileDetail.getFileName();
+            String fileName = fileDetails.getFileName();
             if(fileName.contains("\\") || fileName.contains("/")){
-                throw new WebApplicationException(Status.INTERNAL_SERVER_ERROR);
+                throw new WebApplicationException("Incorrect file name.", Response.Status.BAD_REQUEST);
             }
             
-            OutputTaskStatus task = TaskManager.getTask(user, task_code, false);
+            Task task = TaskManager.getTask(user, task_code, false);
         
-            if(!OutputTaskStatus.TASK_STATUS_TO_EXECUTE.equals(task.getStatus())){
-                Response response = Response.status(Response.Status.PRECONDITION_FAILED)
-                                            .entity(task.getMessage())
-                                            .build();
-                throw new WebApplicationException(response);
+            if(!Task.STATUS_TO_EXECUTE.equals(task.getStatus())){
+                throw new WebApplicationException(task.getMessage(), Response.Status.PRECONDITION_FAILED);
             }
 
             File file = TaskFileManager.getFile(user, task_code, fileName, "");
             
             FileUtils.copyInputStreamToFile(uploadedInputStream, file);
             
-            OutputUploadFile outputUploadFile = new OutputUploadFile();
-            outputUploadFile.setName(fileName);
-            outputUploadFile.setSize(String.valueOf(file.length()));
+            FileDetail fileDetail = new FileDetail();
+            fileDetail.setName(fileName);
+            fileDetail.setSize(String.valueOf(file.length()));
             
-            OutputUploadFile[] arrayOutputUploadFile = {outputUploadFile};
+            FileDetail[] arrayFileDetail = {fileDetail};
             
             GsonBuilder gsonBuilder = new GsonBuilder();
             Gson gson = gsonBuilder.create();
             
-            String jsonTextPlain = gson.toJson(arrayOutputUploadFile);
+            String jsonTextPlain = gson.toJson(arrayFileDetail);
             
             return jsonTextPlain;
         } 
@@ -231,5 +212,44 @@ public class RESTSERVICEFile {
             LOG.log(Level.SEVERE, "Error uploading file", ex);
             throw new InternalServerErrorException(TheResourceBundle.getString("Upload Fail"));
         }
+    }
+    
+    private void validateFileType(String fileType){
+        
+        List<String> fileTypes = new ArrayList();
+        fileTypes.add(FILE_TYPE_SOURCE);
+        fileTypes.add(FILE_TYPE_VERBOSE);
+        fileTypes.add(FILE_TYPE_RESULT);
+        fileTypes.add(FILE_TYPE_DETAILED_RESULT);
+        
+        if (!fileTypes.contains(fileType)) {
+            Response response = Response.status(Response.Status.BAD_REQUEST)
+                                        .entity("Wrong File Type.")
+                                        .type(MediaType.TEXT_PLAIN)
+                                        .build();
+            throw new WebApplicationException(response);
+        }
+    }
+
+    private String getFileType(String fileType){
+        
+        String rFileType = "";
+        
+        if (null != fileType) switch (fileType) {
+            case FILE_TYPE_SOURCE:
+                rFileType = null;
+                break;
+            case FILE_TYPE_VERBOSE:
+                rFileType = AuthorizationManager.verbose_dirname;
+                break;
+            case FILE_TYPE_RESULT:
+                rFileType = AuthorizationManager.results_dirname;
+                break;
+            case FILE_TYPE_DETAILED_RESULT:
+                rFileType = AuthorizationManager.detailed_results_dirname;
+                break;
+        }
+        
+        return rFileType;
     }
 }

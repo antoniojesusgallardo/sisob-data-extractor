@@ -21,7 +21,7 @@
 package eu.sisob.uma.restserver.managers;
 
 import static eu.sisob.uma.restserver.managers.AuthorizationManager.feedback_flag_file;
-import eu.sisob.uma.restserver.services.communications.OutputTaskStatus;
+import eu.sisob.uma.restserver.services.communications.Task;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.FileReader;
@@ -247,7 +247,7 @@ public class TaskFileManager {
             
             Properties p = new Properties();
             p.setProperty(PROPERTY_TASK_KIND, "none");
-            p.setProperty(PROPERTY_TASK_STATUS, OutputTaskStatus.TASK_STATUS_TO_EXECUTE);
+            p.setProperty(PROPERTY_TASK_STATUS, Task.STATUS_TO_EXECUTE);
             p.setProperty(PROPERTY_TASK_DATE_STARTED, "");
             p.setProperty(PROPERTY_TASK_DATE_FINISHED, "");
             p.setProperty(PROPERTY_TASK_DATE_CREATED, sdf.format(new Date()));
@@ -288,7 +288,7 @@ public class TaskFileManager {
             p.load(new FileReader(pathTaskData));
 
             p.setProperty(PROPERTY_TASK_KIND, taskKind);
-            p.setProperty(PROPERTY_TASK_STATUS, OutputTaskStatus.TASK_STATUS_EXECUTING);
+            p.setProperty(PROPERTY_TASK_STATUS, Task.STATUS_EXECUTING);
             p.setProperty(PROPERTY_TASK_DATE_STARTED, sdf.format(new Date()));
             p.setProperty(PROPERTY_TASK_DATE_FINISHED, "");
 
@@ -311,7 +311,7 @@ public class TaskFileManager {
             Properties p = new Properties();
             p.load(new FileReader(pathTaskData));
 
-            p.setProperty(PROPERTY_TASK_STATUS, OutputTaskStatus.TASK_STATUS_EXECUTED);
+            p.setProperty(PROPERTY_TASK_STATUS, Task.STATUS_EXECUTED);
             p.setProperty(PROPERTY_TASK_DATE_FINISHED, sdf.format(new Date()));
 
             OutputStream outputStream =  new FileOutputStream(pathTaskData);

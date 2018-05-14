@@ -22,6 +22,7 @@
     Author: Antonio Jesus Gallardo Albarran - antonio.jesus.gallardo@gmail.com
 --%>
 
+<%@page import="eu.sisob.uma.restserver.client.Constant"%>
 <%@page import="eu.sisob.uma.restserver.client.RESTUri"%>
 <%@page import="eu.sisob.uma.restserver.client.UtilJsp"%>
 <%@page import="eu.sisob.uma.restserver.managers.AuthorizationManager"%>
@@ -40,8 +41,7 @@
     String task_code    = request.getParameter("task_code");
     
     String version      = SystemManager.getInstance().getVersion();
-    String urlBaseJson  = RESTUri.getFileToShow(task_code, "", 
-                                                AuthorizationManager.results_dirname);
+    String urlBaseJson  = RESTUri.getUriFile(task_code, "", Constant.FILE_TYPE_RESULT);
     
     List<String> visualizationNames = new ArrayList();
     visualizationNames.add("temporalEvolution");

@@ -21,36 +21,29 @@ package eu.sisob.uma.restserver.services.communications;
 
 import javax.xml.bind.annotation.XmlRootElement;
 
+/**
+ *
+ * @author Antonio Jesus Gallardo Albarran - antonio.jesus.gallardo@gmail.com
+ */
 @XmlRootElement
-public class InputParameter
-{
-    /**
-     *
-     */
-    public String key = "";   
-    /**
-     *
-     */
-    public String value = "";   
+public class FileDetail {
     
-    
-    /**
-     *
-     * @param key
-     * @param ps
-     * @return
-     */
-    public static String get(String key, InputParameter[] ps)
-    {
-        String value = null;
-        for(InputParameter p : ps)
-        {
-            if(p.key.equals(key)){
-                value  = p.value;
-                break;
-            }
-        }
-        return value;
+    private String name;
+    private String size;
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getSize() {
+        return size;
+    }
+
+    public void setSize(String size) {
+        this.size = size;
     }
 }
-

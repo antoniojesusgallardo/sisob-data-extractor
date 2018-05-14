@@ -20,16 +20,15 @@
 package eu.sisob.uma.restserver.managers;
 
 import eu.sisob.uma.extractors.adhoc.websearchers.WebSearchersExtractor;
-import eu.sisob.uma.restserver.beans.Task;
+import eu.sisob.uma.restserver.beans.NewTask;
 import eu.sisob.uma.restserver.beans.TaskOperationResult;
 import eu.sisob.uma.restserver.TheResourceBundle;
 import static eu.sisob.uma.restserver.managers.AuthorizationManager.error_flag_file;
 import static eu.sisob.uma.restserver.managers.AuthorizationManager.feedback_flag_file;
 import static eu.sisob.uma.restserver.managers.AuthorizationManager.params_flag_file;
-import eu.sisob.uma.restserver.services.communications.InputLaunchTask;
-import eu.sisob.uma.restserver.services.communications.InputParameter;
-import eu.sisob.uma.restserver.services.communications.OutputTaskStatus;
-import eu.sisob.uma.restserver.services.communications.TasksParams;
+import eu.sisob.uma.restserver.services.communications.TaskParameter;
+import eu.sisob.uma.restserver.services.communications.Task;
+import eu.sisob.uma.restserver.services.communications.TaskParameters;
 import eu.sisob.uma.restserver.services.crawler.CrawlerTask;
 import eu.sisob.uma.restserver.services.email.EmailTask;
 import eu.sisob.uma.restserver.services.gate.GateTask;
@@ -70,11 +69,11 @@ public class TaskManager {
      * @return
      * @throws java.lang.Exception
      */
-    public static OutputTaskStatus getTask(String user, String task_code, 
+    public static Task getTask(String user, String task_code, 
                                             boolean retrieveDetails)
                                             throws Exception
     {
-        OutputTaskStatus task_status = new OutputTaskStatus();
+        Task task_status = new Task();
         task_status.setName(task_code);
         task_status.setTask_code(task_code);
         
@@ -97,13 +96,13 @@ public class TaskManager {
         
         if (task_status.getStatus() != null){
             switch (task_status.getStatus()) {
-                case OutputTaskStatus.TASK_STATUS_TO_EXECUTE:
+                case Task.STATUS_TO_EXECUTE:
                     task_status.setMessage(TheResourceBundle.getString("Jsp Task To Execute Msg"));
                     break;
-                case OutputTaskStatus.TASK_STATUS_EXECUTING:
+                case Task.STATUS_EXECUTING:
                     task_status.setMessage(TheResourceBundle.getString("Jsp Task Executing Msg"));
                     break;
-                case OutputTaskStatus.TASK_STATUS_EXECUTED:
+                case Task.STATUS_EXECUTED:
                     task_status.setMessage(TheResourceBundle.getString("Jsp Task Executed Msg"));
                     break;
             }
@@ -136,9 +135,11 @@ public class TaskManager {
 
                     for(String line : lines){
                         String[] values = line.split("\\$");
-                        if(values.length > 1){
-                            String[] iParam = {values[0], values[1]};
-                            task_status.getParams().add(iParam);                                                      
+                        if(values.length > 1){  
+                            TaskParameter newParameter = new TaskParameter();
+                            newParameter.setKey(values[0]);
+                            newParameter.setValue(values[1]);
+                            task_status.getParams().add(newParameter);
                         }
                     }
                 }
@@ -165,16 +166,16 @@ public class TaskManager {
      * @return
      * @throws java.lang.Exception
      */
-    public static Task prepareNewTask(String user) throws Exception
+    public static NewTask prepareNewTask(String user) throws Exception
     {
-        Task rTask = new Task();
+        NewTask rTask = new NewTask();
         
         List<Integer> listTaskCode = TaskManager.listTaskCode(user);                
 
         int num_tasks_alive = 0;
         for(Integer taskCode : listTaskCode){
-            OutputTaskStatus task = TaskManager.getTask(user, taskCode.toString(), false);
-            if(!task.getStatus().equals(OutputTaskStatus.TASK_STATUS_EXECUTED)){
+            Task task = TaskManager.getTask(user, taskCode.toString(), false);
+            if(!task.getStatus().equals(Task.STATUS_EXECUTED)){
                 //Think about it
                 num_tasks_alive++;
             }
@@ -201,7 +202,7 @@ public class TaskManager {
             TaskFileManager.createFileTaskData(pathTaskFolder);
             
             rTask.setCode(newTaskFolder);
-            rTask.setStatus(OutputTaskStatus.TASK_STATUS_TO_EXECUTE);
+            rTask.setStatus(Task.STATUS_TO_EXECUTE);
             rTask.setMessage("A new task has been created successfully."); 
         }
         else{
@@ -221,14 +222,14 @@ public class TaskManager {
      * @return
      * @throws java.lang.Exception
      */
-    public static List<OutputTaskStatus> getTasks(String user) throws Exception{
+    public static List<Task> getTasks(String user) throws Exception{
         
-        List<OutputTaskStatus> rListTask = new ArrayList();
+        List<Task> rListTask = new ArrayList();
         
         List<Integer> listTaskCode = TaskManager.listTaskCode(user);
         
         for(Integer taskCode : listTaskCode){
-            OutputTaskStatus task_status = TaskManager.getTask(user, taskCode.toString(), false);
+            Task task_status = TaskManager.getTask(user, taskCode.toString(), false);
             rListTask.add(task_status);
         }
         
@@ -263,85 +264,105 @@ public class TaskManager {
         return listTaskCode;
     }
     
-    
-    
-    public static TaskOperationResult launchTask(String user, InputLaunchTask input, boolean isRelaunch) throws Exception{
+    public static TaskOperationResult launchTask(String user, String taskCode, 
+                                                String taskKind, TaskParameter[] parameters) 
+                                                                throws Exception{
         
         TaskOperationResult result = new TaskOperationResult(); 
         
-        OutputTaskStatus task = TaskManager.getTask(user, input.task_code, false);
-         
-        boolean isValidToExecute = false;
-        if(isRelaunch && OutputTaskStatus.TASK_STATUS_EXECUTED.equals(task.getStatus())){
-            isValidToExecute = true;
-        }
-        else if (!isRelaunch && OutputTaskStatus.TASK_STATUS_TO_EXECUTE.equals(task.getStatus())) {
-            isValidToExecute = true;
-        }
-        
-        if (!isValidToExecute) {
-            result.success = false;                 
+        Task task = TaskManager.getTask(user, taskCode, true);
+                
+        if(!Task.STATUS_TO_EXECUTE.equals(task.getStatus())){
+            result.success = false;
             result.message = task.getMessage();
+
             return result;
         }
         
-        String taskFolder = TaskFileManager.getTaskFolder(user, input.task_code);           
+        result = executeTask(user, taskCode, taskKind, parameters);
+        
+        // Save the params
+        if (result.success) {
+            String taskFolder = TaskFileManager.getTaskFolder(user, taskCode);           
 
-        if (isRelaunch) {
+            String pathFileParams = taskFolder + File.separator + AuthorizationManager.params_flag_file;
             try {
-                File params_file = new File(taskFolder, AuthorizationManager.params_flag_file);
+                File params_file = new File(pathFileParams);
+                params_file.createNewFile();
 
-                List<String> params = FileUtils.readLines(params_file);
-
-                input.parameters = new InputParameter[params.size()];
-
-                int i = 0;
-                for(String l : params){
-                    String[] values = l.split("\\$");
-                    if(values.length == 2){
-                        InputParameter ip = new InputParameter();
-                        ip.key = values[0];
-                        ip.value = values[1];
-                        input.parameters[i] = ip;
-                        i++;                            
-                    }                           
-                }
-            } 
-            catch (Exception ex) {
-                LOG.log(Level.SEVERE, "Error reading params filename " + AuthorizationManager.params_flag_file + "(" + taskFolder + ")", ex); //FIXME
+                FileUtils.write(params_file, "", "UTF-8", false);
+                if(parameters != null){
+                    for(TaskParameter ip : parameters){
+                        String content = ip.getKey() + "$" + ip.getValue() + "\r\n";
+                        FileUtils.write(params_file, content, "UTF-8", true);
+                    }                            
+                }                          
+            } catch (Exception ex) {
+                LOG.log(Level.SEVERE, "Error creating params filename " + pathFileParams, ex);
             }
         }
+        
+        return result;
+    }
+    
+    public static TaskOperationResult relaunchTask(String user, String taskCode) 
+                                                                throws Exception{
+        
+        TaskOperationResult result = new TaskOperationResult(); 
+        
+        Task task = TaskManager.getTask(user, taskCode, true);
+                
+        if(!Task.STATUS_EXECUTED.equals(task.getStatus())){
+            result.success = false;
+            result.message = task.getMessage();
 
-        if("crawler".equals(input.task_kind)){
+            return result;
+        }
+        
+        TaskParameter[] parameters = task.getParams().toArray(new TaskParameter[0]);
+                
+        result = executeTask(user, taskCode, task.getKind(), parameters);
+        return result;
+    }
+    
+    private static TaskOperationResult executeTask(String user, String taskCode, 
+                                                String taskKind, TaskParameter[] parameters) 
+                                                                throws Exception{
+        
+        TaskOperationResult result = new TaskOperationResult(); 
+        
+        String taskFolder = TaskFileManager.getTaskFolder(user, taskCode);           
+
+        if("crawler".equals(taskKind)){
 
             StringWriter message = new StringWriter();
 
-            result.success = CrawlerTask.launch(user, input.task_code, taskFolder, user, message);                    
+            result.success = CrawlerTask.launch(user, taskCode, taskFolder, user, message);                    
             result.message = message.toString();
         } 
-        else if("websearcher".equals(input.task_kind)) {                       
+        else if("websearcher".equals(taskKind)) {                       
 
             WebSearchersExtractor.SearchPatterns pattern = WebSearchersExtractor.SearchPatterns.P2;
 
             try{
-                String value_mode = InputParameter.get(TasksParams.PARAM_CRAWLER_P1, input.parameters);
-                if(value_mode != null && value_mode.equals(TasksParams.PARAM_TRUE))
+                String value_mode = TaskParameter.get(TaskParameters.PARAM_CRAWLER_P1, parameters);
+                if(TaskParameters.PARAM_TRUE.equals(value_mode))
                     pattern = WebSearchersExtractor.SearchPatterns.P1;
 
-                value_mode = InputParameter.get(TasksParams.PARAM_CRAWLER_P2, input.parameters);
-                if(value_mode != null && value_mode.equals(TasksParams.PARAM_TRUE))
+                value_mode = TaskParameter.get(TaskParameters.PARAM_CRAWLER_P2, parameters);
+                if(TaskParameters.PARAM_TRUE.equals(value_mode))
                     pattern = WebSearchersExtractor.SearchPatterns.P2;
 
-                value_mode = InputParameter.get(TasksParams.PARAM_CRAWLER_P3, input.parameters);
-                if(value_mode != null && value_mode.equals(TasksParams.PARAM_TRUE))
+                value_mode = TaskParameter.get(TaskParameters.PARAM_CRAWLER_P3, parameters);
+                if(TaskParameters.PARAM_TRUE.equals(value_mode))
                     pattern = WebSearchersExtractor.SearchPatterns.P3;
 
-                value_mode = InputParameter.get(TasksParams.PARAM_CRAWLER_P4, input.parameters);
-                if(value_mode != null && value_mode.equals(TasksParams.PARAM_TRUE))
+                value_mode = TaskParameter.get(TaskParameters.PARAM_CRAWLER_P4, parameters);
+                if(TaskParameters.PARAM_TRUE.equals(value_mode))
                     pattern = WebSearchersExtractor.SearchPatterns.P4;
 
-                value_mode = InputParameter.get(TasksParams.PARAM_CRAWLER_P5, input.parameters);
-                if(value_mode != null && value_mode.equals(TasksParams.PARAM_TRUE))
+                value_mode = TaskParameter.get(TaskParameters.PARAM_CRAWLER_P5, parameters);
+                if(TaskParameters.PARAM_TRUE.equals(value_mode))
                     pattern = WebSearchersExtractor.SearchPatterns.P5;
 
             }catch(Exception ex){
@@ -349,26 +370,26 @@ public class TaskManager {
             }
 
             StringWriter message = new StringWriter();
-            result.success = WebSearcherTask.launch(user, input.task_code, taskFolder, user, pattern, message);  
+            result.success = WebSearcherTask.launch(user, taskCode, taskFolder, user, pattern, message);  
             result.message = message.toString(); 
         }
-        else if("websearcher_cv".equals(input.task_kind)) {                                   
+        else if("websearcher_cv".equals(taskKind)) {                                   
 
             StringWriter message = new StringWriter();
 
-            result.success = WebSearcherCVTask.launch(user, input.task_code, taskFolder, user, message);                    
+            result.success = WebSearcherCVTask.launch(user, taskCode, taskFolder, user, message);                    
             result.message = message.toString();
         } 
-        else if("internalcvfiles".equals(input.task_kind)) {                       
+        else if("internalcvfiles".equals(taskKind)) {                       
 
             StringWriter message = new StringWriter();
 
-            result.success = InternalCVFilesTask.launch(user, input.task_code, taskFolder, user, message);                    
+            result.success = InternalCVFilesTask.launch(user, taskCode, taskFolder, user, message);                    
             result.message = message.toString();
         }
-        else if("email".equals(input.task_kind)) {                    
+        else if("email".equals(taskKind)) {                    
 
-            String value_filters = InputParameter.get(TasksParams.PARAM_EMAIL_FILTERS, input.parameters);
+            String value_filters = TaskParameter.get(TaskParameters.PARAM_EMAIL_FILTERS, parameters);
             List<String> filters = new ArrayList();
             if(value_filters != null && !value_filters.equals(""))
             {
@@ -380,15 +401,15 @@ public class TaskManager {
             }
 
             StringWriter message = new StringWriter();
-            result.success = EmailTask.launch(user, input.task_code, taskFolder, user, filters, message);                    
+            result.success = EmailTask.launch(user, taskCode, taskFolder, user, filters, message);                    
             result.message = message.toString();    
         }
-        else if("gate".equals(input.task_kind)) {   
+        else if("gate".equals(taskKind)) {   
 
             boolean verbose = false;
             try{
-                String value_verbose = InputParameter.get(TasksParams.PARAM_GATE_VERBOSE, input.parameters);
-                if(value_verbose != null && value_verbose.equals(TasksParams.PARAM_TRUE))
+                String value_verbose = TaskParameter.get(TaskParameters.PARAM_GATE_VERBOSE, parameters);
+                if(TaskParameters.PARAM_TRUE.equals(value_verbose))
                     verbose = true;
             }catch(Exception ex){
                 verbose = true;
@@ -396,21 +417,20 @@ public class TaskManager {
 
             boolean split = false;
             try{
-                String value_split = InputParameter.get(TasksParams.PARAM_GATE_SPLIT, input.parameters);
-                if(value_split != null && value_split.equals(TasksParams.PARAM_TRUE))
+                String value_split = TaskParameter.get(TaskParameters.PARAM_GATE_SPLIT, parameters);
+                if(TaskParameters.PARAM_TRUE.equals(value_split))
                     split = true;
             }catch(Exception ex){
                 split = false;
             }
 
             StringWriter message = new StringWriter();
-            result.success = GateTask.launch(user, input.task_code, taskFolder, user, message, verbose, split);
+            result.success = GateTask.launch(user, taskCode, taskFolder, user, message, verbose, split);
             result.message = message.toString();      
         }  
-        else if(GateTaskCH.NAME.equals(input.task_kind)) {                       
+        else if(GateTaskCH.NAME.equals(taskKind)) {                       
 
-            TaskOperationResult resultCH = GateTaskCH.launch(user,
-                                                            input.task_code);
+            TaskOperationResult resultCH = GateTaskCH.launch(user, taskCode);
             result.success = resultCH.success;
             result.message = resultCH.message;
         }                
@@ -421,27 +441,8 @@ public class TaskManager {
         }
 
         // Notify in the folder that the task has been launched
-        if(result.success)
-        {   
-            TaskFileManager.registerTaskLaunched(taskFolder, input.task_kind);
-            
-            if (!isRelaunch) {
-                
-                String pathFileParams = taskFolder + File.separator + AuthorizationManager.params_flag_file;
-                try {
-                    File params_file = new File(pathFileParams);
-                    params_file.createNewFile();
-
-                    FileUtils.write(params_file, "", "UTF-8", false);
-                    if(input.parameters != null){
-                        for(InputParameter ip : input.parameters){
-                            FileUtils.write(params_file, ip.key + "$" + ip.value + "\r\n", "UTF-8", true);
-                        }                            
-                    }                          
-                } catch (Exception ex) {
-                    LOG.log(Level.SEVERE, "Error creating params filename " + pathFileParams, ex);
-                }
-            }
+        if(result.success){   
+            TaskFileManager.registerTaskLaunched(taskFolder, taskKind);
         }   
         
         return result;
@@ -451,15 +452,15 @@ public class TaskManager {
         
         TaskOperationResult result = new TaskOperationResult();
         
-        OutputTaskStatus task = TaskManager.getTask(user, task_code, false);            
+        Task task = TaskManager.getTask(user, task_code, false);            
 
-        if( OutputTaskStatus.TASK_STATUS_EXECUTING.equals(task.getStatus()) ||
-            OutputTaskStatus.TASK_STATUS_TO_EXECUTE.equals(task.getStatus()) )
+        if( Task.STATUS_EXECUTING.equals(task.getStatus()) ||
+            Task.STATUS_TO_EXECUTE.equals(task.getStatus()) )
         {   
             result.success = false;                 
             result.message = "The task couldn't be deleted. " + task.getMessage();
         }           
-        else if(OutputTaskStatus.TASK_STATUS_EXECUTED.equals(task.getStatus()))
+        else if(Task.STATUS_EXECUTED.equals(task.getStatus()))
         { 
             String taskFolder = TaskFileManager.getTaskFolder(user, task_code);
             File dir_to_delete = new File(taskFolder);
@@ -482,7 +483,7 @@ public class TaskManager {
         return result;
     }
     
-    private  static String fileToString(String pPathFile, OutputTaskStatus pTask){
+    private  static String fileToString(String pPathFile, Task pTask){
         String rString = null;
         File file = new File(pPathFile);
         if(file.exists()){

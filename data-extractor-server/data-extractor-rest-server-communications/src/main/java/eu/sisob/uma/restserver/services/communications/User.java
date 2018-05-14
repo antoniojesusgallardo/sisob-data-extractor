@@ -23,21 +23,30 @@ import javax.xml.bind.annotation.XmlRootElement;
 
 
 @XmlRootElement
-public class OutputAuthorizationResult
-{
-    /**
-     *
-     */
+public class User{
+    
     public static String ACCOUNT_TYPE_USER = "user";
-    /**
-     *
-     */
     public static String ACCOUNT_TYPE_APP = "app";
     
-    /**
-     *
-     */
-    public String account_type = "";
+    private String username;
+    
+    private String account_type = "";
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    public String getAccount_type() {
+        return account_type;
+    }
+
+    public void setAccount_type(String account_type) {
+        this.account_type = account_type;
+    }
 }
 
     

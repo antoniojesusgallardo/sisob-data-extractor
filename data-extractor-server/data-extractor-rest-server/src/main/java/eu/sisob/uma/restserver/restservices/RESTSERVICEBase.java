@@ -17,9 +17,11 @@
     You should have received a copy of the GNU General Public License
     along with SISOB Data Extractor. If not, see <http://www.gnu.org/licenses/>.
 */
+package eu.sisob.uma.restserver.restservices;
 
-package eu.sisob.uma.restserver.restservices.exceptions;
-
+import eu.sisob.uma.restserver.restservices.security.AuthenticationUtils;
+import java.util.logging.Logger;
+import javax.ws.rs.HeaderParam;
 import javax.ws.rs.WebApplicationException;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
@@ -28,21 +30,21 @@ import javax.ws.rs.core.Response;
  *
  * @author Antonio Jesus Gallardo Albarran - antonio.jesus.gallardo@gmail.com
  */
-public class UnAuthorizedException extends WebApplicationException{
+public class RESTSERVICEBase {
     
-    public UnAuthorizedException() {
-        super(Response.status(Response.Status.UNAUTHORIZED)
-                                    .entity("Unauthorized")
-                                    .type(MediaType.TEXT_PLAIN)
-                                    .build());
+    @HeaderParam(AuthenticationUtils.AUTHORIZATION_PROPERTY) 
+    protected String token;
+    
+    protected static final Logger LOG = Logger.getLogger(RESTSERVICEBase.class.getName());
+    
+    public void validateRequired(String pString, String fieldName) throws WebApplicationException{
+        
+        if (pString==null || pString.trim().isEmpty()) {
+            Response response = Response.status(Response.Status.BAD_REQUEST)
+                                        .entity(fieldName + " is required.")
+                                        .type(MediaType.TEXT_PLAIN)
+                                        .build();
+            throw new WebApplicationException(response);
+        }
     }
-
-    public UnAuthorizedException(String message) {
-        super(Response.status(Response.Status.UNAUTHORIZED)
-                                    .entity(message)
-                                    .type(MediaType.TEXT_PLAIN)
-                                    .build());
-    }
-    
-    
 }

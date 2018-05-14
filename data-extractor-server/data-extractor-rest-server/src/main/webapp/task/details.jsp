@@ -21,7 +21,7 @@
 <%@page import="eu.sisob.uma.restserver.client.ApiErrorException"%>
 <%@page import="eu.sisob.uma.restserver.client.RESTClient"%>
 <%@page import="eu.sisob.uma.restserver.client.UtilJsp"%>
-<%@page import="eu.sisob.uma.restserver.services.communications.OutputTaskStatus"%>
+<%@page import="eu.sisob.uma.restserver.services.communications.Task"%>
 <%@page import="java.util.Map"%>
 <%@page import="java.util.HashMap"%>
 <%@page import="javax.ws.rs.core.Response;"%>
@@ -38,14 +38,13 @@
     String task_code = request.getParameter("task_code");
     
     // Get Task data from the API REST
-    Map params = new HashMap();
-    params.put("task_code", task_code);
     RESTClient restClient = new RESTClient(token);
     
-    OutputTaskStatus task = null;
+    Task task = null;
     String errorMessage = null;
     try{
-        task = (OutputTaskStatus)restClient.get("/task", OutputTaskStatus.class, params);
+        String url = "/tasks/"+task_code;
+        task = (Task)restClient.get(url, Task.class, null);
     }
     catch(ApiErrorException ex){
         errorMessage = ex.getMessage();
@@ -56,9 +55,9 @@
     request.setAttribute("errorMessage", errorMessage);
     
     // Save constant in the request
-    request.setAttribute("TASK_STATUS_EXECUTED", OutputTaskStatus.TASK_STATUS_EXECUTED);
-    request.setAttribute("TASK_STATUS_EXECUTING", OutputTaskStatus.TASK_STATUS_EXECUTING);
-    request.setAttribute("TASK_STATUS_TO_EXECUTE", OutputTaskStatus.TASK_STATUS_TO_EXECUTE);
+    request.setAttribute("TASK_STATUS_EXECUTED", Task.STATUS_EXECUTED);
+    request.setAttribute("TASK_STATUS_EXECUTING", Task.STATUS_EXECUTING);
+    request.setAttribute("TASK_STATUS_TO_EXECUTE", Task.STATUS_TO_EXECUTE);
 %>
 
 <%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>

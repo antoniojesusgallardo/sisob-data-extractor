@@ -17,24 +17,21 @@
     You should have received a copy of the GNU General Public License
     along with SISOB Data Extractor. If not, see <http://www.gnu.org/licenses/>.
 */
-package eu.sisob.uma.restserver.services.communications;
+package eu.sisob.uma.restserver.client;
 
-import javax.xml.bind.annotation.XmlRootElement;
+import eu.sisob.uma.restserver.restservices.RESTSERVICEFile;
+import eu.sisob.uma.restserver.services.gateCH.GateTaskCH;
 
-@XmlRootElement
-public class InputLaunchTask 
-{
-    /**
-     *
-     */
-    public String task_code;   
-    /**
-     *
-     */
-    public String task_kind;
-    /**
-     *
-     */
-    public InputParameter[] parameters;
+/**
+ *
+ * @author Antonio Jesus Gallardo Albarran - antonio.jesus.gallardo@gmail.com
+ */
+public class Constant {
+    
+    public static final String FILE_TYPE_SOURCE             = RESTSERVICEFile.FILE_TYPE_SOURCE;
+    public static final String FILE_TYPE_VERBOSE            = RESTSERVICEFile.FILE_TYPE_VERBOSE;
+    public static final String FILE_TYPE_RESULT             = RESTSERVICEFile.FILE_TYPE_RESULT;
+    public static final String FILE_TYPE_DETAILED_RESULT    = RESTSERVICEFile.FILE_TYPE_DETAILED_RESULT;
+    
+    public static final String TASK_NAME_CH = GateTaskCH.NAME;
 }
-

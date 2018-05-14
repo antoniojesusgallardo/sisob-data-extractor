@@ -19,11 +19,11 @@
 --%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 
-<%@page import="eu.sisob.uma.restserver.services.communications.TasksParams"%>
-<%@page import="eu.sisob.uma.restserver.services.gateCH.GateTaskCH"%>
+<%@page import="eu.sisob.uma.restserver.client.Constant"%>
+<%@page import="eu.sisob.uma.restserver.services.communications.TaskParameters"%>
 
 <%
-    request.setAttribute("GateTaskCH", GateTaskCH.NAME);
+    request.setAttribute("GateTaskCH", Constant.TASK_NAME_CH);
 %>
 
 <c:choose>
@@ -46,11 +46,11 @@
         - <b>'notfound.data-researchers-urls*.csv'</b>: csv file with the researchers uploaded without results. It has the same format of 'data-researcher-urls.csv'.<br>
         <h5>Search patterns notes:.</h5>
         <label class="checkbox">
-            <%=TasksParams.PARAM_CRAWLER_P1%>: "John J Smith"<br>
-            <%=TasksParams.PARAM_CRAWLER_P2%>: "John J Smith AND Chemistry"<br>
-            <%=TasksParams.PARAM_CRAWLER_P3%>: "John J Smith AND site:url"<br>
-            <%=TasksParams.PARAM_CRAWLER_P4%>: "John J Smith AND Stanford"<br>
-            <%=TasksParams.PARAM_CRAWLER_P5%>: "John J Smith AND Chemistry AND Stanford"<br>
+            <%=TaskParameters.PARAM_CRAWLER_P1%>: "John J Smith"<br>
+            <%=TaskParameters.PARAM_CRAWLER_P2%>: "John J Smith AND Chemistry"<br>
+            <%=TaskParameters.PARAM_CRAWLER_P3%>: "John J Smith AND site:url"<br>
+            <%=TaskParameters.PARAM_CRAWLER_P4%>: "John J Smith AND Stanford"<br>
+            <%=TaskParameters.PARAM_CRAWLER_P5%>: "John J Smith AND Chemistry AND Stanford"<br>
     </label>
     </c:when>
     <c:when test="${'websearcher_cv' == param.taskKind}">
