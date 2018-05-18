@@ -65,8 +65,6 @@
             
             session.setAttribute("user", userAuth.getUsername());
             session.setAttribute("token", token);
-
-            urlRedirect += "/task/list.jsp";
         }
         else if(User.ACCOUNT_TYPE_APP.equals(userAuth.getAccount_type())){
             urlRedirect += "/index.jsp?message=unauth_type";
@@ -87,5 +85,16 @@
         urlRedirect += "/index.jsp?message=error";
     }
     
-    response.sendRedirect(request.getContextPath() + urlRedirect);
+    if(!urlRedirect.isEmpty()){
+        response.sendRedirect(request.getContextPath() + urlRedirect);
+    }
+    
 %>
+
+<script type="text/javascript">
+    
+    localStorage.wsToken = '${sessionScope.token}';
+    
+    window.location = 'task/list.jsp';
+
+</script>

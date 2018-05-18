@@ -198,13 +198,10 @@ $(document).ready(function(){
     
     $("button#task-launcher").click(function()
     {   
-        var securityHeader = {};
-        securityHeader[security.AUTHORIZATION_PROPERTY] = '${sessionScope.token}';
-        
         $.ajax({ 
             type: "POST",
             url: urlBase + "tasks/" + task_code + "/relaunch",
-            headers: securityHeader,
+            headers: security.getHeader(),
             contentType: 'application/json',
             success: function(result) { 
                 showModal("success", "("+task_kind+")  "+result);
@@ -220,13 +217,10 @@ $(document).ready(function(){
         
     $("button#task-deleter").click(function(){
         
-        var securityHeader = {};
-        securityHeader[security.AUTHORIZATION_PROPERTY] = '${sessionScope.token}';
-
         $.ajax({ 
             type: "DELETE",
             url: urlBase + "tasks/"+task_code,
-            headers: securityHeader,
+            headers: security.getHeader(),
             contentType: 'application/json',
             success: function(result){
                 showModal("success", "("+task_kind+")  "+result);

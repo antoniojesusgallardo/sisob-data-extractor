@@ -111,6 +111,8 @@
 <script type="text/javascript">    
     $(document).ready(function()
     {
+        localStorage.clear();
+        
         $('#pass').keypress(function (e) {
           if (e.which == 13) {
             $("#btnLogin").click();

@@ -24,6 +24,17 @@
 var security = (function(){
 
     return {
-        AUTHORIZATION_PROPERTY : "Authorization"
+        AUTHORIZATION_PROPERTY : "Authorization",
+        
+        getToken : function(){
+            return localStorage.wsToken;
+        },
+        
+        getHeader : function(){
+            var securityHeader = {};
+            securityHeader[this.AUTHORIZATION_PROPERTY] = localStorage.wsToken;
+            
+            return securityHeader;
+        }
     };
 }());    

@@ -143,16 +143,13 @@
                                 
         <script type="text/javascript">    
             $(document).ready(function()
-            {   
+            {
                 $("button#task-creator").click(function(){
-
-                    var securityHeader = {};
-                    securityHeader[security.AUTHORIZATION_PROPERTY] = '${sessionScope.token}';
 
                     $.ajax({ 
                         type: "POST",
                         url: "${pageContext.request.contextPath}/resources/tasks",
-                        headers: securityHeader,   
+                        headers: security.getHeader(),   
                         contentType: 'application/json',                                                      
                         success: function(result){
                             showModal("success", result.message);

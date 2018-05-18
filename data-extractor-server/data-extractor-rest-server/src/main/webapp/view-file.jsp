@@ -90,13 +90,10 @@
         <script>
             var urlJson = '${urlJson}';
             
-            var securityHeader = {};
-            securityHeader[security.AUTHORIZATION_PROPERTY] = '${sessionScope.token}';
-            
             $.ajax({ 
                 type: "GET",
                 url: urlJson,
-                headers: securityHeader,                           
+                headers: security.getHeader(),                         
                 success: function(result){
                     document.getElementById("contentFile").innerHTML = result;
                 },

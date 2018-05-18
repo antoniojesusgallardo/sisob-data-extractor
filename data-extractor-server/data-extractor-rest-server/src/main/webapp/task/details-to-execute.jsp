@@ -77,10 +77,6 @@
     request.setAttribute("task_code", task.getTask_code());
 %>
 
-<script type="text/javascript">    
-    var token = "${sessionScope.token}";
-</script>     
-
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 
@@ -324,13 +320,10 @@ $(document).ready(function()
             
             var urlBase = "${pageContext.request.contextPath}/resources/";
             
-            var securityHeader = {};
-            securityHeader[security.AUTHORIZATION_PROPERTY] = '${sessionScope.token}';
-            
             $.ajax({ 
                 type: "POST",
                 url: urlBase + "tasks/${task.task_code}/launch",
-                headers: securityHeader,
+                headers: security.getHeader(),
                 data: JSON.stringify(data),
                 contentType: 'application/json',
                 success: function(result){

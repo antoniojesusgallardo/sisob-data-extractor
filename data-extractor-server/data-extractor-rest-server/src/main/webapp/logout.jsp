@@ -26,10 +26,15 @@
 
 <%@page session="true"%>
 <%
-    
     if(session != null){
         session.invalidate();
     }
-  
-    response.sendRedirect(request.getContextPath()+"/index.jsp?message=logout");
 %>
+
+<script type="text/javascript">
+    
+    localStorage.clear();
+    
+    window.location = 'index.jsp?message=logout';
+
+</script>

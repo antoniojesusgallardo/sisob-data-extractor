@@ -102,6 +102,6 @@
 <script>
     var urlJson = '${urlJson}';
     
-    loadData("${sessionScope.token}");  
+    loadData(security.getToken());  
 </script>
     

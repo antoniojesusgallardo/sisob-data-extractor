@@ -295,7 +295,7 @@
             destroy: function (e, data) {
                 
                 data.beforeSend = function(xhr) {
-                    xhr.setRequestHeader(security.AUTHORIZATION_PROPERTY, token);
+                    xhr.setRequestHeader(security.AUTHORIZATION_PROPERTY, security.getToken());
                 };
                 
                 var that = $(this).data('fileupload');

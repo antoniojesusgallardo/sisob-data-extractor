@@ -122,5 +122,5 @@
     var taskCode    = ${param.task_code};
     var urlBaseJson = '${urlBaseJson}';
     
-    Visualizations.init("${sessionScope.token}");    
+    Visualizations.init(security.getToken());    
 </script>
