@@ -19,13 +19,13 @@
 */
 package eu.sisob.uma.restserver.restservices.security;
 
-import eu.sisob.uma.restserver.beans.AuthorizationResult;
-import eu.sisob.uma.restserver.managers.AuthorizationManager;
+import io.jsonwebtoken.impl.crypto.MacProvider;
 import java.lang.reflect.Method;
+import java.security.Key;
+import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashSet;
+import java.util.Collection;
 import java.util.List;
-import java.util.Set;
  
 import javax.annotation.security.DenyAll;
 import javax.annotation.security.PermitAll;
@@ -33,9 +33,10 @@ import javax.annotation.security.RolesAllowed;
 import javax.ws.rs.container.ContainerRequestContext;
 import javax.ws.rs.container.ResourceInfo;
 import javax.ws.rs.core.Context;
-import javax.ws.rs.core.MultivaluedMap;
+import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.ext.Provider;
+import org.apache.commons.collections.CollectionUtils;
  
 /**
  *
@@ -44,79 +45,74 @@ import javax.ws.rs.ext.Provider;
 @Provider
 public class AuthenticationFilter implements javax.ws.rs.container.ContainerRequestFilter
 {
+    public static final Key KEY = MacProvider.generateKey();
      
     @Context
     private ResourceInfo resourceInfo;
-    
-    private static final Response ACCESS_DENIED = Response.status(Response.Status.UNAUTHORIZED)
-                                                        .entity("You cannot access this resource").build();
-    private static final Response ACCESS_FORBIDDEN = Response.status(Response.Status.FORBIDDEN)
-                                                        .entity("Access blocked for all users !!").build();
       
     @Override
     public void filter(ContainerRequestContext requestContext){
         
-        Method method = resourceInfo.getResourceMethod();
-        //Access allowed for all
-        if( ! method.isAnnotationPresent(PermitAll.class)){
+        try {
+            
+            Method method = resourceInfo.getResourceMethod();
+            
+            //Access allowed for all
+            if (method.isAnnotationPresent(PermitAll.class)) {
+                return;
+            }
             
             //Access denied for all
             if(method.isAnnotationPresent(DenyAll.class)){
-                requestContext.abortWith(ACCESS_FORBIDDEN);
+                
+                Response response = Response.status(Response.Status.FORBIDDEN)
+                                            .entity("Access blocked for all users !!").build();
+                
+                requestContext.abortWith(response);
                 return;
             }
-              
-            //Get request headers
-            final MultivaluedMap<String, String> headers = requestContext.getHeaders();
-              
+
             //Fetch authorization header
-            final List<String> authorization = headers.get(AuthenticationUtils.AUTHORIZATION_PROPERTY);
-              
+            String authorizationHeader = requestContext.getHeaderString(HttpHeaders.AUTHORIZATION);
+
             //If no authorization information present; block access
-            if(authorization == null || authorization.isEmpty()){
-                requestContext.abortWith(ACCESS_DENIED);
-                return;
+            if(authorizationHeader == null || authorizationHeader.isEmpty()){
+                throw new Exception();
             }
+
+            // Valida el token utilizando la cadena secreta
+            AuthenticationUtils.validateToken(authorizationHeader);
             
-            String token = authorization.get(0);
-            
-            final String username = AuthenticationUtils.getUser(token);
-            final String password = AuthenticationUtils.getPassword(token);
-             
-            //Verify user access
-            if(method.isAnnotationPresent(RolesAllowed.class))
-            {
+            //Verify access
+            if(method.isAnnotationPresent(RolesAllowed.class)){
                 RolesAllowed rolesAnnotation = method.getAnnotation(RolesAllowed.class);
-                Set<String> rolesSet = new HashSet(Arrays.asList(rolesAnnotation.value()));
-                  
-                //Is user valid?
-                if( ! isUserAllowed(username, password, rolesSet))
-                {
-                    requestContext.abortWith(ACCESS_DENIED);
-                    return;
+                List<String> rolesAnn = new ArrayList(Arrays.asList(rolesAnnotation.value()));
+
+                List<String> rolesUser = AuthenticationUtils.getRoles(authorizationHeader);
+                
+                if(!isUserAllowed(rolesUser, rolesAnn)){
+                    throw new Exception();
                 }
             }
+            
+        } catch (Exception e) {
+            Response response = Response.status(Response.Status.UNAUTHORIZED)
+                                        .entity("You cannot access this resource").build();
+            requestContext.abortWith(response);
+            return;
         }
     }
     
-    private boolean isUserAllowed(final String username, final String password, 
-                                    final Set<String> rolesSet)
+    private boolean isUserAllowed(final List<String> rolesUser, final List<String> rolesAnn)
     {
-        boolean isAllowed = false;
+        boolean isAllowed = true;
         
-        AuthorizationResult autResult = AuthorizationManager.validateAccess(username, password);
-        boolean resultAuth = autResult.getSuccess();
+        Collection<String> intersection = CollectionUtils.intersection(rolesUser, rolesAnn);
         
-        if(resultAuth)
-        {
-            String userRole = "user";
-             
-            //Step 2. Verify user role
-            if(rolesSet.contains(userRole))
-            {
-                isAllowed = true;
-            }
+        if (intersection == null || intersection.isEmpty()) {
+            isAllowed = false;
         }
+        
         return isAllowed;
     }
 }

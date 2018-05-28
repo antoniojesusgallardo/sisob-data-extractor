@@ -19,10 +19,15 @@
 */
 package eu.sisob.uma.restserver.restservices.security;
 
-import eu.sisob.uma.restserver.services.communications.User;
-import java.util.StringTokenizer;
-import javax.ws.rs.core.Response;
-import org.glassfish.jersey.internal.util.Base64;
+import static eu.sisob.uma.restserver.restservices.security.AuthenticationFilter.KEY;
+import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.Jws;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
+import java.util.Arrays;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
 
 /**
  *
@@ -30,51 +35,70 @@ import org.glassfish.jersey.internal.util.Base64;
  */
 public class AuthenticationUtils {
     
-    public static final String AUTHORIZATION_PROPERTY = "Authorization";
-    public static final String AUTHENTICATION_SCHEME = "Basic";
     
-    
-    public static Response createResponseWithToken(String user, String pass, User data){
+    public static String createTokenHeader(String user){
         
-        String code = user+":"+pass;
-        String token = Base64.encodeAsString(code);
+        String token = issueToken(user);
         
-        String tokenHeader = AUTHENTICATION_SCHEME + " " + token;
+        String tokenHeader = AuthenticationConstant.SCHEME + " " + token;
         
-        Response response = Response.ok(data)
-                                    .header(AUTHORIZATION_PROPERTY, tokenHeader)
-                                    .build();
-        
-        return response;
+        return tokenHeader;
     }
     
-    public static String getUser(String token){
+    public static void validateToken(String tokenHeader){
         
-        //Get encoded username and password
-        final String encodedUserPassword = token.replaceFirst(AUTHENTICATION_SCHEME + " ", "");
-
-        //Decode username and password
-        String usernameAndPassword = new String(Base64.decode(encodedUserPassword.getBytes()));;
-
-        //Split username and password tokens
-        final StringTokenizer tokenizer = new StringTokenizer(usernameAndPassword, ":");
-        final String username = tokenizer.nextToken();
-        final String password = tokenizer.nextToken();
+        String token = getToken(tokenHeader);
         
-        return username;
+        Jwts.parser().setSigningKey(KEY).parseClaimsJws(token);
     }
     
-    public static String getPassword(String token){
-        final String encodedUserPassword = token.replaceFirst(AUTHENTICATION_SCHEME + " ", "");
-
-        //Decode username and password
-        String usernameAndPassword = new String(Base64.decode(encodedUserPassword.getBytes()));;
-
-        //Split username and password tokens
-        final StringTokenizer tokenizer = new StringTokenizer(usernameAndPassword, ":");
-        final String username = tokenizer.nextToken();
-        final String password = tokenizer.nextToken();
+    public static String getUser(String pToken){
         
-        return password;
+        String token = getToken(pToken);
+        
+        Jws jws = Jwts.parser().setSigningKey(KEY).parseClaimsJws(token);
+        Claims claims = (Claims)jws.getBody();
+        String user = claims.getSubject();
+        
+        return user;
+    }
+    
+    public static List<String> getRoles(String pToken){
+        
+        String token = getToken(pToken);
+        
+        Jws jws = Jwts.parser().setSigningKey(KEY).parseClaimsJws(token);
+        Claims claims = (Claims)jws.getBody();
+        String strRoles = claims.get("roles", String.class);
+        
+        List<String> roles = Arrays.asList(strRoles.split(","));
+        
+        return roles;
+    }
+    
+    private static String getToken(String tokenHeader){
+        return tokenHeader.substring(AuthenticationConstant.SCHEME.length()).trim();
+    }
+    
+    private static String issueToken(String login) {
+    	
+    	Date issueDate = new Date();
+        
+        // Get expireDate - 100 minutes
+    	Calendar calendar = Calendar.getInstance();
+    	calendar.setTime(issueDate);
+    	calendar.add(Calendar.MINUTE, 100);
+        Date expireDate = calendar.getTime();
+        
+        //Get jwtToken
+        String jwtToken = Jwts.builder()
+        		.claim("roles", AuthenticationConstant.ROLE_USER)
+                        .setSubject(login)
+                        .setIssuer("http://sisob.toe.iaia.lcc.uma.es")
+                        .setIssuedAt(issueDate)
+                        .setExpiration(expireDate)
+                        .signWith(SignatureAlgorithm.HS512, AuthenticationFilter.KEY)
+                        .compact();
+        return jwtToken;
     }
 }

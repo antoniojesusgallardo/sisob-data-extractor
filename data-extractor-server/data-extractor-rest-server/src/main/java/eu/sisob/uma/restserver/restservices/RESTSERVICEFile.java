@@ -26,6 +26,7 @@ import eu.sisob.uma.restserver.TheResourceBundle;
 import eu.sisob.uma.restserver.managers.AuthorizationManager;
 import eu.sisob.uma.restserver.managers.TaskFileManager;
 import eu.sisob.uma.restserver.restservices.exceptions.InternalServerErrorException;
+import eu.sisob.uma.restserver.restservices.security.AuthenticationConstant;
 import eu.sisob.uma.restserver.restservices.security.AuthenticationUtils;
 import eu.sisob.uma.restserver.services.communications.Task;
 import eu.sisob.uma.restserver.services.communications.FileDetail;
@@ -62,7 +63,7 @@ public class RESTSERVICEFile extends RESTSERVICEBase{
     public static final String FILE_TYPE_DETAILED_RESULT    = "detailed-result";
     
     @GET
-    @RolesAllowed("user")
+    @RolesAllowed(AuthenticationConstant.ROLE_USER)
     public Response getFile(@QueryParam("task_code") String task_code, 
                             @QueryParam("file") String file, 
                             @QueryParam("type") String type)  
@@ -122,7 +123,7 @@ public class RESTSERVICEFile extends RESTSERVICEBase{
     }
     
     @DELETE
-    @RolesAllowed("user")
+    @RolesAllowed(AuthenticationConstant.ROLE_USER)
     public String deleteFile(@QueryParam("task_code") String task_code, 
                             @QueryParam("file") String file)  
     {
@@ -160,7 +161,7 @@ public class RESTSERVICEFile extends RESTSERVICEBase{
     }            
     
     @POST
-    @RolesAllowed("user")
+    @RolesAllowed(AuthenticationConstant.ROLE_USER)
     @Consumes(MediaType.MULTIPART_FORM_DATA)
     @Produces(MediaType.TEXT_PLAIN)
     public String uploadFile(@FormDataParam("task_code") String task_code,            

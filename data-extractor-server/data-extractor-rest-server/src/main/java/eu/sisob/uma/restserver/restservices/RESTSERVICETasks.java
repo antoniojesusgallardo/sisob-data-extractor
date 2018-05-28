@@ -25,6 +25,7 @@ import eu.sisob.uma.restserver.managers.AuthorizationManager;
 import eu.sisob.uma.restserver.managers.TaskManager;
 import static eu.sisob.uma.restserver.restservices.RESTSERVICEBase.LOG;
 import eu.sisob.uma.restserver.restservices.exceptions.InternalServerErrorException;
+import eu.sisob.uma.restserver.restservices.security.AuthenticationConstant;
 import eu.sisob.uma.restserver.restservices.security.AuthenticationUtils;
 import eu.sisob.uma.restserver.services.communications.LaunchTask;
 import eu.sisob.uma.restserver.services.communications.Task;
@@ -48,7 +49,7 @@ public class RESTSERVICETasks extends RESTSERVICEBase{
      * @return  If the authorization is correct and a new code task
      */
     @GET
-    @RolesAllowed("user")
+    @RolesAllowed(AuthenticationConstant.ROLE_USER)
     @Produces(MediaType.APPLICATION_JSON)
     public List<Task> getTasks() 
     {   
@@ -74,7 +75,7 @@ public class RESTSERVICETasks extends RESTSERVICEBase{
      * @return an instance of CrawlerTaskStatus with code provided
      */
     @GET
-    @RolesAllowed("user")
+    @RolesAllowed(AuthenticationConstant.ROLE_USER)
     @Produces(MediaType.APPLICATION_JSON)
     @Path("/{task_code}")
     public Task getTask(@PathParam("task_code") String taskCode) 
@@ -94,7 +95,7 @@ public class RESTSERVICETasks extends RESTSERVICEBase{
     }
     
     @POST
-    @RolesAllowed("user")
+    @RolesAllowed(AuthenticationConstant.ROLE_USER)
     @Produces(MediaType.APPLICATION_JSON)
     public Task addTask() 
     {
@@ -119,7 +120,7 @@ public class RESTSERVICETasks extends RESTSERVICEBase{
     }   
     
     @DELETE
-    @RolesAllowed("user")
+    @RolesAllowed(AuthenticationConstant.ROLE_USER)
     @Produces(MediaType.TEXT_PLAIN)    
     @Path("/{task_code}")
     public String deleteTask(@PathParam("task_code") String taskCode) 
@@ -151,7 +152,7 @@ public class RESTSERVICETasks extends RESTSERVICEBase{
      * @return 
      */
     @POST
-    @RolesAllowed("user")
+    @RolesAllowed(AuthenticationConstant.ROLE_USER)
     @Produces(MediaType.TEXT_PLAIN)
     @Path("/{task_code}/relaunch")
     public String relaunchTask(@PathParam("task_code") String taskCode) 
@@ -184,7 +185,7 @@ public class RESTSERVICETasks extends RESTSERVICEBase{
      * @return
      */
     @POST
-    @RolesAllowed("user")
+    @RolesAllowed(AuthenticationConstant.ROLE_USER)
     @Produces(MediaType.TEXT_PLAIN)
     @Path("/{task_code}/launch")
     public String launchTask(@PathParam("task_code") String taskCode, 

@@ -21,7 +21,6 @@
 package eu.sisob.uma.restserver.client;
 
 import eu.sisob.uma.restserver.TheConfig;
-import eu.sisob.uma.restserver.restservices.security.AuthenticationUtils;
 import java.util.Map;
 import java.util.logging.Logger;
 import javax.ws.rs.client.Client;
@@ -30,6 +29,7 @@ import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.Invocation;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.GenericType;
+import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import javax.ws.rs.core.Response.Status;
@@ -114,7 +114,7 @@ public class RESTClient {
                                 .request(MediaType.APPLICATION_FORM_URLENCODED)
                                 .accept(MediaType.APPLICATION_JSON);
         Response response = invocationBuilder
-                                .header(AuthenticationUtils.AUTHORIZATION_PROPERTY, token)
+                                .header(HttpHeaders.AUTHORIZATION, token)
                                 .get();
         
         if (response.getStatus() != Status.OK.getStatusCode()) {
@@ -139,7 +139,7 @@ public class RESTClient {
         invocationBuilder = webTarget
                                 .request(MediaType.APPLICATION_JSON);
         Response response = invocationBuilder
-                                .header(AuthenticationUtils.AUTHORIZATION_PROPERTY, token)
+                                .header(HttpHeaders.AUTHORIZATION, token)
                                 .post(Entity.entity(data, MediaType.APPLICATION_JSON));
         
         if (response.getStatus() != Status.OK.getStatusCode()) {

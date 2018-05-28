@@ -23,6 +23,7 @@ import eu.sisob.uma.restserver.restservices.security.AuthenticationUtils;
 import java.util.logging.Logger;
 import javax.ws.rs.HeaderParam;
 import javax.ws.rs.WebApplicationException;
+import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
@@ -32,7 +33,7 @@ import javax.ws.rs.core.Response;
  */
 public class RESTSERVICEBase {
     
-    @HeaderParam(AuthenticationUtils.AUTHORIZATION_PROPERTY) 
+    @HeaderParam(HttpHeaders.AUTHORIZATION) 
     protected String token;
     
     protected static final Logger LOG = Logger.getLogger(RESTSERVICEBase.class.getName());

@@ -25,15 +25,12 @@
 <!DOCTYPE HTML>
 <%@page import="eu.sisob.uma.restserver.client.ApiErrorException"%>
 <%@page import="eu.sisob.uma.restserver.client.RESTClient"%>
-<%@page import="eu.sisob.uma.restserver.restservices.security.AuthenticationUtils"%>
-<%@page import="eu.sisob.uma.restserver.services.communications.Authorization"%>
+<%@page import="eu.sisob.uma.restserver.services.communications.Authentication"%>
 <%@page import="eu.sisob.uma.restserver.services.communications.User"%>
 <%@page import="eu.sisob.uma.restserver.TheConfig"%>
-<%@page import="java.security.MessageDigest"%>
 <%@page import="java.util.List"%>
-<%@page import="java.util.Map"%>
-<%@page import="java.util.HashMap"%>
-<%@page import="javax.ws.rs.core.Response;"%>
+<%@page import="javax.ws.rs.core.HttpHeaders"%>
+<%@page import="javax.ws.rs.core.Response"%>
 
 <%@page session="true"%>
 <%
@@ -45,10 +42,10 @@
     String urlRedirect = "";
     
     try{
-        Authorization auth = new Authorization();
+        Authentication auth = new Authentication();
         auth.setUser(user);
         auth.setPass(pass);
-        Response authResponse = restClient.postResponse("/authorization", auth);
+        Response authResponse = restClient.postResponse("/authentication", auth);
         
         User userAuth = authResponse.readEntity(User.class);
         
@@ -56,7 +53,7 @@
             
             List authorization = authResponse
                                     .getHeaders()
-                                    .get(AuthenticationUtils.AUTHORIZATION_PROPERTY);
+                                    .get(HttpHeaders.AUTHORIZATION);
             
             if(authorization==null || authorization.isEmpty()){
                 throw new Exception();

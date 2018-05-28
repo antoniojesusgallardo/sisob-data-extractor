@@ -17,52 +17,30 @@
     You should have received a copy of the GNU General Public License
     along with SISOB Data Extractor. If not, see <http://www.gnu.org/licenses/>.
 */
-
-package eu.sisob.uma.restserver.beans;
+package eu.sisob.uma.restserver.services.communications;
 
 /**
  *
  * @author Antonio Jesus Gallardo Albarran - antonio.jesus.gallardo@gmail.com
  */
-public class AuthorizationResult {
-
-    private Boolean success;
+public class Authentication {
     
-    private String message;
-    
-    private String accountType;
-    
-    private Integer numTasksAllow;
+    private String user;
+    private String pass;
 
-    public Boolean getSuccess() {
-        return success;
+    public String getUser() {
+        return user;
     }
 
-    public void setSuccess(Boolean success) {
-        this.success = success;
+    public void setUser(String user) {
+        this.user = user;
     }
 
-    public String getMessage() {
-        return message;
+    public String getPass() {
+        return pass;
     }
 
-    public void setMessage(String message) {
-        this.message = message;
-    }
-    
-    public String getAccountType() {
-        return accountType;
-    }
-
-    public void setAccountType(String accountType) {
-        this.accountType = accountType;
-    }
-
-    public Integer getNumTasksAllow() {
-        return numTasksAllow;
-    }
-
-    public void setNumTasksAllow(Integer numTasksAllow) {
-        this.numTasksAllow = numTasksAllow;
+    public void setPass(String pass) {
+        this.pass = pass;
     }
 }

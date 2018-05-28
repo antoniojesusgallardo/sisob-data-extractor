@@ -22,10 +22,11 @@ package eu.sisob.uma.restserver.managers;
 import eu.sisob.uma.restserver.TheConfig;
 import eu.sisob.uma.restserver.TheResourceBundle;
 import eu.sisob.uma.restserver.beans.UserAttributes;
-import eu.sisob.uma.restserver.beans.AuthorizationResult;
+import eu.sisob.uma.restserver.beans.AuthenticationResult;
 import java.util.HashMap;
 import java.io.File;
 import java.nio.file.Paths;
+import java.security.MessageDigest;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -122,9 +123,9 @@ public class AuthorizationManager
      * @param pass
      * @return 
      */
-    public static AuthorizationResult validateAccess(String user, String pass){
+    public static AuthenticationResult validateAccess(String user, String pass) throws Exception{
         
-        AuthorizationResult result = new AuthorizationResult();
+        AuthenticationResult result = new AuthenticationResult();
         
         if(!SystemManager.getInstance().IsRunning()){
             result.setSuccess(Boolean.FALSE);
@@ -143,6 +144,19 @@ public class AuthorizationManager
             result.setMessage("Please, insert a valid username and password");
             return result;
         }  
+        
+        // Convert password to SHA-256
+        MessageDigest md = MessageDigest.getInstance("SHA-256");
+        md.update(pass.getBytes());
+
+        byte byteData[] = md.digest();
+        //convert the byte to hex format method 1
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < byteData.length; i++) {
+            sb.append(Integer.toString((byteData[i] & 0xff) + 0x100, 16).substring(1));
+        }
+        pass = sb.toString();
+        // END - Convert password to SHA-256
         
         UserAttributes userDB = DBAuthorizeUserIn(user, pass);
         if(userDB!=null){

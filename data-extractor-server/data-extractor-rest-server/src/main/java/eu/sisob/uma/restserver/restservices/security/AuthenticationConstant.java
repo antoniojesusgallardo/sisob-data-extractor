@@ -17,30 +17,15 @@
     You should have received a copy of the GNU General Public License
     along with SISOB Data Extractor. If not, see <http://www.gnu.org/licenses/>.
 */
-package eu.sisob.uma.restserver.services.communications;
+package eu.sisob.uma.restserver.restservices.security;
 
 /**
  *
  * @author Antonio Jesus Gallardo Albarran - antonio.jesus.gallardo@gmail.com
  */
-public class Authorization {
+public class AuthenticationConstant {
+
+    public static final String SCHEME = "Bearer";
     
-    private String user;
-    private String pass;
-
-    public String getUser() {
-        return user;
-    }
-
-    public void setUser(String user) {
-        this.user = user;
-    }
-
-    public String getPass() {
-        return pass;
-    }
-
-    public void setPass(String pass) {
-        this.pass = pass;
-    }
+    public static final String ROLE_USER = "user";
 }
