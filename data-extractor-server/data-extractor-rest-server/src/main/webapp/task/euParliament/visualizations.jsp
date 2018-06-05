@@ -22,11 +22,7 @@
     Author: Antonio Jesus Gallardo Albarran - antonio.jesus.gallardo@gmail.com
 --%>
 
-<%@page import="eu.sisob.uma.restserver.client.Constant"%>
-<%@page import="eu.sisob.uma.restserver.client.RESTUri"%>
 <%@page import="eu.sisob.uma.restserver.client.UtilJsp"%>
-<%@page import="eu.sisob.uma.restserver.managers.AuthorizationManager"%>
-<%@page import="eu.sisob.uma.restserver.managers.SystemManager"%>
 <%@page import="eu.sisob.uma.restserver.TheResourceBundle"%>
 <%@page import="java.util.ArrayList"%>
 <%@page import="java.util.List"%>
@@ -37,11 +33,6 @@
         response.sendRedirect(request.getContextPath()+"/index.jsp?message=notAllowed");
         return;
     }
-    
-    String task_code    = request.getParameter("task_code");
-    
-    String version      = SystemManager.getInstance().getVersion();
-    String urlBaseJson  = RESTUri.getUriFile(task_code, "", Constant.FILE_TYPE_RESULT);
     
     List<String> visualizationNames = new ArrayList();
     visualizationNames.add("temporalEvolution");
@@ -58,8 +49,6 @@
     }
     
     request.setAttribute("visualizationTypes", visualizationTypes);
-    request.setAttribute("urlBaseJson", urlBaseJson);
-    request.setAttribute("version", version);
 %>
 
 <%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
@@ -71,14 +60,6 @@
 <t:generic-template>
     <jsp:attribute name="resources">
         <jsp:include page="../../layout/resources.jsp" />
-       
-        <%-- JavaScript Development - Custom visualizations --%>
-        <script src="static/js/euParliament/util.js?v.${version}" ></script>
-        <script src="static/js/euParliament/visualizations/visualizations.js?v.${version}" ></script>
-        <script src="static/js/euParliament/visualizations/barChart_generalIndicators.js?v.${version}" ></script>
-        <script src="static/js/euParliament/visualizations/barChart_speechesByCountry.js?v.${version}" ></script>
-        <script src="static/js/euParliament/visualizations/lineChart_keywordsEvolution.js?v.${version}" ></script>
-        <script src="static/js/euParliament/visualizations/wordCloud_keywords.js?v.${version}" ></script>
     </jsp:attribute>
     <jsp:attribute name="header">
         <jsp:include page="../../layout/header.jsp" >  
@@ -103,24 +84,17 @@
             </h4>
 
             <fmt:message key="Jsp_euParliament_visualizations_selectVisualizations" bundle="${msg}"/>:
-            <select class="chzn-select" id="visualization-selector" onchange="Visualizations.changeSelector();">   
+            <select class="chzn-select" id="visualization-selector" onchange="visualizationsCH.changeSelector();">   
                 <c:forEach items="${visualizationTypes}" var="iType">
                     <option value="${iType[0]}">${iType[1]}</option>
                 </c:forEach>
             </select>
 
             <div id="chart1"></div>
+            
+            <script>
+                visualizationsCH.init(${param.task_code});    
+            </script>
         </div>
-
     </jsp:body>
 </t:generic-template>
-
-<script>
-    var jsonData_ontologies;
-    var jsonData_speeches;
-    
-    var taskCode    = ${param.task_code};
-    var urlBaseJson = '${urlBaseJson}';
-    
-    Visualizations.init(security.getToken());    
-</script>

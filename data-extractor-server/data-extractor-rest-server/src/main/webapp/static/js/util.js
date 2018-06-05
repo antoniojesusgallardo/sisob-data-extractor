@@ -40,12 +40,6 @@ var Util = (function(){
             else{
                 return "";
             }
-        },
-        
-        getCategoryFormatted: function (pCategory){
-    
-            var rCategory = pCategory.replace(/_/g, " ");
-            return rCategory;
         }
     };
 }());

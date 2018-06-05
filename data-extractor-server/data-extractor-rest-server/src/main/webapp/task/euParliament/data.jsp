@@ -23,11 +23,7 @@
 --%>
 
 <!DOCTYPE HTML>
-<%@page import="eu.sisob.uma.restserver.client.Constant"%>
-<%@page import="eu.sisob.uma.restserver.client.RESTUri"%>
 <%@page import="eu.sisob.uma.restserver.client.UtilJsp"%>
-<%@page import="eu.sisob.uma.restserver.managers.AuthorizationManager"%>
-<%@page import="eu.sisob.uma.restserver.managers.SystemManager"%>
 
 <%@page session="true"%>
 <%  
@@ -35,16 +31,6 @@
         response.sendRedirect(request.getContextPath()+"/index.jsp?message=notAllowed");
         return;
     }
-    
-    String version = SystemManager.getInstance().getVersion();
-    
-    String task_code    = request.getParameter("task_code");
-    String speech_id    = request.getParameter("speech_id");
-
-    String urlJson = RESTUri.getUriFile(task_code, speech_id+".json", Constant.FILE_TYPE_DETAILED_RESULT);
-    
-    request.setAttribute("urlJson", urlJson);
-    request.setAttribute("version", version);
 %>
 
 <%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
@@ -56,10 +42,6 @@
 <t:generic-template>
     <jsp:attribute name="resources">
         <jsp:include page="../../layout/resources.jsp" />
-        
-        <%-- JavaScript Development --%>
-        <script src="static/js/euParliament/util.js?v.${version}" ></script>
-        <script src="static/js/euParliament/data/loadData.js?v.${version}" ></script>
     </jsp:attribute>
     <jsp:attribute name="header">
         <jsp:include page="../../layout/header.jsp" >  
@@ -96,12 +78,9 @@
             </h4>
             <div id="contentText"></div>
         </div>
+            
+        <script>
+            dataCH.loadSpeechData('${param.task_code}', '${param.speech_id}');
+        </script>
     </jsp:body>
-</t:generic-template>
-
-<script>
-    var urlJson = '${urlJson}';
-    
-    loadData(security.getToken());  
-</script>
-    
+</t:generic-template>    

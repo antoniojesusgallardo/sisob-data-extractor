@@ -21,66 +21,71 @@
 /*
  * Author: Antonio Jesus Gallardo Albarran - antonio.jesus.gallardo@gmail.com
  */
-function drawBarChart(pJsonData){
-    
-    var dataBC = pJsonData["data"];
-    
-    Util.removeAllChild(d3.selectAll("#chart1"));
-    d3.selectAll("#divLateralMenuData").remove();
-    
-    var chart;
+var generalIndicatorsCH = (function(){
 
-    nv.addGraph(function() {
-        var chart = nv.models.multiBarChart();
+    return {
+        draw: function (pJsonData) {
 
-        chart.yAxis
-            .tickFormat(d3.format(',.1f'));
+            var dataBC = pJsonData["data"];
 
-        d3.select('#chart1').append('svg')
-            .datum(getData(dataBC))
-            .transition().duration(500)
-            .call(chart)
-            ;
-        
-        var xTicks = d3.selectAll("#chart1").selectAll('.nv-x.nv-axis > g').selectAll('g');
-        xTicks
-            .selectAll('text')
-            .attr('transform', function(d,i,j) { return 'translate (10, 0) rotate(15 0,0)' }) 
-            .style("text-anchor", "start")
-        ;
+            Util.removeAllChild(d3.selectAll("#chart1"));
+            d3.selectAll("#divLateralMenuData").remove();
 
-        nv.utils.windowResize(chart.update);
+            var chart;
 
-        return chart;
-    });
+            nv.addGraph(function() {
+                var chart = nv.models.multiBarChart();
 
-    function getData(dataBC){
+                chart.yAxis
+                    .tickFormat(d3.format(',.1f'));
 
-        var numKeywords = [],
-            numDistintKeyword = [],
-            numSpeech = [];
+                d3.select('#chart1').append('svg')
+                    .datum(getData(dataBC))
+                    .transition().duration(500)
+                    .call(chart)
+                    ;
 
-        for(var index in dataBC){
-            var oData = dataBC[index];
-            numKeywords.push( {x:oData["name"], y: oData["numKeywords"]} );
-            numDistintKeyword.push( {x:oData["name"], y: oData["numDistintKeywords"]} );
-            numSpeech.push( {x:oData["name"], y: oData["numSpeech"]} );
-        }
+                var xTicks = d3.selectAll("#chart1").selectAll('.nv-x.nv-axis > g').selectAll('g');
+                xTicks
+                    .selectAll('text')
+                    .attr('transform', function(d,i,j) { return 'translate (10, 0) rotate(15 0,0)' }) 
+                    .style("text-anchor", "start")
+                ;
 
-        return [
-            {
-                values: numKeywords,
-                key: "Number of Keywords Appearanced (Repeated)"
-            },
-            {
-                values: numDistintKeyword,
-                key: "Number of Distint Keywords Appearanced (No Repeated)"
-            },
-            {
-                values: numSpeech,
-                key: "Number of Speeches with keyword"
+                nv.utils.windowResize(chart.update);
+
+                return chart;
+            });
+
+            function getData(dataBC){
+
+                var numKeywords = [],
+                    numDistintKeyword = [],
+                    numSpeech = [];
+
+                for(var index in dataBC){
+                    var oData = dataBC[index];
+                    numKeywords.push( {x:oData["name"], y: oData["numKeywords"]} );
+                    numDistintKeyword.push( {x:oData["name"], y: oData["numDistintKeywords"]} );
+                    numSpeech.push( {x:oData["name"], y: oData["numSpeech"]} );
+                }
+
+                return [
+                    {
+                        values: numKeywords,
+                        key: "Number of Keywords Appearanced (Repeated)"
+                    },
+                    {
+                        values: numDistintKeyword,
+                        key: "Number of Distint Keywords Appearanced (No Repeated)"
+                    },
+                    {
+                        values: numSpeech,
+                        key: "Number of Speeches with keyword"
+                    }
+                ];
             }
-        ];
-    }
-}
+        }
+    };
+}());   
  

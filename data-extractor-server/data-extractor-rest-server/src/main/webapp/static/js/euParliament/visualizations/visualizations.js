@@ -21,28 +21,49 @@
 /*
  * Author: Antonio Jesus Gallardo Albarran - antonio.jesus.gallardo@gmail.com
  */
-var Visualizations = (function(){
+var visualizationsCH = (function(){
 
     return {
-        init: function (token) {
+        dataOntologies: null, 
+        dataSpeeches: null,
+        taskCode: null,
+        init: function (taskCode) {
             
-            var urlIndByCategory= urlBaseJson.replace("&file=", "&file=" + "IndicatorsByCategory.json");
-            var urlIndBySpeech  = urlBaseJson.replace("&file=", "&file=" + "IndicatorsBySpeech.json");
+            visualizationsCH.dataOntologies = null;
+            visualizationsCH.dataSpeeches = null;
+            visualizationsCH.taskCode = taskCode;
+            
+            var urlBase =   "resources/file" +
+                            "?task_code=" + taskCode + 
+                            "&type=result" +
+                            "&file=";  
+            var urlIndByCategory= urlBase + "IndicatorsByCategory.json";
+            var urlIndBySpeech  = urlBase + "IndicatorsBySpeech.json";
 
             d3.json(urlIndByCategory)
-                .header(security.AUTHORIZATION_PROPERTY, token)
+                .header(security.AUTHORIZATION_PROPERTY, security.getToken())
                 .get(function(error, data) {
-                    
-                jsonData_ontologies = data; 
-                drawLineChart(jsonData_ontologies);
+                
+                if(error != null){
+                    console.log(error.responseText);
+                    return;
+                }
+                            
+                visualizationsCH.dataOntologies = data; 
+                keywordsEvolutionCH.draw(visualizationsCH.dataOntologies);
             });
             
             d3.json(urlIndBySpeech)
-                .header(security.AUTHORIZATION_PROPERTY, token)
+                .header(security.AUTHORIZATION_PROPERTY, security.getToken())
                 .get(function(error, data) {
                 
-                jsonData_speeches = data; 
-                drawLineChart(jsonData_ontologies);
+                if(error != null){
+                    console.log(error.responseText);
+                    return;
+                }
+                
+                visualizationsCH.dataSpeeches = data; 
+                keywordsEvolutionCH.draw(visualizationsCH.dataOntologies);
             });
         },
         
@@ -51,16 +72,16 @@ var Visualizations = (function(){
             var selected = Util.getSelect_value('visualization-selector');
     
             if(selected === "generalIndicators"){
-                drawBarChart(jsonData_ontologies);
+                generalIndicatorsCH.draw(visualizationsCH.dataOntologies);
             }
             else if (selected === "wordCloud"){
-                drawKeywords(jsonData_ontologies);
+                wordCloudCH.draw(visualizationsCH.dataOntologies, visualizationsCH.taskCode);
             }
             else if(selected === "temporalEvolution"){
-                drawLineChart(jsonData_ontologies);
+                keywordsEvolutionCH.draw(visualizationsCH.dataOntologies);
             }
             else if(selected === "speechesByCountries"){
-                drawBarChart_speechesByCountries(jsonData_speeches);
+                speechesByCountriesCH.draw(visualizationsCH.dataSpeeches);
             }
         }        
     };

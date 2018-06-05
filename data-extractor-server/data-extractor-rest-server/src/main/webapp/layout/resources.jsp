@@ -1,6 +1,5 @@
 <%-- 
-    Copyright (c) 2014 "(IA)2 Research Group. Universidad de Málaga"
-                        http://iaia.lcc.uma.es | http://www.uma.es
+    Copyright (c) 2014 "(IA)2 Research Group. Universidad de Mï¿½laga"                        http://iaia.lcc.uma.es | http://www.uma.es
 
     This file is part of SISOB Data Extractor.
 
@@ -26,6 +25,13 @@
 <c:set var="url">${req.requestURL}</c:set>
 <c:set var="uri" value="${req.requestURI}" />
 
+<%@page import="eu.sisob.uma.restserver.managers.SystemManager"%>
+ 
+<%
+    String version = SystemManager.getInstance().getVersion();
+    request.setAttribute("version", version);
+%>
+
 <fmt:setBundle basename="Bundle" var="msg"/>
 
 <!-- Force latest IE rendering engine or ChromeFrame if installed -->
@@ -49,14 +55,13 @@
 <!-- CSS to style the file input field as button and adjust the Bootstrap progress bars -->
 <!-- Shim to make HTML5 elements usable in older Internet Explorer versions -->
 <!--[if lt IE 9]><script src="static/js/html5.js"></script><![endif]-->
-<script src="static/js/sha256.js"></script>    
 <!-- blueimp Gallery styles -->
 <link rel="stylesheet" href="static/css/blueimp-gallery.min.css">
 <!-- CSS to style the file input field as button and adjust the Bootstrap progress bars -->
 <link rel="stylesheet" href="static/css/jquery.fileupload-ui.css">
 <!-- CSS adjustments for browsers with JavaScript disabled -->
 
-<script src="static/js/security.js"></script>
+<script src="static/js/security.js?v.${version}"></script>
 
 <script src="static/js/jquery-1.8.2.min.js"></script>
 <!-- The jQuery UI widget factory, can be omitted if jQuery UI is already included -->
@@ -86,12 +91,23 @@
 <!-- The File Upload file processing plugin -->
 <script src="static/js/jquery.fileupload-fp.js"></script>
 <!-- The File Upload user interface plugin -->
-<script src="static/js/jquery.fileupload-ui.js"></script>
+<script src="static/js/jquery.fileupload-ui.js?v.${version}"></script>
 <!-- The localization script -->
 <script src="static/js/locale.js"></script>
 <!-- The main application script -->
-<script src="static/js/main.js"></script>
+<script src="static/js/main.js?v.${version}"></script>
 <!-- The XDomainRequest Transport is included for cross-domain file deletion for IE8+ -->
 <!--[if gte IE 8]><script src="static/js/cors/jquery.xdr-transport.js"></script><![endif]-->
 
+<%-- JavaScript Development --%>
+<script src="static/js/util.js?v.${version}" ></script>
+
+<script src="static/js/euParliament/data/loadData.js?v.${version}" ></script>
+
+<script src="static/js/euParliament/visualizations/visualizations.js?v.${version}" ></script>
+<script src="static/js/euParliament/visualizations/barChart_generalIndicators.js?v.${version}" ></script>
+<script src="static/js/euParliament/visualizations/barChart_speechesByCountry.js?v.${version}" ></script>
+<script src="static/js/euParliament/visualizations/lineChart_keywordsEvolution.js?v.${version}" ></script>
+<script src="static/js/euParliament/visualizations/wordCloud_keywords.js?v.${version}" ></script>
+<%-- END - JavaScript Development --%>
 <link rel="icon" type="image/png" href="static/img/favicon.png">
