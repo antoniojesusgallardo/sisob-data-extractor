@@ -323,7 +323,7 @@ $(document).ready(function()
             $.ajax({ 
                 type: "POST",
                 url: urlBase + "tasks/${task.task_code}/launch",
-                headers: security.getHeader(),
+                headers: sisob.security.getHeader(),
                 data: JSON.stringify(data),
                 contentType: 'application/json',
                 success: function(result){

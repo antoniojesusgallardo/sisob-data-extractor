@@ -93,7 +93,7 @@
             $.ajax({ 
                 type: "GET",
                 url: urlJson,
-                headers: security.getHeader(),                         
+                headers: sisob.security.getHeader(),                         
                 success: function(result){
                     document.getElementById("contentFile").innerHTML = result;
                 },

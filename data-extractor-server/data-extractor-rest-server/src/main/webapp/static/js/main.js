@@ -77,7 +77,7 @@ $(function () {
 
     $('#fileupload').fileupload({
         beforeSend: function(xhr, data) {
-            xhr.setRequestHeader(security.AUTHORIZATION_PROPERTY, security.getToken());
+            xhr.setRequestHeader(sisob.security.AUTHORIZATION_PROPERTY(), sisob.security.getToken());
         }
     });
 });

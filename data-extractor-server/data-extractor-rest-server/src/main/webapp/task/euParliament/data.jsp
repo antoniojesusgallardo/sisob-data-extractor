@@ -80,7 +80,7 @@
         </div>
             
         <script>
-            dataCH.loadSpeechData('${param.task_code}', '${param.speech_id}');
+            sisob.euParliament.data.load('${param.task_code}', '${param.speech_id}');
         </script>
     </jsp:body>
 </t:generic-template>    

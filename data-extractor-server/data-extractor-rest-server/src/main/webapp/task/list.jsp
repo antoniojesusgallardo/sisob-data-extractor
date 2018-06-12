@@ -149,7 +149,7 @@
                     $.ajax({ 
                         type: "POST",
                         url: "${pageContext.request.contextPath}/resources/tasks",
-                        headers: security.getHeader(),   
+                        headers: sisob.security.getHeader(),   
                         contentType: 'application/json',                                                      
                         success: function(result){
                             showModal("success", result.message);

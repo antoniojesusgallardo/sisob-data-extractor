@@ -21,20 +21,12 @@
 /*
  * Author: Antonio Jesus Gallardo Albarran - antonio.jesus.gallardo@gmail.com
  */
-var security = (function(){
 
-    return {
-        AUTHORIZATION_PROPERTY : "Authorization",
-        
-        getToken : function(){
-            return localStorage.wsToken;
-        },
-        
-        getHeader : function(){
-            var securityHeader = {};
-            securityHeader[this.AUTHORIZATION_PROPERTY] = localStorage.wsToken;
-            
-            return securityHeader;
-        }
-    };
-}());    
+var sisob = {};
+
+sisob.security = sisob.security || {}; 
+sisob.util = sisob.util || {}; 
+
+sisob.euParliament = sisob.euParliament || {}; 
+sisob.euParliament.visualizations = sisob.euParliament.visualizations || {}; 
+sisob.euParliament.data = sisob.euParliament.data || {};

@@ -17,6 +17,13 @@
     along with SISOB Data Extractor. If not, see <http://www.gnu.org/licenses/>.
 --%>
 
+<%@page import="eu.sisob.uma.restserver.managers.SystemManager"%>
+ 
+<%
+    String version = SystemManager.getInstance().getVersion();
+    request.setAttribute("version", version);
+%>
+
 <%@taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%@taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
@@ -24,13 +31,6 @@
 <c:set var="req" value="${pageContext.request}" />
 <c:set var="url">${req.requestURL}</c:set>
 <c:set var="uri" value="${req.requestURI}" />
-
-<%@page import="eu.sisob.uma.restserver.managers.SystemManager"%>
- 
-<%
-    String version = SystemManager.getInstance().getVersion();
-    request.setAttribute("version", version);
-%>
 
 <fmt:setBundle basename="Bundle" var="msg"/>
 
@@ -61,7 +61,8 @@
 <link rel="stylesheet" href="static/css/jquery.fileupload-ui.css">
 <!-- CSS adjustments for browsers with JavaScript disabled -->
 
-<script src="static/js/security.js?v.${version}"></script>
+<script src="static/js/sisob/sisob.js?v.${version}" ></script>
+<script src="static/js/sisob/security.js?v.${version}"></script>
 
 <script src="static/js/jquery-1.8.2.min.js"></script>
 <!-- The jQuery UI widget factory, can be omitted if jQuery UI is already included -->
@@ -100,14 +101,16 @@
 <!--[if gte IE 8]><script src="static/js/cors/jquery.xdr-transport.js"></script><![endif]-->
 
 <%-- JavaScript Development --%>
-<script src="static/js/util.js?v.${version}" ></script>
 
-<script src="static/js/euParliament/data/loadData.js?v.${version}" ></script>
+<script src="static/js/sisob/util.js?v.${version}" ></script>
 
-<script src="static/js/euParliament/visualizations/visualizations.js?v.${version}" ></script>
-<script src="static/js/euParliament/visualizations/barChart_generalIndicators.js?v.${version}" ></script>
-<script src="static/js/euParliament/visualizations/barChart_speechesByCountry.js?v.${version}" ></script>
-<script src="static/js/euParliament/visualizations/lineChart_keywordsEvolution.js?v.${version}" ></script>
-<script src="static/js/euParliament/visualizations/wordCloud_keywords.js?v.${version}" ></script>
+<script src="static/js/sisob/euParliament/data/loadData.js?v.${version}" ></script>
+
+<script src="static/js/sisob/euParliament/visualizations/visualizations.js?v.${version}" ></script>
+<script src="static/js/sisob/euParliament/visualizations/barChart_generalIndicators.js?v.${version}" ></script>
+<script src="static/js/sisob/euParliament/visualizations/barChart_speechesByCountry.js?v.${version}" ></script>
+<script src="static/js/sisob/euParliament/visualizations/lineChart_keywordsEvolution.js?v.${version}" ></script>
+<script src="static/js/sisob/euParliament/visualizations/wordCloud_keywords.js?v.${version}" ></script>
 <%-- END - JavaScript Development --%>
+
 <link rel="icon" type="image/png" href="static/img/favicon.png">

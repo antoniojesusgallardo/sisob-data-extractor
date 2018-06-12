@@ -84,7 +84,7 @@
             </h4>
 
             <fmt:message key="Jsp_euParliament_visualizations_selectVisualizations" bundle="${msg}"/>:
-            <select class="chzn-select" id="visualization-selector" onchange="visualizationsCH.changeSelector();">   
+            <select class="chzn-select" id="visualization-selector" onchange="sisob.euParliament.visualizations.changeSelector();">   
                 <c:forEach items="${visualizationTypes}" var="iType">
                     <option value="${iType[0]}">${iType[1]}</option>
                 </c:forEach>
@@ -93,7 +93,7 @@
             <div id="chart1"></div>
             
             <script>
-                visualizationsCH.init(${param.task_code});    
+                sisob.euParliament.visualizations.init(${param.task_code});    
             </script>
         </div>
     </jsp:body>

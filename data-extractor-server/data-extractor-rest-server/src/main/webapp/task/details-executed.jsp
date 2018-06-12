@@ -201,7 +201,7 @@ $(document).ready(function(){
         $.ajax({ 
             type: "POST",
             url: urlBase + "tasks/" + task_code + "/relaunch",
-            headers: security.getHeader(),
+            headers: sisob.security.getHeader(),
             contentType: 'application/json',
             success: function(result) { 
                 showModal("success", "("+task_kind+")  "+result);
@@ -220,7 +220,7 @@ $(document).ready(function(){
         $.ajax({ 
             type: "DELETE",
             url: urlBase + "tasks/"+task_code,
-            headers: security.getHeader(),
+            headers: sisob.security.getHeader(),
             contentType: 'application/json',
             success: function(result){
                 showModal("success", "("+task_kind+")  "+result);
