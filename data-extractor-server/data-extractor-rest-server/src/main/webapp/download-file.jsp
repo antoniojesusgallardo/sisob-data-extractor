@@ -39,8 +39,6 @@
         return;
     }
     
-    String token = (String)session.getAttribute("token");
-
     //Validate task and file
     String taskCode = request.getParameter("task-code");
     String fileName = request.getParameter("file-name");
@@ -56,11 +54,12 @@
     }
     
     try{
+        String token = UtilJsp.getToken(session);
+        RESTClient restClient = new RESTClient(token);
         Map params = new HashMap();
         params.put("task_code", taskCode);
         params.put("file", fileName);
         params.put("type", fileType);
-        RESTClient restClient = new RESTClient(token);
         InputStream inputStream = (InputStream)restClient.get("/file", InputStream.class, params);
         byte[] bytes = IOUtils.toByteArray(inputStream);
         

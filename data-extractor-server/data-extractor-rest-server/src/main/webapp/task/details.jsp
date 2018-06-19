@@ -34,10 +34,10 @@
     }
 
     // Input Data
-    String token = (String)session.getAttribute("token");
     String task_code = request.getParameter("task_code");
     
     // Get Task data from the API REST
+    String token = UtilJsp.getToken(session);
     RESTClient restClient = new RESTClient(token);
     
     Task task = null;

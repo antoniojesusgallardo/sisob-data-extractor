@@ -44,7 +44,7 @@
 <fmt:setBundle basename="Bundle" var="msg"/>
     
 <div class="well" id="instructions">
-    <h4>${task.message}</h4>
+    <h4><fmt:message key="Jsp Task Executed Msg" bundle="${msg}"/></h4>
 </div>
 
 <div class="well" id="instructions">

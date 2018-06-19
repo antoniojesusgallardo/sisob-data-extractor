@@ -20,7 +20,6 @@
 package eu.sisob.uma.restserver.managers;
 
 import eu.sisob.uma.extractors.adhoc.websearchers.WebSearchersExtractor;
-import eu.sisob.uma.restserver.beans.NewTask;
 import eu.sisob.uma.restserver.beans.TaskOperationResult;
 import eu.sisob.uma.restserver.TheResourceBundle;
 import static eu.sisob.uma.restserver.managers.AuthorizationManager.error_flag_file;
@@ -94,20 +93,6 @@ public class TaskManager {
             task_status.setDate_created((String)properties.getProperty(TaskFileManager.PROPERTY_TASK_DATE_CREATED));
         }
         
-        if (task_status.getStatus() != null){
-            switch (task_status.getStatus()) {
-                case Task.STATUS_TO_EXECUTE:
-                    task_status.setMessage(TheResourceBundle.getString("Jsp Task To Execute Msg"));
-                    break;
-                case Task.STATUS_EXECUTING:
-                    task_status.setMessage(TheResourceBundle.getString("Jsp Task Executing Msg"));
-                    break;
-                case Task.STATUS_EXECUTED:
-                    task_status.setMessage(TheResourceBundle.getString("Jsp Task Executed Msg"));
-                    break;
-            }
-        }                           
-        
         if(retrieveDetails){
 
             List<String> fresults = TaskFileManager.getResultFiles(user, task_code);
@@ -166,10 +151,8 @@ public class TaskManager {
      * @return
      * @throws java.lang.Exception
      */
-    public static NewTask prepareNewTask(String user) throws Exception
+    public static Task prepareNewTask(String user) throws Exception
     {
-        NewTask rTask = new NewTask();
-        
         List<Integer> listTaskCode = TaskManager.listTaskCode(user);                
 
         int num_tasks_alive = 0;
@@ -196,14 +179,14 @@ public class TaskManager {
 
         String pathTaskFolder = TaskFileManager.getTaskFolder(user, newTaskFolder);
         File task_dir = new File(pathTaskFolder);
+        Task rTask = new Task();
         if(!task_dir.exists()){
             task_dir.mkdir();
             
             TaskFileManager.createFileTaskData(pathTaskFolder);
             
-            rTask.setCode(newTaskFolder);
+            rTask.setTask_code(newTaskFolder);
             rTask.setStatus(Task.STATUS_TO_EXECUTE);
-            rTask.setMessage("A new task has been created successfully."); 
         }
         else{
             throw new Exception("Error creating place for the new task.");
@@ -274,7 +257,7 @@ public class TaskManager {
                 
         if(!Task.STATUS_TO_EXECUTE.equals(task.getStatus())){
             result.success = false;
-            result.message = task.getMessage();
+            result.message = "Task with wrong status, the status must be: " + Task.STATUS_TO_EXECUTE;
 
             return result;
         }
@@ -314,7 +297,7 @@ public class TaskManager {
                 
         if(!Task.STATUS_EXECUTED.equals(task.getStatus())){
             result.success = false;
-            result.message = task.getMessage();
+            result.message = "Task with wrong status, the status must be: " + Task.STATUS_EXECUTED;
 
             return result;
         }
@@ -452,32 +435,31 @@ public class TaskManager {
         
         TaskOperationResult result = new TaskOperationResult();
         
-        Task task = TaskManager.getTask(user, task_code, false);            
-
-        if( Task.STATUS_EXECUTING.equals(task.getStatus()) ||
-            Task.STATUS_TO_EXECUTE.equals(task.getStatus()) )
-        {   
-            result.success = false;                 
-            result.message = "The task couldn't be deleted. " + task.getMessage();
-        }           
-        else if(Task.STATUS_EXECUTED.equals(task.getStatus()))
-        { 
+        Task task = TaskManager.getTask(user, task_code, false);
+        
+        try{
+            if(!Task.STATUS_EXECUTED.equals(task.getStatus())){   
+                result.success = false;                 
+                result.message = "The task couldn't be deleted. The task status must be: " + Task.STATUS_EXECUTED;
+                return result;
+            }           
+             
             String taskFolder = TaskFileManager.getTaskFolder(user, task_code);
             File dir_to_delete = new File(taskFolder);
-            try{
-                FileUtils.deleteDirectory(dir_to_delete);   
-                if(dir_to_delete.exists()){
-                    result.success = false;              
-                    result.message = "The task couldn't be deleted";
-                }else{
-                    result.success = true;              
-                    result.message = "The task " + task_code + " has been deleted";
-                }
-            }catch(Exception ex){
+
+            FileUtils.deleteDirectory(dir_to_delete);   
+            if(dir_to_delete.exists()){
                 result.success = false;              
-                result.message = "";
-                LOG.log(Level.SEVERE, "Error deleting task " + task_code, ex);
+                result.message = "The task couldn't be deleted";
             }
+            else{
+                result.success = true;              
+                result.message = "The task " + task_code + " has been deleted";
+            }
+        }catch(Exception ex){
+            result.success = false;              
+            result.message = "";
+            LOG.log(Level.SEVERE, "Error deleting task " + task_code, ex);
         }
         
         return result;

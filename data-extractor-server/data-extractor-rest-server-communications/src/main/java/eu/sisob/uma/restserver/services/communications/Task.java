@@ -37,8 +37,7 @@ public class Task
     
     public Task()
     {
-        status = "";      
-        message = "";
+        status = "";
         task_code = "";   
         name = "";   
         kind = "";
@@ -58,8 +57,6 @@ public class Task
     
     
     private String status;      
-    
-    private String message;
     
     private String task_code;   
     
@@ -97,14 +94,6 @@ public class Task
         this.status = status;
     }
 
-    public String getMessage() {
-        return message;
-    }
-
-    public void setMessage(String message) {
-        this.message = message;
-    }
-    
     public String getTask_code() {
         return task_code;
     }

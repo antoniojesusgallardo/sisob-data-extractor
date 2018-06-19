@@ -45,4 +45,9 @@ public class UtilJsp{
         
         return resValidation;
     }
+    
+    public static String getToken(HttpSession session){
+        String token = (String)session.getAttribute("token");
+        return token;
+    }
 }

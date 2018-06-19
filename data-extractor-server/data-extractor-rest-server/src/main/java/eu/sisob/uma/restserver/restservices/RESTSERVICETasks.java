@@ -19,7 +19,6 @@
 */
 package eu.sisob.uma.restserver.restservices;
 
-import eu.sisob.uma.restserver.beans.NewTask;
 import eu.sisob.uma.restserver.beans.TaskOperationResult;
 import eu.sisob.uma.restserver.managers.AuthorizationManager;
 import eu.sisob.uma.restserver.managers.TaskManager;
@@ -104,14 +103,9 @@ public class RESTSERVICETasks extends RESTSERVICEBase{
         try {
             synchronized(AuthorizationManager.getLocker(user)){
             
-                NewTask newTask = TaskManager.prepareNewTask(user);
+                Task newTask = TaskManager.prepareNewTask(user);
                 
-                Task taskStatus = new Task();
-                taskStatus.setTask_code(newTask.getCode());
-                taskStatus.setStatus(newTask.getStatus());
-                taskStatus.setMessage(newTask.getMessage());
-
-                return taskStatus;
+                return newTask;
             }
         } catch (Exception e) {
             LOG.log(Level.SEVERE, "Error addNewTask", e);

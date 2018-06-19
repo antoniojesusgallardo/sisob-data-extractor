@@ -186,7 +186,8 @@ public class RESTSERVICEFile extends RESTSERVICEBase{
             Task task = TaskManager.getTask(user, task_code, false);
         
             if(!Task.STATUS_TO_EXECUTE.equals(task.getStatus())){
-                throw new WebApplicationException(task.getMessage(), Response.Status.PRECONDITION_FAILED);
+                String message = "Task with wrong status, the status must be: " + Task.STATUS_TO_EXECUTE;
+                throw new WebApplicationException(message, Response.Status.PRECONDITION_FAILED);
             }
 
             File file = TaskFileManager.getFile(user, task_code, fileName, "");

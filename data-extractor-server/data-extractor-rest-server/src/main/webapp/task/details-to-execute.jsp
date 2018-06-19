@@ -83,7 +83,7 @@
 <fmt:setBundle basename="Bundle" var="msg"/>
 
 <div class="well" id="task-selection">
-    <h4>${task.message}</h4>
+    <h4><fmt:message key="Jsp Task To Execute Msg" bundle="${msg}"/></h4>
     <h5><fmt:message key="Jsp Select Task Msg" bundle="${msg}"/></h5>
     <select class="chzn-select" id="task-selector">                
         <c:forEach items="${taskTypes}" var="taskType">

@@ -31,9 +31,8 @@
         return;
     }
     
-    String token = (String)session.getAttribute("token");
-    
     // API REST - get tasks
+    String token = UtilJsp.getToken(session);
     RESTClient restClient = new RESTClient(token);
     List<Task> listTasks = (List<Task>)restClient.get("/tasks", new GenericType<List<Task>>(){}, null);
     
@@ -152,7 +151,8 @@
                         headers: sisob.security.getHeader(),   
                         contentType: 'application/json',                                                      
                         success: function(result){
-                            showModal("success", result.message);
+                            var message = "A new task has been created successfully."
+                            showModal("success", message);
                             setTimeout(function() {
                                 window.location = 'task/details.jsp?task_code='+result.task_code;
                             }, 2000);

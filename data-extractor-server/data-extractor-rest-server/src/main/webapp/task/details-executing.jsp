@@ -33,5 +33,5 @@
 %>                
 
 <div class="well" id="instructions">   
-    <h4>${task.message}</h4>
+    <h4><fmt:message key="Jsp Task Executing Msg" bundle="${msg}"/></h4>
 </div>
