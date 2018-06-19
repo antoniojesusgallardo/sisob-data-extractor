@@ -5,7 +5,7 @@
     <parent>
         <groupId>eu.sisob.uma</groupId>
         <artifactId>sisob-data-extractor</artifactId>
-        <version>1.1.1</version>
+        <version>1.2.0</version>
         <relativePath>../../</relativePath>
     </parent>
 
