@@ -91,4 +91,100 @@ sisob.euParliament.visualizations.changeSelector = function (){
     else if(selected === "speechesByCountries"){
         visualizations.speechesByCountries(data.speeches);
     }
-};   
+};  
+
+sisob.euParliament.visualizations.clickDownload = function(){
+    
+    var conf = null;
+
+    var selected = sisob.util.getSelect_value('visualization-selector');
+    if(selected !== "wordCloud"){
+        conf = {
+            width : $("#chart1").width(),
+            height: $("#chart1").height()
+        }
+    }
+
+    // SVG-to-PDFKit is not compatible with NVD3. Add attributes in svg
+    svgAddAttr(selected);
+
+    let svg = document.querySelector('#chart1 > svg');
+    sisob.util.svgToPdf(svg, conf);
+
+    // SVG-to-PDFKit is not compatible with NVD3. Undo - Add attributes in svg
+    svgUndoAddAttr(selected);
+    
+    function svgAddAttr(visualizationSelected){
+
+        if(visualizationSelected !== "wordCloud"){
+            $("#chart1 text").attr("font-size", "12"); 
+            $("g.tick > line").attr("stroke", "#e5e5e5");
+            $("path.domain").attr("stroke", "black"); 
+            $("g.nv-disabled circle").attr("fill-opacity","0"); 
+
+            if(visualizationSelected === "temporalEvolution"){
+                $("path.nv-line").attr("fill", "none");
+                $("path.nv-point")
+                    .attr("fill-opacity","0")
+                    .attr("stroke-opacity","0");
+
+                // if uses a range of time
+                $("g.nv-point-paths path")
+                    .attr("stroke","#aaa")
+                    .attr("stroke-opacity","0")
+                    .attr("fill","#eee")
+                    .attr("fill-opacity","0");
+
+                $("g.nv-brushBackground rect.left, g.nv-brushBackground rect.right")
+                    .attr("stroke","#000")
+                    .attr("stroke-width",".4")
+                    .attr("fill","#fff")
+                    .attr("fill-opacity",".7");
+
+                $("g.nv-x.nv-brush rect.extent")
+                    .attr("fill-opacity","0");
+
+                $("g.resize.e path, g.resize.w path")
+                    .attr("fill", "#eee")
+                    .attr("stroke", "#666");
+            }
+        }
+    }
+
+    function svgUndoAddAttr(visualizationSelected){
+
+        if(visualizationSelected !== "wordCloud"){
+            $("#chart1 text").removeAttr("font-size");
+            $("g.tick > line").removeAttr("stroke");
+            $("path.domain").removeAttr("stroke");
+            $("g.nv-disabled circle").removeAttr("fill-opacity");
+
+            if(visualizationSelected === "temporalEvolution"){
+                $("path.nv-line").removeAttr("fill")
+                $("path.nv-point")
+                    .removeAttr("fill-opacity")
+                    .removeAttr("stroke-opacity");
+
+                // if uses a range of time
+                $("g.nv-point-paths path")
+                    .removeAttr("stroke")
+                    .removeAttr("stroke-opacity")
+                    .removeAttr("fill")
+                    .removeAttr("fill-opacity");
+
+                $("g.nv-brushBackground rect.left, g.nv-brushBackground rect.right")
+                    .removeAttr("stroke")
+                    .removeAttr("stroke-width")
+                    .removeAttr("fill")
+                    .removeAttr("fill-opacity");
+
+                $("g.nv-x.nv-brush rect.extent")
+                    .removeAttr("fill-opacity"); 
+
+                $("g.resize.e path, g.resize.w path")
+                    .removeAttr("fill")
+                    .removeAttr("stroke");
+            }
+        }
+    }
+};      

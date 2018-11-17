@@ -82,19 +82,25 @@
             <h4 style="text-align: center">
                 <fmt:message key="Jsp_euParliament_visualizations_title" bundle="${msg}"/>
             </h4>
+            
+            <button type="button"  class="btn btn-primary" style="float: right;margin-top: -35px;"
+                    onclick="sisob.euParliament.visualizations.clickDownload()">
+                Download
+             </button>
 
             <fmt:message key="Jsp_euParliament_visualizations_selectVisualizations" bundle="${msg}"/>:
-            <select class="chzn-select" id="visualization-selector" onchange="sisob.euParliament.visualizations.changeSelector();">   
+            <select class="chzn-select" id="visualization-selector" 
+                    onchange="sisob.euParliament.visualizations.changeSelector();">   
                 <c:forEach items="${visualizationTypes}" var="iType">
                     <option value="${iType[0]}">${iType[1]}</option>
                 </c:forEach>
             </select>
 
             <div id="chart1"></div>
-            
-            <script>
-                sisob.euParliament.visualizations.init(${param.task_code});    
-            </script>
         </div>
+            
+        <script>
+            sisob.euParliament.visualizations.init(${param.task_code});
+        </script>    
     </jsp:body>
 </t:generic-template>

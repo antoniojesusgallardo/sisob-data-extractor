@@ -55,3 +55,39 @@ sisob.util.isDateEquals = function (date1, date2){
     }
     return rRes;
 };
+
+sisob.util.svgToPdf = function (svg, conf){
+
+    var pdfConf = {
+        compress: false, 
+        layout: 'landscape'
+    }
+
+    if(conf != null){
+        pdfConf.size = [conf.height, conf.width];
+    }
+
+    var doc = new PDFDocument(pdfConf);
+    doc.fontSize(20).text(svg.id, {underline: true});
+    SVGtoPDF(doc, svg.outerHTML || svg, 0, 0);
+
+    var stream = doc.pipe(blobStream());
+    doc.end();
+    stream.on('finish', function() {
+        var blob = stream.toBlob('application/pdf');
+
+        var obj_url = URL.createObjectURL(blob);
+
+        var today = new Date();
+        var todayString = today.toISOString().slice(0, 10);
+
+        var a = document.createElement("a");
+        document.body.appendChild(a);
+        a.style = "display: none";
+        a.href = obj_url;
+        a.download = todayString + "-visualization.pdf";
+        a.click();
+        a.parentNode.removeChild(a);
+        window.URL.revokeObjectURL(obj_url);
+    });
+}; 

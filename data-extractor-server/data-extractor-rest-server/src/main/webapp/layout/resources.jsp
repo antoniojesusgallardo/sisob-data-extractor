@@ -100,6 +100,11 @@
 <!-- The XDomainRequest Transport is included for cross-domain file deletion for IE8+ -->
 <!--[if gte IE 8]><script src="static/js/cors/jquery.xdr-transport.js"></script><![endif]-->
 
+<%-- Library - SVG-to-PDFKit - https://github.com/alafr/SVG-to-PDFKit --%>
+<script src="static/js/svgToPdf/pdfkit.js"></script>
+<script src="static/js/svgToPdf/blobstream.js"></script>
+<script src="static/js/svgToPdf/source.js"></script>
+
 <%-- JavaScript Development --%>
 
 <script src="static/js/sisob/util.js?v.${version}" ></script>
